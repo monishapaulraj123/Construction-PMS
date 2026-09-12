@@ -1,0 +1,67 @@
+:root {
+  /* ---- Color: forest / cream / gold construction palette ---- */
+  --forest-950: #244a3f;
+  --forest-900: #2f5d50;
+  --forest-800: #386e5f;
+  --forest-700: #427f6d;
+  --forest-600: #4e9382;
+  --forest-line: rgba(255, 255, 255, 0.08);
+
+  --cream-100: #f7f2e7;
+  --cream-050: #fbf8f1;
+  --sand-100: #efe7d4;
+
+  --paper: #ffffff;
+
+  --ink-900: #262218;
+  --ink-700: #4a453a;
+  --ink-500: #7d7666;
+  --ink-300: #a9a294;
+
+  --line-100: #ece3d0;
+  --line-200: #e1d6bd;
+
+  --gold-600: #b8934f;
+  --gold-500: #d4b06a;
+  --gold-400: #ddbe83;
+  --gold-100: #f4e6c8;
+  --gold-050: #faf1de;
+
+  --green-700: #4a927e;
+  --green-500: #6eb6a2;
+  --green-100: #deede9;
+
+  --amber-600: #a76a1f;
+  --amber-500: #c98a3e;
+  --amber-100: #f6e6cd;
+
+  --red-600: #a24d43;
+  --red-500: #bf6155;
+  --red-100: #f3ded9;
+
+  --gray-500: #8b8578;
+  --gray-100: #eeeae0;
+
+  /* ---- Type ---- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --fs-2xl: 2.05rem;
+  --fs-xl: 1.5rem;
+  --fs-lg: 1.15rem;
+  --fs-md: 0.98rem;
+  --fs-sm: 0.86rem;
+  --fs-xs: 0.76rem;
+
+  /* ---- Spacing / shape ---- */
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(38, 34, 24, 0.04), 0 8px 24px -12px rgba(38, 34, 24, 0.12);
+  --shadow-pop: 0 12px 32px -8px rgba(28, 50, 38, 0.22);
+
+  --sidebar-w: 264px;
+  --header-h: 76px;
+}
