@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, User2, HardHat } from 'lucide-react'
+import { MapPin, User2, HardHat, Layers } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import ProgressBar from './ProgressBar'
 import { formatCurrencyINR, formatDate } from '../utils/format'
@@ -16,7 +16,7 @@ export default function ProjectCard({ project }) {
         <div>
           <div className="project-card-title cell-primary">{project.project_name}</div>
           <div className="project-card-code">
-            {project.project_code} · {project.construction_type_name}
+            {project.project_code} · {project.construction_type_name} {project.project_type_name ? `(${project.project_type_name})` : ''}
           </div>
         </div>
         <div className="project-card-meta">
@@ -27,8 +27,13 @@ export default function ProjectCard({ project }) {
             <HardHat size={13} /> {project.supervisor_name}
           </span>
           <span>
-            <MapPin size={13} /> {project.city}
+            <MapPin size={13} /> {project.city} {project.state ? `, ${project.state}` : ''}
           </span>
+          {project.no_of_floors && (
+            <span>
+              <Layers size={13} /> {project.no_of_floors} Floors
+            </span>
+          )}
         </div>
         <ProgressBar value={project.overall_progress_percentage} showLabel />
         <div className="project-card-stats">

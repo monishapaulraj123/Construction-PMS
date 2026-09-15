@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Eye } from 'lucide-react'
 import EmptyState from './EmptyState'
 
 const PAGE_SIZE = 6
 
-export default function DataTable({ columns, rows, onEdit, onDelete, keyField = 'id', emptyMessage = 'No records found' }) {
+export default function DataTable({ columns, rows, onEdit, onDelete, onView, keyField = 'id', emptyMessage = 'No records found' }) {
   const [page, setPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const start = (page - 1) * PAGE_SIZE
@@ -26,7 +26,7 @@ export default function DataTable({ columns, rows, onEdit, onDelete, keyField = 
             {columns.map((col) => (
               <th key={col.key}>{col.label}</th>
             ))}
-            {(onEdit || onDelete) && <th style={{ textAlign: 'right' }}>Actions</th>}
+            {(onEdit || onDelete || onView) && <th style={{ textAlign: 'right' }}>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -35,9 +35,14 @@ export default function DataTable({ columns, rows, onEdit, onDelete, keyField = 
               {columns.map((col) => (
                 <td key={col.key}>{col.render ? col.render(row) : row[col.key]}</td>
               ))}
-              {(onEdit || onDelete) && (
+              {(onEdit || onDelete || onView) && (
                 <td>
                   <div className="row-actions">
+                    {onView && (
+                      <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => onView(row)} aria-label="View Details">
+                        <Eye size={14} />
+                      </button>
+                    )}
                     {onEdit && (
                       <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => onEdit(row)} aria-label="Edit">
                         <Pencil size={14} />

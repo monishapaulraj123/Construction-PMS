@@ -23,6 +23,7 @@ export default function MasterDataPage({
   searchKeys,
   keyField = 'id',
   extraFilter,
+  onView,
 }) {
   const [rows, setRows] = useState(initialData)
   const [search, setSearch] = useState('')
@@ -98,6 +99,7 @@ export default function MasterDataPage({
         columns={columns}
         rows={filtered}
         keyField={keyField}
+        onView={onView}
         onEdit={openEdit}
         onDelete={setDeleteTarget}
         emptyMessage={`No ${title.toLowerCase()} match your filters.`}

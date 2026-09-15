@@ -3,6 +3,8 @@ export function formatCurrencyINR(value) {
   return '₹' + Number(value).toLocaleString('en-IN')
 }
 
+export const formatCurrency = formatCurrencyINR
+
 export function formatDate(value) {
   if (!value) return '-'
   const d = new Date(value)

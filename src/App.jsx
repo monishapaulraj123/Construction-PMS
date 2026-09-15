@@ -10,6 +10,7 @@ import Items from './pages/Items'
 import Suppliers from './pages/Suppliers'
 import Services from './pages/Services'
 import ConstructionTypes from './pages/ConstructionTypes'
+import ProjectTypes from './pages/ProjectTypes'
 import ConstructionStages from './pages/ConstructionStages'
 import Clients from './pages/Clients'
 import Projects from './pages/Projects'
@@ -27,6 +28,11 @@ import Inspections from './pages/Inspections'
 import Rework from './pages/Rework'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
+import Contracts from './pages/Contracts'
+import WorkManagement from './pages/WorkManagement'
+import Payments from './pages/Payments'
+import LandBuying from './pages/LandBuying'
+import LandSales from './pages/LandSales'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -36,6 +42,13 @@ export default function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
 
+          <Route path="/real-estate/land-buying" element={<LandBuying />} />
+          <Route path="/real-estate/land-sales" element={<LandSales />} />
+
+          <Route path="/contracts" element={<Contracts />} />
+          <Route path="/work-management" element={<WorkManagement />} />
+          <Route path="/payments" element={<Payments />} />
+
           <Route path="/employee-types" element={<EmployeeTypes />} />
           <Route path="/employees" element={<Employees />} />
           <Route path="/item-categories" element={<ItemCategories />} />
@@ -43,6 +56,7 @@ export default function App() {
           <Route path="/suppliers" element={<Suppliers />} />
           <Route path="/services" element={<Services />} />
           <Route path="/construction-types" element={<ConstructionTypes />} />
+          <Route path="/project-types" element={<ProjectTypes />} />
           <Route path="/construction-stages" element={<ConstructionStages />} />
           <Route path="/clients" element={<Clients />} />
 

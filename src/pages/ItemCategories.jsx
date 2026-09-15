@@ -34,13 +34,13 @@ export default function ItemCategories() {
     ])
     setModalOpen(false)
     setForm({ category_code: '', category_name: '', description: '' })
-    showToast('Item category added successfully')
+    showToast('Material category added successfully')
   }
 
   return (
     <div>
       <div className="toolbar">
-        <SearchBar placeholder="Search item categories..." value={search} onChange={setSearch} />
+        <SearchBar placeholder="Search material categories..." value={search} onChange={setSearch} />
         <div style={{ flex: 1 }} />
         <PrimaryButton icon={Plus} onClick={() => setModalOpen(true)}>
           + Add Category
@@ -49,20 +49,20 @@ export default function ItemCategories() {
 
       <div className="card-grid">
         {filtered.map((cat) => {
-          const Icon = Icons[cat.icon] || Icons.Package
+          const Icon = Icons[cat.icon] || Icons.Boxes
           return (
             <div className="entity-card" key={cat.category_id} style={{ padding: 0, overflow: 'hidden' }}>
-              <div className="entity-card-media" style={{ backgroundImage: `url(${cat.image})` }}>
-                <div className="entity-card-icon-badge">
-                  <Icon size={20} />
+              <div className="entity-card-media" style={{ backgroundImage: `url(${cat.image})`, height: 160, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                <div className="entity-card-icon-badge" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--paper)', padding: 8, borderRadius: 'var(--radius-sm)', display: 'flex', boxShadow: 'var(--shadow-card)' }}>
+                  <Icon size={18} style={{ color: 'var(--forest-900)' }} />
                 </div>
               </div>
-              <div className="entity-card-body">
-                <h3>{cat.category_name}</h3>
-                <p className="entity-meta">{cat.description}</p>
-                <div className="entity-card-foot">
+              <div className="entity-card-body" style={{ padding: 16 }}>
+                <h3 style={{ fontSize: '1.05rem', marginBottom: 4 }}>{cat.category_name}</h3>
+                <p className="entity-meta" style={{ fontSize: '0.82rem', color: 'var(--ink-500)', marginBottom: 12 }}>{cat.description}</p>
+                <div className="entity-card-foot" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className="text-muted" style={{ fontSize: '0.78rem' }}>
-                    {cat.items_count} items
+                    {cat.items_count} materials
                   </span>
                   <StatusBadge status={cat.status ? 'Active' : 'Inactive'} />
                 </div>
@@ -75,7 +75,7 @@ export default function ItemCategories() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add Item Category"
+        title="Add Material Category"
         footer={
           <>
             <SecondaryButton onClick={() => setModalOpen(false)}>Cancel</SecondaryButton>

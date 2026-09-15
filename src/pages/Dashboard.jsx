@@ -8,15 +8,19 @@ import {
   AlertTriangle,
   Gauge,
   Plus,
-  UserPlus,
-  PackagePlus,
+  Landmark,
+  Wallet,
+  Wrench,
   ClipboardList,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import ProjectCard from '../components/ProjectCard'
 import ActivityFeed from '../components/ActivityFeed'
 import { PrimaryButton, SecondaryButton } from '../components/Buttons'
-import { projects, recentActivities } from '../data/mockData'
+import { projects, recentActivities, payments, items as materialsList, landBuying } from '../data/mockData'
+import { formatCurrencyINR } from '../utils/format'
 
 export default function Dashboard() {
   const activeProjects = projects.filter((p) => p.project_status !== 'Planning')
@@ -24,57 +28,69 @@ export default function Dashboard() {
   const delayed = projects.filter((p) => p.project_status === 'Delayed').length
   const avgProgress = Math.round(projects.reduce((sum, p) => sum + p.overall_progress_percentage, 0) / projects.length)
 
+  const totalIncome = payments.filter((p) => p.payment_type === 'Income').reduce((sum, p) => sum + (p.amount || 0), 0)
+  const totalExpense = payments.filter((p) => p.payment_type === 'Expense').reduce((sum, p) => sum + (p.amount || 0), 0)
+  const netBalance = totalIncome - totalExpense
+
+  const lowStockMaterials = materialsList.filter((m) => (m.quantity_inhand ?? 0) <= (m.minimum_stock_level ?? 0))
+
   return (
     <div>
       <div className="hero-banner">
         <div className="hero-banner-inner">
-          <h2>Good Morning 👋</h2>
-          <p>Manage your construction operations from one place.</p>
+          <h2>Real Estate & Construction Management System 👋</h2>
+          <p>Real-time oversight across land acquisitions, construction projects, contractor services, and financials.</p>
           <div className="hero-banner-actions">
-            <PrimaryButton icon={Plus}>New Project</PrimaryButton>
-            <SecondaryButton icon={UserPlus} className="btn-on-dark">
-              Add Client
-            </SecondaryButton>
-            <SecondaryButton icon={PackagePlus} className="btn-on-dark">
-              Add Material
-            </SecondaryButton>
+            <Link to="/projects">
+              <PrimaryButton icon={Plus}>New Project</PrimaryButton>
+            </Link>
+            <Link to="/real-estate/land-buying">
+              <SecondaryButton icon={Landmark} className="btn-on-dark">
+                Acquire Land
+              </SecondaryButton>
+            </Link>
+            <Link to="/payments">
+              <SecondaryButton icon={Wallet} className="btn-on-dark">
+                Record Payment
+              </SecondaryButton>
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="stat-grid">
-        <StatCard icon={FolderKanban} iconBg="var(--forest-900)" iconColor="#fff" value="12" label="Total Projects" trend="+8.4%" />
-        <StatCard icon={Activity} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value="8" label="Active Projects" trend="+12.5%" />
-        <StatCard icon={Users2} iconBg="var(--green-100)" iconColor="var(--green-700)" value="24" label="Total Clients" trend="+5.2%" />
-        <StatCard icon={Truck} iconBg="var(--cream-100)" iconColor="var(--forest-700)" value="18" label="Active Suppliers" trend="+3.1%" />
+        <StatCard icon={FolderKanban} iconBg="var(--forest-900)" iconColor="#fff" value={projects.length.toString()} label="Total Projects" trend="+8.4%" />
+        <StatCard icon={Activity} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value={activeProjects.length.toString()} label="Active Sites" trend="+12.5%" />
+        <StatCard icon={Landmark} iconBg="var(--green-100)" iconColor="var(--forest-900)" value={landBuying.length.toString()} label="Land Assets" trend="+1 parcel" />
+        <StatCard icon={Wallet} iconBg="var(--gold-050)" iconColor="var(--forest-900)" value={formatCurrencyINR(netBalance)} label="Net Cash Balance" trend="Positive" />
       </div>
 
       <div className="mini-stat-row">
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: 'var(--green-100)', color: 'var(--green-700)' }}>
-            <CalendarCheck2 size={19} />
+          <div className="mini-stat-icon" style={{ background: '#dcfce7', color: '#15803d' }}>
+            <ArrowDownLeft size={19} />
           </div>
           <div>
-            <h4>{nearCompletion} Projects</h4>
-            <span>Near Completion</span>
+            <h4>{formatCurrencyINR(totalIncome)}</h4>
+            <span>Income Received</span>
           </div>
         </div>
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: 'var(--red-100)', color: 'var(--red-600)' }}>
-            <AlertTriangle size={19} />
+          <div className="mini-stat-icon" style={{ background: '#fee2e2', color: '#b91c1c' }}>
+            <ArrowUpRight size={19} />
           </div>
           <div>
-            <h4>{delayed} Project</h4>
-            <span>Delayed Projects</span>
+            <h4>{formatCurrencyINR(totalExpense)}</h4>
+            <span>Expenses Outflow</span>
           </div>
         </div>
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: 'var(--gold-050)', color: 'var(--gold-600)' }}>
+          <div className="mini-stat-icon" style={{ background: 'var(--gold-050)', color: 'var(--forest-900)' }}>
             <Gauge size={19} />
           </div>
           <div>
             <h4>{avgProgress}%</h4>
-            <span>Overall Project Progress</span>
+            <span>Avg Site Progress</span>
           </div>
         </div>
       </div>
@@ -83,11 +99,11 @@ export default function Dashboard() {
         <div>
           <div className="section-head">
             <div>
-              <h3>Project Progress</h3>
-              <p className="section-desc">Active and upcoming projects across all sites</p>
+              <h3>Active Construction Projects</h3>
+              <p className="section-desc">Stage-wise execution progress on active sites</p>
             </div>
             <Link to="/projects" className="btn btn-secondary btn-sm">
-              View All
+              View All Projects
             </Link>
           </div>
           <div className="project-grid">
@@ -97,17 +113,40 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card card-pad">
-          <div className="section-head" style={{ marginBottom: 18 }}>
-            <div>
-              <h3>Recent Activities</h3>
-              <p className="section-desc">Latest updates across your projects</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {lowStockMaterials.length > 0 && (
+            <div className="card card-pad" style={{ borderLeft: '4px solid var(--gold-500)', background: 'var(--gold-050)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <AlertTriangle size={18} style={{ color: 'var(--amber-600, #d97706)' }} />
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Low Stock Alert</h4>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--ink-700)', marginBottom: 10 }}>
+                {lowStockMaterials.length} material(s) have reached minimum inventory threshold:
+              </p>
+              {lowStockMaterials.map((m) => (
+                <div key={m.material_id || m.item_id} style={{ fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dashed var(--line-200)' }}>
+                  <span><strong>{m.material_name || m.item_name}</strong></span>
+                  <span style={{ color: '#b45309', fontWeight: 700 }}>{m.quantity_inhand} / Min {m.minimum_stock_level} {m.unit_of_measure}</span>
+                </div>
+              ))}
+              <Link to="/items" className="btn btn-secondary btn-sm" style={{ marginTop: 10, alignSelf: 'flex-start' }}>
+                Manage Inventory
+              </Link>
             </div>
+          )}
+
+          <div className="card card-pad">
+            <div className="section-head" style={{ marginBottom: 18 }}>
+              <div>
+                <h3>Recent Site Activities</h3>
+                <p className="section-desc">Live progress and site updates feed</p>
+              </div>
+            </div>
+            <ActivityFeed items={recentActivities} />
+            <Link to="/progress-updates" className="btn btn-ghost btn-block" style={{ marginTop: 16 }}>
+              <ClipboardList size={15} /> View All Activity
+            </Link>
           </div>
-          <ActivityFeed items={recentActivities} />
-          <Link to="/progress-updates" className="btn btn-ghost btn-block" style={{ marginTop: 16 }}>
-            <ClipboardList size={15} /> View All Activity
-          </Link>
         </div>
       </div>
     </div>

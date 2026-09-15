@@ -23,6 +23,12 @@ import {
   BarChart3,
   Settings,
   HardHat,
+  Home,
+  Landmark,
+  ShoppingBag,
+  FileText,
+  CheckSquare,
+  Wallet,
 } from 'lucide-react'
 
 const sections = [
@@ -31,15 +37,34 @@ const sections = [
     links: [{ to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true }],
   },
   {
+    label: 'REAL ESTATE',
+    links: [
+      { to: '/real-estate/land-buying', label: 'Land Buying', icon: Landmark },
+      { to: '/real-estate/land-sales', label: 'Land Sales', icon: ShoppingBag },
+    ],
+  },
+  {
+    label: 'SERVICES & CONTRACTS',
+    links: [
+      { to: '/services', label: 'Services', icon: Wrench },
+      { to: '/contracts', label: 'Contracts', icon: FileText },
+      { to: '/work-management', label: 'Work Management', icon: CheckSquare },
+    ],
+  },
+  {
+    label: 'FINANCIALS',
+    links: [{ to: '/payments', label: 'Payments', icon: Wallet }],
+  },
+  {
     label: 'MASTER DATA',
     links: [
       { to: '/employee-types', label: 'Employee Types', icon: UserSquare2 },
       { to: '/employees', label: 'Employees', icon: Users },
-      { to: '/item-categories', label: 'Item Categories', icon: Boxes },
-      { to: '/items', label: 'Items', icon: Package },
+      { to: '/item-categories', label: 'Material Categories', icon: Boxes },
+      { to: '/items', label: 'Materials', icon: Package },
       { to: '/suppliers', label: 'Suppliers', icon: Truck },
-      { to: '/services', label: 'Services', icon: Wrench },
       { to: '/construction-types', label: 'Construction Types', icon: Building2 },
+      { to: '/project-types', label: 'Project Types', icon: Home },
       { to: '/construction-stages', label: 'Construction Stages', icon: GanttChartSquare },
       { to: '/clients', label: 'Clients', icon: UserSquare2 },
     ],
@@ -58,7 +83,7 @@ const sections = [
     label: 'MATERIAL MANAGEMENT',
     links: [
       { to: '/materials/requests', label: 'Material Requests', icon: ClipboardList },
-      { to: '/materials/quotations', label: 'Quotations', icon: FileSpreadsheet },
+      { to: '/materials/quotations', label: 'Quotations & Approval', icon: FileSpreadsheet },
       { to: '/materials/orders', label: 'Orders', icon: ShoppingCart },
       { to: '/materials/deliveries', label: 'Deliveries', icon: PackageCheck },
       { to: '/materials/inventory', label: 'Inventory', icon: Warehouse },
