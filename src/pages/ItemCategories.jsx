@@ -28,7 +28,7 @@ export default function ItemCategories() {
         items_count: 0,
         status: true,
         icon: 'Package',
-        image: 'https://images.unsplash.com/photo-1590674899484-13da0d1b0f45?q=80&w=400&auto=format&fit=crop',
+        image: '/images/categories/cement.jpg',
       },
       ...cs,
     ])
