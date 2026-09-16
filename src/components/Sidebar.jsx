@@ -51,7 +51,7 @@ const adminStandaloneLink = {
 // Collapsible module sections for ADMIN
 const adminSections = [
   {
-    label: 'REAL ESTATE',
+    label: 'Real Estate',
     links: [
       { to: '/real-estate/overview', label: 'Overview', icon: LayoutDashboard },
       { to: '/real-estate/properties', label: 'Properties', icon: Building },
@@ -63,7 +63,7 @@ const adminSections = [
     ],
   },
   {
-    label: 'SERVICES & CONTRACTS',
+    label: 'Services & Contracts',
     links: [
       { to: '/services', label: 'Services', icon: Wrench },
       { to: '/contracts', label: 'Contracts', icon: FileText },
@@ -71,11 +71,11 @@ const adminSections = [
     ],
   },
   {
-    label: 'FINANCIALS',
+    label: 'Financials',
     links: [{ to: '/payments', label: 'Payments', icon: Wallet }],
   },
   {
-    label: 'MASTER DATA',
+    label: 'Master Data',
     links: [
       { to: '/employee-types', label: 'Employee Types', icon: UserSquare2 },
       { to: '/employees', label: 'Employees', icon: Users },
@@ -89,7 +89,7 @@ const adminSections = [
     ],
   },
   {
-    label: 'PROJECT MANAGEMENT',
+    label: 'Project Management',
     links: [
       { to: '/projects', label: 'Projects', icon: FolderKanban },
       { to: '/project-planning', label: 'Project Planning', icon: CalendarClock },
@@ -99,7 +99,7 @@ const adminSections = [
     ],
   },
   {
-    label: 'MATERIAL MANAGEMENT',
+    label: 'Material Management',
     links: [
       { to: '/materials/requests', label: 'Material Requests', icon: ClipboardList },
       { to: '/materials/quotations', label: 'Quotations & Approval', icon: FileSpreadsheet },
@@ -109,7 +109,7 @@ const adminSections = [
     ],
   },
   {
-    label: 'QUALITY & REPORTS',
+    label: 'Quality & Reports',
     links: [
       { to: '/inspections', label: 'Inspections', icon: ClipboardCheck },
       { to: '/rework', label: 'Rework', icon: RotateCcw },
@@ -129,7 +129,7 @@ const clientStandaloneLink = {
 // Collapsible module sections for CLIENT
 const clientSections = [
   {
-    label: 'BUY & SELL ACTIVITIES',
+    label: 'Buy & Sell Activities',
     links: [
       { to: '/client/buy', label: 'Buy Land / Property', icon: Building },
       { to: '/client/sell', label: 'Sell Land / Property', icon: PlusCircle },
@@ -137,7 +137,7 @@ const clientSections = [
     ],
   },
   {
-    label: 'TRANSACTIONS & DOCUMENTS',
+    label: 'Transactions & Documents',
     links: [
       { to: '/client/transactions', label: 'My Transactions', icon: CreditCard },
       { to: '/client/documents', label: 'Documents', icon: FileText },
@@ -239,10 +239,9 @@ export default function Sidebar({ open, onNavigate }) {
               >
                 <span
                   style={{
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.01em',
                   }}
                 >
                   {section.label}
