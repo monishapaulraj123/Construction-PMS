@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import {
+  users as initialUsers,
   employees as initialEmployees,
   services as initialServices,
   projects as initialProjects,
@@ -184,7 +185,9 @@ const defaultNegotiations = [
     request_id: 301,
     property_id: 101,
     property_name: 'ECR Sea Breeze Coastal Plot',
+    buyer_id: 501,
     buyer_name: 'Ravi Kumar',
+    seller_id: 201,
     seller_name: 'Santhosh Landowners',
     initial_price: 20160000,
     proposed_price: 19500000,
@@ -200,7 +203,9 @@ const defaultNegotiations = [
     request_id: 302,
     property_id: 103,
     property_name: 'Green Valley Premium Villa Plot #14',
+    buyer_id: 502,
     buyer_name: 'Anand Sharma',
+    seller_id: 203,
     seller_name: 'Kavitha Landowner',
     initial_price: 13920000,
     proposed_price: 13500000,
@@ -219,8 +224,10 @@ const defaultTransactions = [
     request_id: 302,
     property_id: 103,
     property_name: 'Green Valley Premium Villa Plot #14',
+    buyer_id: 502,
     buyer_name: 'Anand Sharma',
     buyer_contact: '9840998877',
+    seller_id: 203,
     seller_name: 'Kavitha Landowner',
     seller_contact: '9840112233',
     agreed_amount: 13800000,
@@ -238,8 +245,10 @@ const defaultTransactions = [
     request_id: 300,
     property_id: 101,
     property_name: 'ECR Sea Breeze Coastal Plot',
+    buyer_id: 501,
     buyer_name: 'Ravi Kumar',
     buyer_contact: '9791122334',
+    seller_id: 201,
     seller_name: 'Santhosh Landowners',
     seller_contact: '9841029384',
     agreed_amount: 20160000,
@@ -254,24 +263,32 @@ const defaultTransactions = [
 ]
 
 export function AppProvider({ children }) {
+  const [usersList, setUsersList] = useState(initialUsers)
+
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('cpms_user')
       if (saved && saved !== 'undefined' && saved !== 'null') {
         const parsed = JSON.parse(saved)
         if (parsed && typeof parsed === 'object' && parsed.role) {
-          return parsed
+          let role = String(parsed.role).toUpperCase()
+          if (role === 'BUYER' || role === 'SELLER') role = 'CLIENT'
+          return { ...parsed, role }
         }
       }
     } catch (e) {
       console.error('Error reading cpms_user from localStorage', e)
     }
-    return { role: 'admin', name: 'Administrator', email: 'admin@constructionpms.in' }
+    return null
   })
 
   useEffect(() => {
     try {
-      localStorage.setItem('cpms_user', JSON.stringify(currentUser))
+      if (currentUser) {
+        localStorage.setItem('cpms_user', JSON.stringify(currentUser))
+      } else {
+        localStorage.removeItem('cpms_user')
+      }
     } catch (e) {
       console.error('Error saving cpms_user to localStorage', e)
     }
@@ -288,18 +305,40 @@ export function AppProvider({ children }) {
   const [projects, setProjects] = useState(initialProjects)
   const [assignments, setAssignments] = useState(initialEmployeeAssignments)
 
-  const login = (role, email) => {
-    let name = 'Administrator'
-    if (role === 'buyer') name = 'Ravi Kumar (Buyer)'
-    if (role === 'seller') name = 'Santhosh (Seller)'
+  const login = (email, password) => {
+    const trimmed = (email || '').trim().toLowerCase()
+    const foundUser = usersList.find(
+      (u) => u.email.toLowerCase() === trimmed || u.name.toLowerCase() === trimmed
+    )
 
-    const user = { role, email: email || `${role}@constructionpms.in`, name }
-    setCurrentUser(user)
-    return user
+    if (!foundUser) {
+      return { success: false, error: 'User account not found in database.' }
+    }
+
+    if (password && foundUser.password_hash && password !== foundUser.password_hash) {
+      return { success: false, error: 'Invalid password. Please check your credentials.' }
+    }
+
+    const sessionUser = {
+      user_id: foundUser.user_id,
+      name: foundUser.name,
+      email: foundUser.email,
+      role: foundUser.role, // ONLY "ADMIN" or "CLIENT"
+      phone: foundUser.phone || '',
+      status: foundUser.status || 'Active',
+    }
+
+    setCurrentUser(sessionUser)
+    return { success: true, user: sessionUser }
   }
 
   const logout = () => {
-    setCurrentUser({ role: 'admin', name: 'Administrator', email: 'admin@constructionpms.in' })
+    setCurrentUser(null)
+    try {
+      localStorage.removeItem('cpms_user')
+    } catch (e) {
+      console.error('Error removing cpms_user', e)
+    }
   }
 
   const submitBuyRequest = (requestData) => {
@@ -307,10 +346,10 @@ export function AppProvider({ children }) {
     const newReq = {
       request_id: newId,
       request_code: `REQ-BUY-${100 + newId}`,
-      buyer_id: 500 + newId,
-      buyer_name: currentUser.role === 'buyer' ? currentUser.name : requestData.buyer_name || 'Buyer',
-      buyer_email: currentUser.email,
-      buyer_phone: requestData.buyer_phone || '9840001122',
+      buyer_id: currentUser?.user_id || 500 + newId,
+      buyer_name: currentUser?.name || requestData.buyer_name || 'Client',
+      buyer_email: currentUser?.email || requestData.buyer_email || '',
+      buyer_phone: currentUser?.phone || requestData.buyer_phone || '9840001122',
       status: 'Submitted',
       current_stage: 'Submitted',
       submitted_date: new Date().toISOString().split('T')[0],
@@ -326,9 +365,10 @@ export function AppProvider({ children }) {
     const newProp = {
       property_id: newPropId,
       property_code: `PROP-${String(newPropId).padStart(3, '0')}`,
-      seller_name: currentUser.role === 'seller' ? currentUser.name : propertyData.seller_name || 'Seller',
-      seller_email: currentUser.email,
-      seller_phone: propertyData.seller_phone || '9840009988',
+      seller_id: currentUser?.user_id || 200 + newPropId,
+      seller_name: currentUser?.name || propertyData.seller_name || 'Client',
+      seller_email: currentUser?.email || propertyData.seller_email || '',
+      seller_phone: currentUser?.phone || propertyData.seller_phone || '9840009988',
       status: 'Under Verification',
       publication_status: 'Unpublished',
       verification_status: 'Under Review',
@@ -342,6 +382,11 @@ export function AppProvider({ children }) {
     const newSellReq = {
       sell_request_id: newSellReqId,
       request_code: `REQ-SEL-${200 + newSellReqId}`,
+      property_id: newPropId,
+      seller_id: currentUser?.user_id || 200 + newSellReqId,
+      seller_name: currentUser?.name || propertyData.seller_name || 'Client',
+      seller_email: currentUser?.email || propertyData.seller_email || '',
+      seller_phone: currentUser?.phone || propertyData.seller_phone || '',
       status: 'Under Verification',
       submitted_date: new Date().toISOString().split('T')[0],
       ...propertyData,
@@ -488,8 +533,8 @@ export function useApp() {
   const ctx = useContext(AppContext)
   if (!ctx) {
     return {
-      currentUser: { role: 'admin', name: 'Administrator', email: 'admin@constructionpms.in' },
-      login: () => {},
+      currentUser: null,
+      login: () => ({ success: false, error: 'Context uninitialized' }),
       logout: () => {},
       properties: [],
       buyRequests: [],

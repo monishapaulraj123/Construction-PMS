@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
   Users,
@@ -33,18 +34,22 @@ import {
   Scale,
   CreditCard,
   PlusCircle,
-  Eye,
   Bell,
   UserCheck,
-  CheckCircle2,
+  ChevronRight,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 
+// Standalone top link for ADMIN
+const adminStandaloneLink = {
+  to: '/',
+  label: 'Dashboard',
+  icon: LayoutDashboard,
+  end: true,
+}
+
+// Collapsible module sections for ADMIN
 const adminSections = [
-  {
-    label: 'MAIN',
-    links: [{ to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true }],
-  },
   {
     label: 'REAL ESTATE',
     links: [
@@ -113,54 +118,69 @@ const adminSections = [
   },
 ]
 
-const buyerSections = [
+// Standalone top link for CLIENT
+const clientStandaloneLink = {
+  to: '/client/dashboard',
+  label: 'Client Dashboard',
+  icon: LayoutDashboard,
+  end: true,
+}
+
+// Collapsible module sections for CLIENT
+const clientSections = [
   {
-    label: 'BUYER PORTAL',
+    label: 'BUY & SELL ACTIVITIES',
     links: [
-      { to: '/buyer/dashboard', label: 'Buyer Dashboard', icon: LayoutDashboard, end: true },
-      { to: '/buyer/properties', label: 'Available Properties', icon: Building },
-      { to: '/buyer/requests', label: 'My Buy Requests', icon: Tag },
-      { to: '/buyer/negotiations', label: 'Negotiations', icon: Scale },
-      { to: '/buyer/transactions', label: 'Current Transactions', icon: CreditCard },
-      { to: '/buyer/documents', label: 'Documents', icon: FileText },
-      { to: '/buyer/notifications', label: 'Notifications', icon: Bell },
-      { to: '/buyer/profile', label: 'Profile', icon: UserCheck },
+      { to: '/client/buy', label: 'Buy Land / Property', icon: Building },
+      { to: '/client/sell', label: 'Sell Land / Property', icon: PlusCircle },
+      { to: '/client/requests', label: 'My Requests', icon: Tag },
     ],
   },
-]
-
-const sellerSections = [
   {
-    label: 'SELLER PORTAL',
+    label: 'TRANSACTIONS & DOCUMENTS',
     links: [
-      { to: '/seller/dashboard', label: 'Seller Dashboard', icon: LayoutDashboard, end: true },
-      { to: '/seller/properties', label: 'My Properties', icon: Building },
-      { to: '/seller/requests', label: 'My Sell Requests', icon: PlusCircle },
-      { to: '/seller/verification', label: 'Verification Status', icon: FileCheck2 },
-      { to: '/seller/buyer-interest', label: 'Buyer Interest', icon: Eye },
-      { to: '/seller/negotiations', label: 'Negotiations', icon: Scale },
-      { to: '/seller/transactions', label: 'Transactions', icon: CreditCard },
-      { to: '/seller/documents', label: 'Documents', icon: FileText },
-      { to: '/seller/notifications', label: 'Notifications', icon: Bell },
-      { to: '/seller/profile', label: 'Profile', icon: UserCheck },
+      { to: '/client/transactions', label: 'My Transactions', icon: CreditCard },
+      { to: '/client/documents', label: 'Documents', icon: FileText },
+      { to: '/client/notifications', label: 'Notifications', icon: Bell },
+      { to: '/client/profile', label: 'Profile', icon: UserCheck },
     ],
   },
 ]
 
 export default function Sidebar({ open, onNavigate }) {
+  const location = useLocation()
   const { currentUser } = useApp()
+  const userRole = String(currentUser?.role || '').toUpperCase()
 
-  let sections = adminSections
-  if (currentUser?.role === 'buyer') {
-    sections = buyerSections
-  } else if (currentUser?.role === 'seller') {
-    sections = sellerSections
+  const isClient = userRole === 'CLIENT'
+  const standaloneLink = isClient ? clientStandaloneLink : adminStandaloneLink
+  const sections = isClient ? clientSections : adminSections
+
+  const [expandedSection, setExpandedSection] = useState(null)
+
+  // Auto-expand section containing current active pathname
+  useEffect(() => {
+    const currentPath = location.pathname
+    const activeSec = sections.find((sec) =>
+      sec.links.some((l) => {
+        if (l.end) return l.to === currentPath
+        return currentPath === l.to || (l.to !== '/' && currentPath.startsWith(l.to))
+      })
+    )
+    if (activeSec) {
+      setExpandedSection(activeSec.label)
+    }
+  }, [location.pathname, userRole])
+
+  const toggleSection = (sectionLabel) => {
+    setExpandedSection((prev) => (prev === sectionLabel ? null : sectionLabel))
   }
 
   const avatarChar = String(currentUser?.name || 'A')[0]?.toUpperCase() || 'A'
 
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>
+      {/* Brand Header */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-mark">
           <HardHat size={20} />
@@ -172,28 +192,110 @@ export default function Sidebar({ open, onNavigate }) {
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {sections.map((section) => (
-          <div className="nav-section" key={section.label}>
-            <div className="nav-section-label">{section.label}</div>
-            {section.links.map((link) => {
-              const IconComp = link.icon
-              return (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  end={link.end}
-                  onClick={onNavigate}
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+        {/* Standalone Dashboard Link — ALWAYS visible, standalone, no dropdown arrow or subdivisions */}
+        <div style={{ marginBottom: '14px' }}>
+          <NavLink
+            to={standaloneLink.to}
+            end={standaloneLink.end}
+            onClick={onNavigate}
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+          >
+            <LayoutDashboard size={17} />
+            <span>{standaloneLink.label}</span>
+          </NavLink>
+        </div>
+
+        {/* Collapsible Module Sections */}
+        {sections.map((section) => {
+          const isExpanded = expandedSection === section.label
+          const hasActiveChild = section.links.some((l) => {
+            if (l.end) return l.to === location.pathname
+            return location.pathname === l.to || (l.to !== '/' && location.pathname.startsWith(l.to))
+          })
+
+          return (
+            <div className="nav-section-group" key={section.label} style={{ marginBottom: '6px' }}>
+              {/* Expandable Main Heading Row */}
+              <div
+                onClick={() => toggleSection(section.label)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: 'var(--radius-sm, 6px)',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  background: isExpanded ? 'rgba(255, 255, 255, 0.07)' : 'transparent',
+                  color: hasActiveChild ? 'var(--gold-400, #D4B06A)' : 'rgba(238, 243, 238, 0.78)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isExpanded) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
+                }}
+                onMouseLeave={(e) => {
+                  if (!isExpanded) e.currentTarget.style.background = 'transparent'
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                  }}
                 >
-                  {IconComp ? <IconComp size={17} /> : null}
-                  {link.label}
-                </NavLink>
-              )
-            })}
-          </div>
-        ))}
+                  {section.label}
+                </span>
+                <ChevronRight
+                  size={14}
+                  style={{
+                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                    opacity: 0.8,
+                    flexShrink: 0,
+                  }}
+                />
+              </div>
+
+              {/* Collapsible Subdivisions / Child Links */}
+              {isExpanded && (
+                <div
+                  style={{
+                    marginTop: '4px',
+                    marginBottom: '8px',
+                    paddingLeft: '8px',
+                    marginLeft: '12px',
+                    borderLeft: '2px solid rgba(212, 175, 106, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                  }}
+                >
+                  {section.links.map((link) => {
+                    const IconComp = link.icon
+                    return (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        end={link.end}
+                        onClick={onNavigate}
+                        className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                        style={{ fontSize: '0.84rem', padding: '8px 10px' }}
+                      >
+                        {IconComp ? <IconComp size={16} /> : null}
+                        <span>{link.label}</span>
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
 
+      {/* Sidebar Footer */}
       <div className="sidebar-footer">
         <NavLink to="/settings" onClick={onNavigate} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <Settings size={17} />

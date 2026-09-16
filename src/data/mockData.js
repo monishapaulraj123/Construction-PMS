@@ -2,6 +2,59 @@
 // Local mock data. Shaped precisely to mirror the 12-table DB design schema.
 // ---------------------------------------------------------------------------
 
+export const users = [
+  {
+    user_id: 1,
+    name: 'Administrator',
+    email: 'admin@constructionpms.in',
+    password_hash: 'password123',
+    role: 'ADMIN',
+    phone: '9840012345',
+    status: 'Active',
+    created_at: '2025-01-01',
+  },
+  {
+    user_id: 501,
+    name: 'Ravi Kumar',
+    email: 'ravi.kumar@gmail.com',
+    password_hash: 'password123',
+    role: 'CLIENT',
+    phone: '9791122334',
+    status: 'Active',
+    created_at: '2025-01-10',
+  },
+  {
+    user_id: 502,
+    name: 'Anand Sharma',
+    email: 'anand.sharma@gmail.com',
+    password_hash: 'password123',
+    role: 'CLIENT',
+    phone: '9840998877',
+    status: 'Active',
+    created_at: '2025-01-15',
+  },
+  {
+    user_id: 201,
+    name: 'Santhosh Landowners',
+    email: 'santhosh@landowners.in',
+    password_hash: 'password123',
+    role: 'CLIENT',
+    phone: '9841029384',
+    status: 'Active',
+    created_at: '2025-12-10',
+  },
+  {
+    user_id: 204,
+    name: 'Selvam Realities',
+    email: 'selvam@realities.in',
+    password_hash: 'password123',
+    role: 'CLIENT',
+    phone: '9843300112',
+    status: 'Active',
+    created_at: '2026-02-01',
+  },
+]
+
 export const employeeTypes = [
   { employee_type_id: 1, employee_type_code: 'ET-01', employee_type_name: 'Site Supervisor', description: 'Oversees day-to-day execution on site', status: true, created_at: '2025-11-02 10:00:00', created_by: 1 },
   { employee_type_id: 2, employee_type_code: 'ET-02', employee_type_name: 'Civil Engineer', description: 'Structural design and site engineering', status: true, created_at: '2025-11-02 10:00:00', created_by: 1 },

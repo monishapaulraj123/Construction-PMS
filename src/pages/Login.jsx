@@ -1,63 +1,39 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { HardHat, Shield, User, Store, ArrowRight, Lock, Mail } from 'lucide-react'
+import { Lock, Mail, AlertCircle, Eye, EyeOff, Building2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 
 export default function Login() {
-  const [role, setRole] = useState('admin') // 'admin' | 'buyer' | 'seller'
-  const [email, setEmail] = useState('admin@constructionpms.in')
-  const [password, setPassword] = useState('password123')
-  const { login } = useApp()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const { login, currentUser } = useApp()
   const navigate = useNavigate()
 
-  const getRoleHeader = () => {
-    switch (role) {
-      case 'admin':
-        return {
-          title: 'Company Administration Login',
-          subtitle: 'Manage construction projects, real estate listings, verification pipelines and contractor services.',
-          icon: Shield,
-          defaultEmail: 'admin@constructionpms.in',
-          badgeColor: 'var(--gold-500)',
-        }
-      case 'buyer':
-        return {
-          title: 'Buyer Portal Login',
-          subtitle: 'Browse available land plots, submit purchase requests and track price negotiations.',
-          icon: User,
-          defaultEmail: 'buyer@constructionpms.in',
-          badgeColor: '#2563eb',
-        }
-      case 'seller':
-        return {
-          title: 'Seller Portal Login',
-          subtitle: 'Submit land parcels for sale, track DTCP/title verification status and buyer interest.',
-          icon: Store,
-          defaultEmail: 'seller@constructionpms.in',
-          badgeColor: '#16a34a',
-        }
-      default:
-        return { title: 'Login', subtitle: '', icon: Shield, defaultEmail: '', badgeColor: 'var(--gold-500)' }
+  // If already logged in, redirect based on stored role
+  if (currentUser) {
+    if (currentUser.role === 'ADMIN') {
+      navigate('/', { replace: true })
+    } else if (currentUser.role === 'CLIENT') {
+      navigate('/client/dashboard', { replace: true })
     }
-  }
-
-  const roleMeta = getRoleHeader()
-  const RoleIcon = roleMeta.icon
-
-  function handleRoleSwitch(newRole) {
-    setRole(newRole)
-    if (newRole === 'admin') setEmail('admin@constructionpms.in')
-    if (newRole === 'buyer') setEmail('buyer@constructionpms.in')
-    if (newRole === 'seller') setEmail('seller@constructionpms.in')
   }
 
   function handleSubmit(e) {
     e.preventDefault()
-    login(role, email || roleMeta.defaultEmail)
-    if (role === 'buyer') {
-      navigate('/buyer/dashboard')
-    } else if (role === 'seller') {
-      navigate('/seller/dashboard')
+    setError('')
+
+    const res = login(email, password)
+    if (!res.success) {
+      setError(res.error || 'Authentication failed. Please check your credentials.')
+      return
+    }
+
+    if (res.user.role === 'ADMIN') {
+      navigate('/')
+    } else if (res.user.role === 'CLIENT') {
+      navigate('/client/dashboard')
     } else {
       navigate('/')
     }
@@ -71,199 +47,224 @@ export default function Login() {
         margin: 0,
         padding: 0,
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))',
-        background: 'var(--paper)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+        background: '#FAF7F2',
         overflowX: 'hidden',
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Left Half — Full Screen High Quality Image with Minimal Brand Badge */}
+      {/* Left Panel — Daylight Luxury Villa Image with Branding & Hero Tagline */}
       <div
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(20, 35, 30, 0.4) 0%, rgba(15, 28, 24, 0.65) 100%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1600&auto=format&fit=crop')`,
+          backgroundImage: `linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(240, 244, 242, 0.4) 100%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1600&auto=format&fit=crop')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          color: '#fff',
-          padding: '48px',
+          padding: '48px 56px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           minHeight: '100vh',
           boxSizing: 'border-box',
+          position: 'relative',
         }}
       >
-        {/* Top Brand Logo only - clean & uncluttered */}
+        {/* Top-Left Brand Mark Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              background: 'var(--gold-500)',
-              color: 'var(--forest-950)',
+              width: 50,
+              height: 50,
+              borderRadius: 12,
+              background: '#244B3F',
+              color: '#D4B06A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(212, 175, 55, 0.45)',
+              boxShadow: '0 6px 18px rgba(36, 75, 63, 0.25)',
+              flexShrink: 0,
             }}
           >
-            <HardHat size={28} />
+            <Building2 size={26} />
           </div>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#fff', letterSpacing: '-0.02em' }}>
+            <h1
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '1.65rem',
+                fontWeight: 700,
+                margin: 0,
+                color: '#1C3830',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.15,
+              }}
+            >
               Construction PMS
             </h1>
-            <p style={{ fontSize: '0.82rem', color: 'var(--gold-400)', margin: 0, fontWeight: 600 }}>
+            <p style={{ fontSize: '0.84rem', color: '#B38B3F', margin: '3px 0 0 0', fontWeight: 600, letterSpacing: '0.01em' }}>
               & Real Estate Management System
             </p>
           </div>
         </div>
 
-        {/* Bottom subtle copyright tag */}
-        <div style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+        {/* Middle Hero Section */}
+        <div style={{ maxWidth: 460, margin: 'auto 0 60px 0' }}>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '2.4rem',
+              fontWeight: 700,
+              color: '#1C3830',
+              lineHeight: 1.25,
+              margin: '0 0 14px 0',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Build Better Spaces,<br />Manage Smarter
+          </h2>
+          <p
+            style={{
+              fontSize: '0.95rem',
+              color: '#385248',
+              lineHeight: 1.55,
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            Streamline your construction projects, clients and resources — all in one place.
+          </p>
+        </div>
+
+        {/* Clean Footer (Bottom words/overlay removed as requested) */}
+        <div style={{ fontSize: '0.78rem', color: '#4A6359', fontWeight: 500 }}>
           © Construction Project Management & Real Estate Enterprise Platform
         </div>
       </div>
 
-      {/* Right Half — Full Screen Form Area */}
+      {/* Right Panel — Elegant Form Panel */}
       <div
         style={{
           padding: '48px 60px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          background: 'var(--paper)',
+          alignItems: 'center',
+          background: '#FAF7F2',
           minHeight: '100vh',
           boxSizing: 'border-box',
+          position: 'relative',
         }}
       >
-        <div style={{ maxWidth: 460, width: '100%', margin: '0 auto' }}>
-          <div style={{ marginBottom: 28 }}>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--ink-900)', margin: 0, letterSpacing: '-0.02em' }}>
-              Portal Sign In
-            </h2>
-            <p style={{ fontSize: '0.86rem', color: 'var(--ink-500)', marginTop: 6 }}>
-              Select your role context below to sign into your dashboard.
-            </p>
-          </div>
+        {/* Top-Right Decorative Corner Wave Accent */}
+        <svg
+          style={{ position: 'absolute', top: 0, right: 0, width: 180, height: 180, pointerEvents: 'none', opacity: 0.85 }}
+          viewBox="0 0 200 200"
+          fill="none"
+        >
+          <path d="M200 0H70C140 30 180 90 200 170V0Z" fill="#244B3F" />
+          <path d="M200 0H110C160 40 185 100 200 140V0Z" fill="#D4B06A" opacity="0.4" />
+        </svg>
 
-          {/* Role Switcher Tabs */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: 6,
-              background: 'var(--cream-100)',
-              padding: 4,
-              borderRadius: 10,
-              marginBottom: 24,
-              border: '1px solid var(--line-100)',
-            }}
-          >
-            <button
-              type="button"
-              className="btn"
-              style={{
-                padding: '10px 12px',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                borderRadius: 8,
-                background: role === 'admin' ? 'var(--paper)' : 'transparent',
-                color: role === 'admin' ? 'var(--forest-950)' : 'var(--ink-500)',
-                boxShadow: role === 'admin' ? 'var(--shadow-card)' : 'none',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onClick={() => handleRoleSwitch('admin')}
-            >
-              [ ADMIN ]
-            </button>
-            <button
-              type="button"
-              className="btn"
-              style={{
-                padding: '10px 12px',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                borderRadius: 8,
-                background: role === 'buyer' ? 'var(--paper)' : 'transparent',
-                color: role === 'buyer' ? '#2563eb' : 'var(--ink-500)',
-                boxShadow: role === 'buyer' ? 'var(--shadow-card)' : 'none',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onClick={() => handleRoleSwitch('buyer')}
-            >
-              [ BUYER ]
-            </button>
-            <button
-              type="button"
-              className="btn"
-              style={{
-                padding: '10px 12px',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                borderRadius: 8,
-                background: role === 'seller' ? 'var(--paper)' : 'transparent',
-                color: role === 'seller' ? '#16a34a' : 'var(--ink-500)',
-                boxShadow: role === 'seller' ? 'var(--shadow-card)' : 'none',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-              onClick={() => handleRoleSwitch('seller')}
-            >
-              [ SELLER ]
-            </button>
-          </div>
+        {/* Bottom-Right Architectural Line Art Background Accent */}
+        <svg
+          style={{ position: 'absolute', bottom: 0, right: 0, width: 220, height: 220, pointerEvents: 'none', opacity: 0.12 }}
+          viewBox="0 0 200 200"
+          fill="none"
+          stroke="#244B3F"
+          strokeWidth="1"
+        >
+          <path d="M20 180 L180 180 M40 180 L40 60 L120 20 L180 60 L180 180 M40 100 L180 100 M40 140 L180 140 M100 180 L100 60" />
+        </svg>
 
-          {/* Role Context Banner */}
-          <div
-            style={{
-              background: 'var(--cream-050)',
-              padding: '14px 16px',
-              borderRadius: 10,
-              marginBottom: 24,
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 12,
-              border: '1px solid var(--line-200)',
-              borderLeft: `4px solid ${roleMeta.badgeColor}`,
-            }}
-          >
-            <RoleIcon size={20} color={roleMeta.badgeColor} style={{ marginTop: 2, flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--ink-900)' }}>
-                {roleMeta.title}
-              </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--ink-500)', marginTop: 2, lineHeight: 1.4 }}>
-                {roleMeta.subtitle}
-              </div>
+        <div style={{ maxWidth: 410, width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          {/* Top Logo Mark Header */}
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 12 }}>
+              <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
+              <Building2 size={32} color="#C49A45" />
+              <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
             </div>
+
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '2.15rem',
+                fontWeight: 800,
+                color: '#1C3830',
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Construction PMS
+            </h2>
+            {/* Note: "LOGIN TO DASHBOARD" text removed above input fields as explicitly requested */}
           </div>
+
+          {/* Error Banner */}
+          {error && (
+            <div
+              style={{
+                background: '#fef2f2',
+                border: '1px solid #fca5a5',
+                borderRadius: 8,
+                padding: '12px 14px',
+                marginBottom: 22,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                color: '#b91c1c',
+                fontSize: '0.84rem',
+              }}
+            >
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <div>{error}</div>
+            </div>
+          )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 18 }}>
-              <label style={{ display: 'block', marginBottom: 6, fontSize: '0.84rem', fontWeight: 600, color: 'var(--ink-700)' }}>
+            {/* Email Field */}
+            <div style={{ marginBottom: 20 }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: 7,
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  color: '#2C3E37',
+                }}
+              >
                 Email / Username
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail
-                  size={17}
-                  color="var(--ink-500)"
-                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}
+                  size={18}
+                  color="#244B3F"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
                 />
                 <input
-                  type="email"
+                  type="text"
+                  placeholder="name@example.com"
                   style={{
                     width: '100%',
                     padding: '12px 14px 12px 42px',
                     borderRadius: 8,
-                    border: '1px solid var(--line-200)',
-                    background: 'var(--paper)',
-                    fontSize: '0.88rem',
-                    color: 'var(--ink-900)',
+                    border: '1px solid #E2DCD2',
+                    background: '#F6F2EA',
+                    fontSize: '0.9rem',
+                    color: '#1C3830',
                     outline: 'none',
                     boxSizing: 'border-box',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#244B3F'
+                    e.target.style.background = '#FFFFFF'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(36, 75, 63, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E2DCD2'
+                    e.target.style.background = '#F6F2EA'
+                    e.target.style.boxShadow = 'none'
                   }}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -272,9 +273,10 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Password Field */}
             <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--ink-700)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2C3E37' }}>
                   Password
                 </label>
                 <a
@@ -283,97 +285,149 @@ export default function Login() {
                     e.preventDefault()
                     alert('Password reset instructions sent to registered email.')
                   }}
-                  style={{ fontSize: '0.78rem', color: 'var(--gold-600)', textDecoration: 'none', fontWeight: 600 }}
+                  style={{ fontSize: '0.78rem', color: '#B38B3F', textDecoration: 'none', fontWeight: 600 }}
                 >
                   Forgot Password?
                 </a>
               </div>
               <div style={{ position: 'relative' }}>
                 <Lock
-                  size={17}
-                  color="var(--ink-500)"
-                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}
+                  size={18}
+                  color="#244B3F"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
                 />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
                   style={{
                     width: '100%',
-                    padding: '12px 14px 12px 42px',
+                    padding: '12px 42px 12px 42px',
                     borderRadius: 8,
-                    border: '1px solid var(--line-200)',
-                    background: 'var(--paper)',
-                    fontSize: '0.88rem',
-                    color: 'var(--ink-900)',
+                    border: '1px solid #E2DCD2',
+                    background: '#F6F2EA',
+                    fontSize: '0.9rem',
+                    color: '#1C3830',
                     outline: 'none',
                     boxSizing: 'border-box',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#244B3F'
+                    e.target.style.background = '#FFFFFF'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(36, 75, 63, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E2DCD2'
+                    e.target.style.background = '#F6F2EA'
+                    e.target.style.boxShadow = 'none'
                   }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#A09686',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 4,
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              className="btn btn-primary btn-block"
               style={{
+                width: '100%',
                 padding: '13px',
+                background: '#244B3F',
+                color: '#FFFFFF',
                 fontSize: '0.92rem',
                 fontWeight: 700,
                 borderRadius: 8,
-                boxShadow: '0 4px 12px rgba(212, 175, 55, 0.25)',
+                border: 'none',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                boxShadow: '0 4px 14px rgba(36, 75, 63, 0.28)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1C3830'
+                e.currentTarget.style.boxShadow = '0 6px 18px rgba(36, 75, 63, 0.38)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#244B3F'
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(36, 75, 63, 0.28)'
               }}
             >
-              Login to Dashboard <ArrowRight size={17} />
+              <span>Login to Dashboard</span>
+              <span style={{ color: '#D4B06A', fontWeight: 800, fontSize: '1.1rem' }}>→</span>
             </button>
           </form>
 
-          {/* Quick Demo Selectors */}
-          <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px dashed var(--line-200)' }}>
-            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--ink-500)', textTransform: 'uppercase', marginBottom: 10 }}>
-              Quick Demo Logins
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.78rem', padding: '6px 10px' }}
-                onClick={() => {
-                  handleRoleSwitch('admin')
-                  login('admin')
-                  navigate('/')
-                }}
-              >
-                Log in as Admin
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.78rem', padding: '6px 10px' }}
-                onClick={() => {
-                  handleRoleSwitch('buyer')
-                  login('buyer')
-                  navigate('/buyer/dashboard')
-                }}
-              >
-                Log in as Buyer
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.75rem', padding: '6px 10px' }}
-                onClick={() => {
-                  handleRoleSwitch('seller')
-                  login('seller')
-                  navigate('/seller/dashboard')
-                }}
-              >
-                Log in as Seller
-              </button>
-            </div>
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#9E9484', fontSize: '0.78rem', fontWeight: 600 }}>
+            <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
+            <span style={{ padding: '0 14px' }}>OR</span>
+            <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
           </div>
+
+          {/* Google Sign In Button */}
+          <button
+            type="button"
+            onClick={() => alert('Google authentication is currently unavailable. Please log in with your email and password.')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: '#FAF7F2',
+              border: '1px solid #D4B06A',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 12,
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              color: '#1C3830',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#FFFFFF'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 106, 0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#FAF7F2'
+              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.03)'
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            <span>Continue with Google</span>
+          </button>
         </div>
       </div>
     </div>

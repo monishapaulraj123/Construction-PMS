@@ -11,6 +11,16 @@ const meta = [
   { pattern: /^\/real-estate\/negotiations/, title: 'Price Negotiations', description: 'Track initial prices, buyer proposals, counter offers and agreed amounts.' },
   { pattern: /^\/real-estate\/transactions/, title: 'Property Transactions', description: 'Manage sale deeds, advance payments, final settlements and project conversion.' },
 
+  // Client Portal
+  { pattern: /^\/client\/dashboard/, title: 'Client Dashboard', description: 'Overview of available land properties, buy/sell requests, transactions, and documents.' },
+  { pattern: /^\/client\/buy/, title: 'Buy Land / Property', description: 'Browse available verified land plots, submit purchase requests and track buying enquiries.' },
+  { pattern: /^\/client\/sell/, title: 'Sell Land / Property', description: 'Submit land parcels for sale, upload documents, and track admin verification.' },
+  { pattern: /^\/client\/requests/, title: 'My Requests', description: 'Track status of your land buying enquiries and selling submissions.' },
+  { pattern: /^\/client\/transactions/, title: 'My Transactions', description: 'Track payment progress, advance receipts, and deed execution.' },
+  { pattern: /^\/client\/documents/, title: 'My Documents', description: 'Access property title deeds, tax receipts, and sale agreements.' },
+  { pattern: /^\/client\/notifications/, title: 'Notifications', description: 'Stay updated on request approvals, site visits, and price counter-offers.' },
+  { pattern: /^\/client\/profile/, title: 'Client Profile', description: 'Manage contact details, identity info, and personal preferences.' },
+
   // Buyer Portal
   { pattern: /^\/buyer\/dashboard/, title: 'Buyer Dashboard', description: 'Overview of available properties, active buy requests, negotiations and purchases.' },
   { pattern: /^\/buyer\/properties/, title: 'Available Properties', description: 'Browse verified land plots and properties with detailed specifications.' },
