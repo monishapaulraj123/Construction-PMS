@@ -52,6 +52,7 @@ const adminStandaloneLink = {
 const adminSections = [
   {
     label: 'Real Estate',
+    icon: Building,
     links: [
       { to: '/real-estate/overview', label: 'Overview', icon: LayoutDashboard },
       { to: '/real-estate/properties', label: 'Properties', icon: Building },
@@ -64,6 +65,7 @@ const adminSections = [
   },
   {
     label: 'Services & Contracts',
+    icon: Wrench,
     links: [
       { to: '/services', label: 'Services', icon: Wrench },
       { to: '/contracts', label: 'Contracts', icon: FileText },
@@ -72,10 +74,12 @@ const adminSections = [
   },
   {
     label: 'Financials',
+    icon: Wallet,
     links: [{ to: '/payments', label: 'Payments', icon: Wallet }],
   },
   {
     label: 'Master Data',
+    icon: Boxes,
     links: [
       { to: '/employee-types', label: 'Employee Types', icon: UserSquare2 },
       { to: '/employees', label: 'Employees', icon: Users },
@@ -90,6 +94,7 @@ const adminSections = [
   },
   {
     label: 'Project Management',
+    icon: FolderKanban,
     links: [
       { to: '/projects', label: 'Projects', icon: FolderKanban },
       { to: '/project-planning', label: 'Project Planning', icon: CalendarClock },
@@ -100,6 +105,7 @@ const adminSections = [
   },
   {
     label: 'Material Management',
+    icon: Package,
     links: [
       { to: '/materials/requests', label: 'Material Requests', icon: ClipboardList },
       { to: '/materials/quotations', label: 'Quotations & Approval', icon: FileSpreadsheet },
@@ -110,6 +116,7 @@ const adminSections = [
   },
   {
     label: 'Quality & Reports',
+    icon: ClipboardCheck,
     links: [
       { to: '/inspections', label: 'Inspections', icon: ClipboardCheck },
       { to: '/rework', label: 'Rework', icon: RotateCcw },
@@ -130,6 +137,7 @@ const clientStandaloneLink = {
 const clientSections = [
   {
     label: 'Buy & Sell Activities',
+    icon: Tag,
     links: [
       { to: '/client/buy', label: 'Buy Land / Property', icon: Building },
       { to: '/client/sell', label: 'Sell Land / Property', icon: PlusCircle },
@@ -138,6 +146,7 @@ const clientSections = [
   },
   {
     label: 'Transactions & Documents',
+    icon: CreditCard,
     links: [
       { to: '/client/transactions', label: 'My Transactions', icon: CreditCard },
       { to: '/client/documents', label: 'Documents', icon: FileText },
@@ -147,7 +156,7 @@ const clientSections = [
   },
 ]
 
-export default function Sidebar({ open, onNavigate }) {
+export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEnter, onMouseLeave }) {
   const location = useLocation()
   const { currentUser } = useApp()
   const userRole = String(currentUser?.role || '').toUpperCase()
@@ -179,7 +188,11 @@ export default function Sidebar({ open, onNavigate }) {
   const avatarChar = String(currentUser?.name || 'A')[0]?.toUpperCase() || 'A'
 
   return (
-    <aside className={`sidebar ${open ? 'open' : ''}`}>
+    <aside
+      className={`sidebar ${open ? 'open' : ''} ${hidden ? 'hidden' : ''} ${hoverOpen ? 'hover-peek' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* Brand Header */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-mark">
@@ -192,21 +205,23 @@ export default function Sidebar({ open, onNavigate }) {
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {/* Standalone Dashboard Link — ALWAYS visible, standalone, no dropdown arrow or subdivisions */}
-        <div style={{ marginBottom: '14px' }}>
+        {/* Standalone Dashboard Link — ALWAYS visible, standalone, with LayoutDashboard icon */}
+        <div style={{ marginBottom: '10px' }}>
           <NavLink
             to={standaloneLink.to}
             end={standaloneLink.end}
             onClick={onNavigate}
+            title={standaloneLink.label}
             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
           >
-            <LayoutDashboard size={17} />
+            <LayoutDashboard size={18} style={{ flexShrink: 0 }} />
             <span>{standaloneLink.label}</span>
           </NavLink>
         </div>
 
         {/* Collapsible Module Sections */}
         {sections.map((section) => {
+          const SectionIcon = section.icon || Boxes
           const isExpanded = expandedSection === section.label
           const hasActiveChild = section.links.some((l) => {
             if (l.end) return l.to === location.pathname
@@ -217,7 +232,9 @@ export default function Sidebar({ open, onNavigate }) {
             <div className="nav-section-group" key={section.label} style={{ marginBottom: '6px' }}>
               {/* Expandable Main Heading Row */}
               <div
+                className="nav-section-heading"
                 onClick={() => toggleSection(section.label)}
+                title={section.label}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -237,17 +254,23 @@ export default function Sidebar({ open, onNavigate }) {
                   if (!isExpanded) e.currentTarget.style.background = 'transparent'
                 }}
               >
-                <span
-                  style={{
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                  }}
-                >
-                  {section.label}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                  <SectionIcon size={17} style={{ flexShrink: 0, opacity: 0.95 }} />
+                  <span
+                    className="sidebar-section-text"
+                    style={{
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.01em',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {section.label}
+                  </span>
+                </div>
                 <ChevronRight
                   size={14}
+                  className="sidebar-chevron"
                   style={{
                     transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
                     transition: 'transform 0.2s ease',
@@ -260,6 +283,7 @@ export default function Sidebar({ open, onNavigate }) {
               {/* Collapsible Subdivisions / Child Links */}
               {isExpanded && (
                 <div
+                  className="sidebar-sub-group"
                   style={{
                     marginTop: '4px',
                     marginBottom: '8px',
@@ -296,15 +320,15 @@ export default function Sidebar({ open, onNavigate }) {
 
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
-        <NavLink to="/settings" onClick={onNavigate} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <Settings size={17} />
-          Settings
+        <NavLink to="/settings" onClick={onNavigate} title="Settings" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <Settings size={17} style={{ flexShrink: 0 }} />
+          <span>Settings</span>
         </NavLink>
         <div className="sidebar-user">
           <div className="sidebar-user-avatar">
             {avatarChar}
           </div>
-          <div>
+          <div className="sidebar-user-info">
             <div className="sidebar-user-name">{currentUser?.name || 'Administrator'}</div>
             <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>
               {currentUser?.role || 'Admin'}

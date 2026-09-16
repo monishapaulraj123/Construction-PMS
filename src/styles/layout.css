@@ -174,12 +174,79 @@
 }
 
 .menu-toggle {
-  display: none;
+  display: inline-flex;
 }
 
 .app-content {
   padding: 28px 32px 56px;
   max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ---------------- Sidebar Slide Transitions & Hover Reveal ---------------- */
+.sidebar {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.app-main {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 901px) {
+  .sidebar.hidden {
+    width: 68px !important;
+    overflow-x: hidden;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .sidebar-brand {
+    padding: 20px 14px;
+    justify-content: center;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .sidebar-brand-text,
+  .sidebar.hidden:not(.hover-peek) .sidebar-section-text,
+  .sidebar.hidden:not(.hover-peek) .sidebar-chevron,
+  .sidebar.hidden:not(.hover-peek) .sidebar-sub-group,
+  .sidebar.hidden:not(.hover-peek) .nav-link > span,
+  .sidebar.hidden:not(.hover-peek) .sidebar-user-info {
+    display: none !important;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .sidebar-nav {
+    padding: 4px 8px 20px;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .nav-section-heading {
+    justify-content: center !important;
+    padding: 10px 0 !important;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .nav-link {
+    justify-content: center !important;
+    padding: 10px 0 !important;
+  }
+
+  .sidebar.hidden:not(.hover-peek) .sidebar-user {
+    justify-content: center !important;
+    padding: 8px 0 !important;
+  }
+
+  .sidebar.hidden.hover-peek {
+    width: var(--sidebar-w) !important;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 40;
+  }
+}
+
+/* 28px Left-edge hover trigger zone spanning full vertical screen height */
+.left-edge-hover-trigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 28px;
+  z-index: 50;
+  cursor: pointer;
 }
 
 /* ---------------- Responsive ---------------- */
@@ -198,7 +265,7 @@
     transform: translateX(0);
   }
   .app-main {
-    margin-left: 0;
+    margin-left: 0 !important;
   }
   .menu-toggle {
     display: inline-flex;
