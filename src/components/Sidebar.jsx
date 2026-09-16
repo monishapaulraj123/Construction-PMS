@@ -24,14 +24,23 @@ import {
   Settings,
   HardHat,
   Home,
-  Landmark,
-  ShoppingBag,
   FileText,
   CheckSquare,
   Wallet,
+  Building,
+  Tag,
+  FileCheck2,
+  Scale,
+  CreditCard,
+  PlusCircle,
+  Eye,
+  Bell,
+  UserCheck,
+  CheckCircle2,
 } from 'lucide-react'
+import { useApp } from '../context/AppContext'
 
-const sections = [
+const adminSections = [
   {
     label: 'MAIN',
     links: [{ to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true }],
@@ -39,8 +48,13 @@ const sections = [
   {
     label: 'REAL ESTATE',
     links: [
-      { to: '/real-estate/land-buying', label: 'Land Buying', icon: Landmark },
-      { to: '/real-estate/land-sales', label: 'Land Sales', icon: ShoppingBag },
+      { to: '/real-estate/overview', label: 'Overview', icon: LayoutDashboard },
+      { to: '/real-estate/properties', label: 'Properties', icon: Building },
+      { to: '/real-estate/buy-requests', label: 'Buy Requests', icon: Tag },
+      { to: '/real-estate/sell-requests', label: 'Sell Requests', icon: PlusCircle },
+      { to: '/real-estate/verification', label: 'Verification', icon: FileCheck2 },
+      { to: '/real-estate/negotiations', label: 'Negotiations', icon: Scale },
+      { to: '/real-estate/transactions', label: 'Transactions', icon: CreditCard },
     ],
   },
   {
@@ -99,7 +113,52 @@ const sections = [
   },
 ]
 
+const buyerSections = [
+  {
+    label: 'BUYER PORTAL',
+    links: [
+      { to: '/buyer/dashboard', label: 'Buyer Dashboard', icon: LayoutDashboard, end: true },
+      { to: '/buyer/properties', label: 'Available Properties', icon: Building },
+      { to: '/buyer/requests', label: 'My Buy Requests', icon: Tag },
+      { to: '/buyer/negotiations', label: 'Negotiations', icon: Scale },
+      { to: '/buyer/transactions', label: 'Current Transactions', icon: CreditCard },
+      { to: '/buyer/documents', label: 'Documents', icon: FileText },
+      { to: '/buyer/notifications', label: 'Notifications', icon: Bell },
+      { to: '/buyer/profile', label: 'Profile', icon: UserCheck },
+    ],
+  },
+]
+
+const sellerSections = [
+  {
+    label: 'SELLER PORTAL',
+    links: [
+      { to: '/seller/dashboard', label: 'Seller Dashboard', icon: LayoutDashboard, end: true },
+      { to: '/seller/properties', label: 'My Properties', icon: Building },
+      { to: '/seller/requests', label: 'My Sell Requests', icon: PlusCircle },
+      { to: '/seller/verification', label: 'Verification Status', icon: FileCheck2 },
+      { to: '/seller/buyer-interest', label: 'Buyer Interest', icon: Eye },
+      { to: '/seller/negotiations', label: 'Negotiations', icon: Scale },
+      { to: '/seller/transactions', label: 'Transactions', icon: CreditCard },
+      { to: '/seller/documents', label: 'Documents', icon: FileText },
+      { to: '/seller/notifications', label: 'Notifications', icon: Bell },
+      { to: '/seller/profile', label: 'Profile', icon: UserCheck },
+    ],
+  },
+]
+
 export default function Sidebar({ open, onNavigate }) {
+  const { currentUser } = useApp()
+
+  let sections = adminSections
+  if (currentUser?.role === 'buyer') {
+    sections = buyerSections
+  } else if (currentUser?.role === 'seller') {
+    sections = sellerSections
+  }
+
+  const avatarChar = String(currentUser?.name || 'A')[0]?.toUpperCase() || 'A'
+
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-brand">
@@ -108,7 +167,7 @@ export default function Sidebar({ open, onNavigate }) {
         </div>
         <div className="sidebar-brand-text">
           <h1>Construction PMS</h1>
-          <p>Construction Project Management System</p>
+          <p>Construction & Real Estate</p>
         </div>
       </div>
 
@@ -116,18 +175,21 @@ export default function Sidebar({ open, onNavigate }) {
         {sections.map((section) => (
           <div className="nav-section" key={section.label}>
             <div className="nav-section-label">{section.label}</div>
-            {section.links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.end}
-                onClick={onNavigate}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              >
-                <link.icon size={17} />
-                {link.label}
-              </NavLink>
-            ))}
+            {section.links.map((link) => {
+              const IconComp = link.icon
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  onClick={onNavigate}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                >
+                  {IconComp ? <IconComp size={17} /> : null}
+                  {link.label}
+                </NavLink>
+              )
+            })}
           </div>
         ))}
       </nav>
@@ -138,10 +200,14 @@ export default function Sidebar({ open, onNavigate }) {
           Settings
         </NavLink>
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">A</div>
+          <div className="sidebar-user-avatar">
+            {avatarChar}
+          </div>
           <div>
-            <div className="sidebar-user-name">Administrator</div>
-            <div className="sidebar-user-role">Admin</div>
+            <div className="sidebar-user-name">{currentUser?.name || 'Administrator'}</div>
+            <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>
+              {currentUser?.role || 'Admin'}
+            </div>
           </div>
         </div>
       </div>

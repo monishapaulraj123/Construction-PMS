@@ -21,13 +21,12 @@ export function initials(name = '') {
     .join('')
 }
 
-// Maps a status string to one of the badge tone classes.
 export function statusTone(status) {
   const s = (status || '').toLowerCase()
-  if (['active', 'approved', 'completed', 'delivered', 'confirmed', 'healthy', 'in stock'].includes(s)) return 'green'
-  if (['in progress', 'near completion', 'dispatched', 'ordered'].includes(s)) return 'gold'
-  if (['pending', 'scheduled', 'planning', 'in transit', 'low'].includes(s)) return 'amber'
-  if (['rework required', 'delayed', 'high', 'overdue'].includes(s)) return 'red'
-  if (['inactive', 'medium'].includes(s)) return 'gray'
+  if (['active', 'approved', 'completed', 'delivered', 'confirmed', 'healthy', 'in stock', 'published', 'verified', 'agreed'].includes(s)) return 'green'
+  if (['in progress', 'near completion', 'dispatched', 'ordered', 'transaction processing', 'negotiation', 'counter offer'].includes(s)) return 'gold'
+  if (['pending', 'scheduled', 'planning', 'in transit', 'low', 'submitted', 'under review', 'under verification'].includes(s)) return 'amber'
+  if (['rework required', 'delayed', 'high', 'overdue', 'rejected', 'correction required'].includes(s)) return 'red'
+  if (['inactive', 'medium', 'unpublished', 'closed'].includes(s)) return 'gray'
   return 'gray'
 }
