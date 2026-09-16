@@ -48,15 +48,15 @@ export default function Login() {
         padding: 0,
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
-        background: '#FAF7F2',
+        background: '#FAF8F3',
         overflowX: 'hidden',
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Left Panel — Daylight Luxury Villa Image with Branding & Hero Tagline */}
+      {/* Left Side — User Uploaded Green Modern House Image with #2F5D50 Overlay */}
       <div
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(240, 244, 242, 0.4) 100%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1600&auto=format&fit=crop')`,
+          backgroundImage: `linear-gradient(180deg, rgba(35, 68, 58, 0.35) 0%, rgba(20, 45, 38, 0.65) 100%), url('/images/login-house.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           padding: '48px 56px',
@@ -68,19 +68,20 @@ export default function Login() {
           position: 'relative',
         }}
       >
-        {/* Top-Left Brand Mark Header */}
+        {/* Top-Left Branding ONLY */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div
             style={{
               width: 50,
               height: 50,
               borderRadius: 12,
-              background: '#244B3F',
+              background: '#2F5D50',
+              border: '2px solid #D4B06A',
               color: '#D4B06A',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 6px 18px rgba(36, 75, 63, 0.25)',
+              boxShadow: '0 6px 18px rgba(47, 93, 80, 0.3)',
               flexShrink: 0,
             }}
           >
@@ -93,54 +94,28 @@ export default function Login() {
                 fontSize: '1.65rem',
                 fontWeight: 700,
                 margin: 0,
-                color: '#1C3830',
+                color: '#ffffff',
                 letterSpacing: '-0.01em',
                 lineHeight: 1.15,
               }}
             >
               Construction PMS
             </h1>
-            <p style={{ fontSize: '0.84rem', color: '#B38B3F', margin: '3px 0 0 0', fontWeight: 600, letterSpacing: '0.01em' }}>
+            <p style={{ fontSize: '0.84rem', color: '#D4B06A', margin: '3px 0 0 0', fontWeight: 600, letterSpacing: '0.01em' }}>
               & Real Estate Management System
             </p>
           </div>
         </div>
 
-        {/* Middle Hero Section */}
-        <div style={{ maxWidth: 460, margin: 'auto 0 60px 0' }}>
-          <h2
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '2.4rem',
-              fontWeight: 700,
-              color: '#1C3830',
-              lineHeight: 1.25,
-              margin: '0 0 14px 0',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Build Better Spaces,<br />Manage Smarter
-          </h2>
-          <p
-            style={{
-              fontSize: '0.95rem',
-              color: '#385248',
-              lineHeight: 1.55,
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
-            Streamline your construction projects, clients and resources — all in one place.
-          </p>
-        </div>
+        {/* Clean Building Image Body — ALL middle/bottom hero text & icon badges REMOVED as required */}
 
-        {/* Clean Footer (Bottom words/overlay removed as requested) */}
-        <div style={{ fontSize: '0.78rem', color: '#4A6359', fontWeight: 500 }}>
+        {/* Bottom Copyright Tag */}
+        <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
           © Construction Project Management & Real Estate Enterprise Platform
         </div>
       </div>
 
-      {/* Right Panel — Elegant Form Panel */}
+      {/* Right Side — Premium Clean Login Panel */}
       <div
         style={{
           padding: '48px 60px',
@@ -148,7 +123,7 @@ export default function Login() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          background: '#FAF7F2',
+          background: '#FAF8F3',
           minHeight: '100vh',
           boxSizing: 'border-box',
           position: 'relative',
@@ -160,27 +135,27 @@ export default function Login() {
           viewBox="0 0 200 200"
           fill="none"
         >
-          <path d="M200 0H70C140 30 180 90 200 170V0Z" fill="#244B3F" />
+          <path d="M200 0H70C140 30 180 90 200 170V0Z" fill="#2F5D50" />
           <path d="M200 0H110C160 40 185 100 200 140V0Z" fill="#D4B06A" opacity="0.4" />
         </svg>
 
         {/* Bottom-Right Architectural Line Art Background Accent */}
         <svg
-          style={{ position: 'absolute', bottom: 0, right: 0, width: 220, height: 220, pointerEvents: 'none', opacity: 0.12 }}
+          style={{ position: 'absolute', bottom: 0, right: 0, width: 220, height: 220, pointerEvents: 'none', opacity: 0.1 }}
           viewBox="0 0 200 200"
           fill="none"
-          stroke="#244B3F"
+          stroke="#2F5D50"
           strokeWidth="1"
         >
           <path d="M20 180 L180 180 M40 180 L40 60 L120 20 L180 60 L180 180 M40 100 L180 100 M40 140 L180 140 M100 180 L100 60" />
         </svg>
 
         <div style={{ maxWidth: 410, width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          {/* Top Logo Mark Header */}
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          {/* Top Header — Logo Mark + Construction PMS Title ONLY (NO "LOGIN TO DASHBOARD" subtitle) */}
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 12 }}>
               <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
-              <Building2 size={32} color="#C49A45" />
+              <Building2 size={32} color="#D4B06A" />
               <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
             </div>
 
@@ -189,14 +164,13 @@ export default function Login() {
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '2.15rem',
                 fontWeight: 800,
-                color: '#1C3830',
+                color: '#2F5D50',
                 margin: 0,
                 letterSpacing: '-0.02em',
               }}
             >
               Construction PMS
             </h2>
-            {/* Note: "LOGIN TO DASHBOARD" text removed above input fields as explicitly requested */}
           </div>
 
           {/* Error Banner */}
@@ -230,7 +204,7 @@ export default function Login() {
                   marginBottom: 7,
                   fontSize: '0.84rem',
                   fontWeight: 600,
-                  color: '#2C3E37',
+                  color: '#2D3748',
                 }}
               >
                 Email / Username
@@ -238,7 +212,7 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <Mail
                   size={18}
-                  color="#244B3F"
+                  color="#2F5D50"
                   style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
                 />
                 <input
@@ -251,15 +225,15 @@ export default function Login() {
                     border: '1px solid #E2DCD2',
                     background: '#F6F2EA',
                     fontSize: '0.9rem',
-                    color: '#1C3830',
+                    color: '#1F2937',
                     outline: 'none',
                     boxSizing: 'border-box',
                     transition: 'all 0.2s ease',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#244B3F'
+                    e.target.style.borderColor = '#2F5D50'
                     e.target.style.background = '#FFFFFF'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(36, 75, 63, 0.1)'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(47, 93, 80, 0.12)'
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = '#E2DCD2'
@@ -276,7 +250,7 @@ export default function Login() {
             {/* Password Field */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
-                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2C3E37' }}>
+                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2D3748' }}>
                   Password
                 </label>
                 <a
@@ -285,7 +259,7 @@ export default function Login() {
                     e.preventDefault()
                     alert('Password reset instructions sent to registered email.')
                   }}
-                  style={{ fontSize: '0.78rem', color: '#B38B3F', textDecoration: 'none', fontWeight: 600 }}
+                  style={{ fontSize: '0.78rem', color: '#D4B06A', textDecoration: 'none', fontWeight: 600 }}
                 >
                   Forgot Password?
                 </a>
@@ -293,7 +267,7 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <Lock
                   size={18}
-                  color="#244B3F"
+                  color="#2F5D50"
                   style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
                 />
                 <input
@@ -306,15 +280,15 @@ export default function Login() {
                     border: '1px solid #E2DCD2',
                     background: '#F6F2EA',
                     fontSize: '0.9rem',
-                    color: '#1C3830',
+                    color: '#1F2937',
                     outline: 'none',
                     boxSizing: 'border-box',
                     transition: 'all 0.2s ease',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#244B3F'
+                    e.target.style.borderColor = '#2F5D50'
                     e.target.style.background = '#FFFFFF'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(36, 75, 63, 0.1)'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(47, 93, 80, 0.12)'
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = '#E2DCD2'
@@ -349,13 +323,13 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Login Submit Button — ONLY place where "Login to Dashboard" appears */}
             <button
               type="submit"
               style={{
                 width: '100%',
-                padding: '13px',
-                background: '#244B3F',
+                padding: '14px',
+                background: '#2F5D50',
                 color: '#FFFFFF',
                 fontSize: '0.92rem',
                 fontWeight: 700,
@@ -366,16 +340,16 @@ export default function Login() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
-                boxShadow: '0 4px 14px rgba(36, 75, 63, 0.28)',
+                boxShadow: '0 4px 14px rgba(47, 93, 80, 0.28)',
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1C3830'
-                e.currentTarget.style.boxShadow = '0 6px 18px rgba(36, 75, 63, 0.38)'
+                e.currentTarget.style.background = '#24493f'
+                e.currentTarget.style.boxShadow = '0 6px 18px rgba(47, 93, 80, 0.38)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#244B3F'
-                e.currentTarget.style.boxShadow = '0 4px 14px rgba(36, 75, 63, 0.28)'
+                e.currentTarget.style.background = '#2F5D50'
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(47, 93, 80, 0.28)'
               }}
             >
               <span>Login to Dashboard</span>
@@ -384,7 +358,7 @@ export default function Login() {
           </form>
 
           {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: '#9E9484', fontSize: '0.78rem', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '26px 0', color: '#9E9484', fontSize: '0.78rem', fontWeight: 600 }}>
             <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
             <span style={{ padding: '0 14px' }}>OR</span>
             <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
@@ -397,7 +371,7 @@ export default function Login() {
             style={{
               width: '100%',
               padding: '12px',
-              background: '#FAF7F2',
+              background: '#FFFFFF',
               border: '1px solid #D4B06A',
               borderRadius: 8,
               display: 'flex',
@@ -406,17 +380,17 @@ export default function Login() {
               gap: 12,
               fontSize: '0.88rem',
               fontWeight: 600,
-              color: '#1C3830',
+              color: '#1F2937',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#FFFFFF'
+              e.currentTarget.style.background = '#FAF8F3'
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 106, 0.25)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#FAF7F2'
+              e.currentTarget.style.background = '#FFFFFF'
               e.currentTarget.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.03)'
             }}
           >
