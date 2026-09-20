@@ -329,7 +329,7 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
             {avatarChar}
           </div>
           <div className="sidebar-user-info">
-            <div className="sidebar-user-name">{currentUser?.name || 'Administrator'}</div>
+            <div className="sidebar-user-name">{currentUser?.name ? currentUser.name.split(' ')[0] : 'Administrator'}</div>
             <div className="sidebar-user-role" style={{ textTransform: 'capitalize' }}>
               {currentUser?.role || 'Admin'}
             </div>

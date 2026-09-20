@@ -63,7 +63,7 @@ export default function Projects() {
         project_type_id: projType?.project_type_id || 1,
         client_id: client?.client_id || 1,
         employee_id: sup?.employee_id || 1,
-        supervisor_name: form.employee_name || 'Arun Kumar',
+        supervisor_name: form.employee_name || 'Arun',
         overall_progress_percentage: 0,
         project_status: form.project_status || 'In Progress',
         status: form.status !== false,
@@ -108,8 +108,8 @@ export default function Projects() {
         <select className="filter-select" value={supervisorFilter} onChange={(e) => setSupervisorFilter(e.target.value)}>
           <option value="">All Supervisors</option>
           {supervisors.map((s) => (
-            <option key={s.employee_id} value={`${s.first_name} ${s.last_name}`}>
-              {s.first_name} {s.last_name}
+            <option key={s.employee_id} value={s.first_name + (s.last_name ? ' ' + s.last_name : '')}>
+              {s.first_name}{s.last_name ? ' ' + s.last_name : ''}
             </option>
           ))}
         </select>
@@ -196,7 +196,7 @@ export default function Projects() {
           />
           <SelectInput
             label="Assigned Employee / Manager"
-            options={employees.map((e) => `${e.first_name} ${e.last_name}`)}
+            options={employees.map((e) => e.first_name + (e.last_name ? ' ' + e.last_name : ''))}
             value={form.employee_name || ''}
             onChange={(e) => setForm({ ...form, employee_name: e.target.value })}
           />

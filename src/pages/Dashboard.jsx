@@ -21,8 +21,12 @@ import ActivityFeed from '../components/ActivityFeed'
 import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { projects, recentActivities, payments, items as materialsList, landBuying } from '../data/mockData'
 import { formatCurrencyINR } from '../utils/format'
+import { useApp } from '../context/AppContext'
 
 export default function Dashboard() {
+  const { currentUser } = useApp()
+  const userName = currentUser?.name ? currentUser.name.split(' ')[0] : 'Administrator'
+
   const activeProjects = projects.filter((p) => p.project_status !== 'Planning')
   const nearCompletion = projects.filter((p) => p.overall_progress_percentage >= 85).length
   const delayed = projects.filter((p) => p.project_status === 'Delayed').length
@@ -38,7 +42,7 @@ export default function Dashboard() {
     <div>
       <div className="hero-banner">
         <div className="hero-banner-inner">
-          <h2>Real Estate & Construction Management System 👋</h2>
+          <h2>Welcome back, {userName} 👋</h2>
           <p>Real-time oversight across land acquisitions, construction projects, contractor services, and financials.</p>
           <div className="hero-banner-actions">
             <Link to="/projects">

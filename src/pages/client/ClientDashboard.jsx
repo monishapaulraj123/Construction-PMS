@@ -174,7 +174,7 @@ export default function ClientDashboard() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
-              Welcome back, {currentUser?.name || 'Ravi Kumar'}
+              Welcome back, {currentUser?.name ? currentUser.name.split(' ')[0] : 'Ravi'}
             </h2>
             <span
               style={{

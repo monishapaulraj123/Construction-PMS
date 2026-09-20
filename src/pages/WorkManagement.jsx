@@ -135,7 +135,7 @@ export default function WorkManagement() {
           <SelectInput
             label="Assigned Employee / Manager"
             required
-            options={employees.map((e) => `${e.first_name} ${e.last_name}`)}
+            options={employees.map((e) => e.first_name + (e.last_name ? ' ' + e.last_name : ''))}
             value={form.employee_name || ''}
             onChange={(e) => setForm({ ...form, employee_name: e.target.value })}
           />

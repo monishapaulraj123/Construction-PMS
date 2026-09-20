@@ -26,7 +26,7 @@ export default function SellerDashboard() {
     <div>
       <div className="page-header" style={{ marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Welcome, {currentUser.name || 'Seller'}</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Welcome, {currentUser?.name ? currentUser.name.split(' ')[0] : 'Seller'}</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--ink-500)', marginTop: 2 }}>
             Manage land submissions, track DTCP verification progress and monitor buyer interest.
           </p>

@@ -31,7 +31,7 @@ export default function BuyerDashboard() {
     <div>
       <div className="page-header" style={{ marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Welcome, {currentUser.name || 'Buyer'}</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Welcome, {currentUser?.name ? currentUser.name.split(' ')[0] : 'Buyer'}</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--ink-500)', marginTop: 2 }}>
             Track your land purchase requests, price negotiations, deed documents and property search.
           </p>

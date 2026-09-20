@@ -23,7 +23,7 @@ export default function ClientProfile() {
   const { currentUser } = useApp()
   const showToast = useToast()
 
-  const [name, setName] = useState(currentUser?.name || 'Ravi Kumar')
+  const [name, setName] = useState(currentUser?.name ? currentUser.name.split(' ')[0] : 'Ravi')
   const [email] = useState(currentUser?.email || 'client@example.com')
   const [phone, setPhone] = useState(currentUser?.phone || '9840001122')
   const [altPhone, setAltPhone] = useState('9840099887')

@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { UserCheck, Eye, Briefcase, Award, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react'
 import Modal from './Modal'
-import ConfirmationDialog from './ConfirmationDialog'
 import StatusBadge from './StatusBadge'
 import { PrimaryButton, SecondaryButton } from './Buttons'
 import { useApp } from '../context/AppContext'
 import { useToast } from './ToastContext'
+import { formatCurrencyINR } from '../utils/format'
 
 export function getTieUpPersons(srvName, employeesList) {
   if (!srvName || !employeesList) return employeesList || []
@@ -64,7 +64,7 @@ function CompletedItemsHistory({ person, defaultService }) {
       }}
     >
       <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--forest-950)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-        WORK HISTORY — {person?.first_name} {person?.last_name}
+        WORK HISTORY — {person?.first_name}
       </div>
 
       {/* Completed Projects List */}
@@ -140,6 +140,8 @@ function TieUpPersonCard({ person, srv, isAssigned, onSelectPerson, onViewDetail
 
   const projectsCount = person.completed_projects_count || (person.completed_projects_list?.length || 8)
   const tasksCount = person.completed_work_count || (person.completed_tasks_list?.length || 12)
+  const rateValue = person.service_rate || person.serviceRate || 1500
+  const rateUnitStr = person.rate_unit || person.rateUnit || 'Day'
 
   return (
     <div
@@ -185,7 +187,7 @@ function TieUpPersonCard({ person, srv, isAssigned, onSelectPerson, onViewDetail
             person.profile_image ||
             'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop'
           }
-          alt={`${person.first_name} ${person.last_name}`}
+          alt={person.first_name}
           style={{
             width: 52,
             height: 52,
@@ -199,7 +201,7 @@ function TieUpPersonCard({ person, srv, isAssigned, onSelectPerson, onViewDetail
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h4 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 800, color: 'var(--ink-900)' }}>
-              {person.first_name} {person.last_name}
+              {person.first_name}{person.last_name ? ' ' + person.last_name : ''}
             </h4>
             <span
               style={{
@@ -221,6 +223,10 @@ function TieUpPersonCard({ person, srv, isAssigned, onSelectPerson, onViewDetail
 
           <div style={{ fontSize: '0.74rem', color: 'var(--ink-500)', marginTop: 3 }}>
             📍 {person.city || 'Chennai'} · Experience: <strong>{person.experience_years || 5} Years</strong>
+          </div>
+
+          <div style={{ fontSize: '0.78rem', color: 'var(--forest-900)', fontWeight: 800, marginTop: 4 }}>
+            Service Rate: <span style={{ color: 'var(--gold-600)' }}>{formatCurrencyINR(rateValue)} / {rateUnitStr}</span>
           </div>
         </div>
       </div>
@@ -364,7 +370,7 @@ export default function ServiceAssignmentModal({ open, onClose, service, project
   function handleConfirmAssignment() {
     if (!confirmingPerson) return
     assignServicePerson(service.service_id, confirmingPerson.employee_id, project?.project_id || service.project_id)
-    showToast(`Successfully assigned ${confirmingPerson.first_name} ${confirmingPerson.last_name} to ${service.service_name}`)
+    showToast(`Successfully assigned ${confirmingPerson.first_name} to ${service.service_name}`)
     setConfirmingPerson(null)
     onClose()
   }
@@ -445,7 +451,7 @@ export default function ServiceAssignmentModal({ open, onClose, service, project
           }}
         >
           {eligiblePersons.map((person) => {
-            const isCurrentlyAssigned = service.assigned_person_name === `${person.first_name} ${person.last_name}`
+            const isCurrentlyAssigned = service.assigned_person_name === person.first_name || service.assigned_person_name === `${person.first_name} ${person.last_name}`.trim()
 
             return (
               <TieUpPersonCard
@@ -469,7 +475,7 @@ export default function ServiceAssignmentModal({ open, onClose, service, project
         <Modal
           open={Boolean(profilePerson)}
           onClose={() => setProfilePerson(null)}
-          title={`Service Person Details — ${profilePerson.first_name} ${profilePerson.last_name}`}
+          title={`Service Person Details — ${profilePerson.first_name}`}
           maxWidth={620}
         >
           <div style={{ textAlign: 'center', marginBottom: 18 }}>
@@ -540,14 +546,20 @@ export default function ServiceAssignmentModal({ open, onClose, service, project
                 <div style={{ fontWeight: 600 }}>{profilePerson.qualification || 'Certified Specialist'}</div>
               </div>
               <div>
+                <span style={{ color: 'var(--ink-500)' }}>Service Rate:</span>
+                <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--forest-900)' }}>
+                  {formatCurrencyINR(profilePerson.service_rate || profilePerson.serviceRate || 1500)} / {profilePerson.rate_unit || profilePerson.rateUnit || 'Day'}
+                </div>
+              </div>
+              <div>
                 <span style={{ color: 'var(--ink-500)' }}>Completed Projects:</span>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--ink-900)' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--ink-900)' }}>
                   {profilePerson.completed_projects_count || (profilePerson.completed_projects_list?.length || 8)} Projects
                 </div>
               </div>
               <div>
                 <span style={{ color: 'var(--ink-500)' }}>Completed Tasks:</span>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--ink-900)' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--ink-900)' }}>
                   {profilePerson.completed_work_count || (profilePerson.completed_tasks_list?.length || 12)} Tasks
                 </div>
               </div>
@@ -608,19 +620,91 @@ export default function ServiceAssignmentModal({ open, onClose, service, project
         </Modal>
       )}
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Modal */}
       {confirmingPerson && (
-        <ConfirmationDialog
+        <Modal
           open={Boolean(confirmingPerson)}
           onClose={() => setConfirmingPerson(null)}
-          onConfirm={handleConfirmAssignment}
           title="Confirm Specialist Assignment"
-          message={`Assign ${confirmingPerson.first_name} ${confirmingPerson.last_name} (${confirmingPerson.service || service.service_name} Specialist) to Project: ${
-            project?.project_name || service.project_name || 'Selected Project'
-          } – Service: ${service.service_name}?`}
-          confirmLabel="Confirm Assignment"
-          cancelLabel="Cancel"
-        />
+          maxWidth={540}
+          footer={
+            <>
+              <SecondaryButton onClick={() => setConfirmingPerson(null)}>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton icon={UserCheck} onClick={handleConfirmAssignment}>
+                Confirm Assignment
+              </PrimaryButton>
+            </>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-700)', lineHeight: 1.5 }}>
+              Are you sure you want to assign this specialist to this service?
+            </p>
+
+            <div
+              style={{
+                padding: 14,
+                background: 'var(--cream-050)',
+                borderRadius: 8,
+                border: '1px solid var(--gold-300)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, fontSize: '0.84rem', alignItems: 'center' }}>
+                <span style={{ color: 'var(--ink-500)', fontWeight: 600 }}>Specialist:</span>
+                <strong style={{ color: 'var(--ink-900)', fontSize: '0.9rem' }}>
+                  {confirmingPerson.first_name} {confirmingPerson.last_name}
+                </strong>
+
+                <span style={{ color: 'var(--ink-500)', fontWeight: 600 }}>Service:</span>
+                <strong style={{ color: 'var(--forest-950)' }}>
+                  {service.service_name}
+                </strong>
+
+                <span style={{ color: 'var(--ink-500)', fontWeight: 600 }}>Service Rate:</span>
+                <strong style={{ color: 'var(--forest-900)', fontSize: '0.92rem' }}>
+                  {formatCurrencyINR(confirmingPerson.service_rate || confirmingPerson.serviceRate || 1500)} / {confirmingPerson.rate_unit || confirmingPerson.rateUnit || 'Day'}
+                </strong>
+
+                <span style={{ color: 'var(--ink-500)', fontWeight: 600 }}>Current Availability:</span>
+                <div>
+                  <span
+                    style={{
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: 10,
+                      background: confirmingPerson.availability === 'Available' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                      color: confirmingPerson.availability === 'Available' ? '#15803d' : '#a16207',
+                    }}
+                  >
+                    {confirmingPerson.availability || 'Available'}
+                  </span>
+                </div>
+              </div>
+
+              {confirmingPerson.availability !== 'Available' && confirmingPerson.current_project_name && confirmingPerson.current_project_name !== 'None' && (
+                <div
+                  style={{
+                    marginTop: 6,
+                    padding: '8px 10px',
+                    background: 'rgba(234, 179, 8, 0.1)',
+                    borderRadius: 6,
+                    border: '1px solid rgba(234, 179, 8, 0.3)',
+                    fontSize: '0.78rem',
+                    color: '#854d0e',
+                  }}
+                >
+                  ⚠️ <strong>Current Assignment Information:</strong> Currently assigned to <strong>{confirmingPerson.current_project_name}</strong> ({confirmingPerson.current_service_name || confirmingPerson.service || service.service_name}, Progress: {confirmingPerson.current_progress || 0}%).
+                </div>
+              )}
+            </div>
+          </div>
+        </Modal>
       )}
     </>
   )

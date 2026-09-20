@@ -38,7 +38,7 @@ export default function Employees() {
                     flexShrink: 0,
                   }}
                 />
-                <span className="cell-primary">{r.first_name} {r.last_name}</span>
+                <span className="cell-primary">{r.first_name}{r.last_name ? ' ' + r.last_name : ''}</span>
               </div>
             ),
           },
@@ -125,7 +125,7 @@ export default function Employees() {
         <Modal
           open={!!viewEmployee}
           onClose={() => setViewEmployee(null)}
-          title={`Employee Profile — ${viewEmployee.first_name} ${viewEmployee.last_name}`}
+          title={`Employee Profile — ${viewEmployee.first_name}`}
           wide
           footer={<SecondaryButton onClick={() => setViewEmployee(null)}>Close</SecondaryButton>}
         >
@@ -145,7 +145,7 @@ export default function Employees() {
               />
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-                  {viewEmployee.first_name} {viewEmployee.last_name}
+                  {viewEmployee.first_name}{viewEmployee.last_name ? ' ' + viewEmployee.last_name : ''}
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--ink-500)' }}>
                   {viewEmployee.employee_type_name} · Code: <strong>{viewEmployee.employee_code}</strong> · {viewEmployee.employment_status || 'Permanent'}

@@ -61,13 +61,22 @@ export default function Header({ onMenuClick }) {
               style={{
                 width: 36,
                 height: 36,
-                background: userRole === 'CLIENT' ? '#2563eb' : 'var(--brand-gold)',
+                borderRadius: '50%',
+                background: '#F5F0E6',
+                color: '#2F5D50',
+                border: '1.5px solid #D4B06A',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                flexShrink: 0,
               }}
             >
               {(currentUser?.name || 'A')[0].toUpperCase()}
             </div>
             <div className="hide-on-mobile" style={{ lineHeight: 1.2 }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>{currentUser?.name || 'Administrator'}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>{currentUser?.name ? currentUser.name.split(' ')[0] : 'Administrator'}</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--ink-500)' }}>
                 Role: <strong>{userRole || 'ADMIN'}</strong>
               </div>
