@@ -3,6 +3,7 @@ import { User, SlidersHorizontal, Bell, Palette, Globe, ShieldCheck } from 'luci
 import { FormInput, SelectInput } from '../components/FormInputs'
 import { PrimaryButton } from '../components/Buttons'
 import { useToast } from '../components/ToastContext'
+import { useApp } from '../context/AppContext'
 
 const SECTIONS = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -21,6 +22,7 @@ export default function Settings() {
   const [active, setActive] = useState('profile')
   const [toggles, setToggles] = useState({ email: true, sms: false, push: true, weeklyDigest: true })
   const showToast = useToast()
+  const { theme, setTheme } = useApp()
 
   function flip(key) {
     setToggles((t) => ({ ...t, [key]: !t[key] }))
@@ -110,11 +112,47 @@ export default function Settings() {
 
         {active === 'theme' && (
           <div>
-            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>Theme</h3>
-            <div className="chip-list">
-              <span className="chip" style={{ borderColor: 'var(--forest-700)', fontWeight: 700 }}>Forest & Cream (Default)</span>
-              <span className="chip">Slate & Ivory</span>
-              <span className="chip">Midnight</span>
+            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>Theme Settings</h3>
+            <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>Select your preferred theme palette for the application.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+              <div
+                onClick={() => { setTheme('light'); showToast('Light Theme applied') }}
+                style={{
+                  cursor: 'pointer',
+                  padding: 16,
+                  borderRadius: 8,
+                  border: theme === 'light' ? '2px solid var(--forest-700)' : '1px solid var(--border-color)',
+                  background: 'var(--cream-100)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: 'var(--forest-900)' }}>
+                  Light Theme {theme === 'light' && ' (Active)'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--ink-500)' }}>
+                  Approved standard forest green & cream visual interface (Default).
+                </div>
+              </div>
+
+              <div
+                onClick={() => { setTheme('dark'); showToast('Dark Theme applied') }}
+                style={{
+                  cursor: 'pointer',
+                  padding: 16,
+                  borderRadius: 8,
+                  border: theme === 'dark' ? '2px solid #D4B06A' : '1px solid var(--border-color)',
+                  background: '#1E3932',
+                  color: '#F5F1E8',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: '#F5F1E8' }}>
+                  Dark Theme {theme === 'dark' && ' (Active)'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#C8C4BA' }}>
+                  Dark forest green brand palette (#162923 / #1E3932 / #D4B06A).
+                </div>
+              </div>
             </div>
           </div>
         )}

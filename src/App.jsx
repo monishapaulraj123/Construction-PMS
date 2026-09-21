@@ -16,6 +16,7 @@ import ProjectTypes from './pages/ProjectTypes'
 import ConstructionStages from './pages/ConstructionStages'
 import Clients from './pages/Clients'
 import Projects from './pages/Projects'
+import CreateProject from './pages/CreateProject'
 import ProjectDetails from './pages/ProjectDetails'
 import ProjectPlanning from './pages/ProjectPlanning'
 import StageTracking from './pages/StageTracking'
@@ -114,6 +115,7 @@ export default function App() {
             <Route path="/construction-stages" element={<ProtectedRoute allowedRoles={['ADMIN']}><ConstructionStages /></ProtectedRoute>} />
             <Route path="/clients" element={<ProtectedRoute allowedRoles={['ADMIN']}><Clients /></ProtectedRoute>} />
             <Route path="/projects" element={<ProtectedRoute allowedRoles={['ADMIN']}><Projects /></ProtectedRoute>} />
+            <Route path="/projects/create" element={<ProtectedRoute allowedRoles={['ADMIN']}><CreateProject /></ProtectedRoute>} />
             <Route path="/projects/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectDetails /></ProtectedRoute>} />
             <Route path="/project-planning" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectPlanning /></ProtectedRoute>} />
             <Route path="/stage-tracking" element={<ProtectedRoute allowedRoles={['ADMIN']}><StageTracking /></ProtectedRoute>} />

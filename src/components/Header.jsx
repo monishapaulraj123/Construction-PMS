@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Menu, Bell, MessageSquare, ChevronDown, LogOut, User } from 'lucide-react'
+import { Menu, Bell, MessageSquare, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import SearchBar from './SearchBar'
 import NotificationPanel from './NotificationPanel'
 import { getPageMeta } from '../data/pageMeta'
@@ -9,7 +9,7 @@ import { useApp } from '../context/AppContext'
 export default function Header({ onMenuClick }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { currentUser, logout } = useApp()
+  const { currentUser, logout, theme, toggleTheme } = useApp()
   const { title, description } = getPageMeta(location.pathname)
   const [showNotif, setShowNotif] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
@@ -38,7 +38,18 @@ export default function Header({ onMenuClick }) {
         <SearchBar placeholder="Search projects, properties, clients, materials..." />
       </div>
 
-      <div className="app-header-actions">
+      <div className="app-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Quick Theme Toggle Button */}
+        <button
+          className="icon-btn"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          aria-label="Toggle Theme"
+        >
+          {theme === 'dark' ? <Sun size={17} color="#D4B06A" /> : <Moon size={17} />}
+        </button>
+
+        {/* Notifications */}
         <div className="header-pop-wrap">
           <button className="icon-btn" onClick={() => setShowNotif((s) => !s)} aria-label="Notifications">
             <Bell size={17} />

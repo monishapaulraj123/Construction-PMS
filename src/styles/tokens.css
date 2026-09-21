@@ -65,3 +65,38 @@
   --sidebar-w: 264px;
   --header-h: 76px;
 }
+
+/* ---------------- Dark Theme Overrides (Forest Green + Warm Gold) ---------------- */
+[data-theme='dark'],
+.dark-theme {
+  --cream-050: #162923;
+  --cream-100: #1e3932;
+  --sand-100: #22423a;
+
+  --paper: #263f38;
+
+  --ink-900: #f5f1e8;
+  --ink-700: #c8c4ba;
+  --ink-500: #9e9a90;
+  --ink-300: #757168;
+
+  --line-100: rgba(212, 176, 106, 0.22);
+  --line-200: rgba(212, 176, 106, 0.35);
+
+  --forest-950: #101f1a;
+  --forest-900: #2f5d50;
+  --forest-800: #3b6e61;
+  --forest-700: #488273;
+  --forest-600: #579888;
+  --forest-line: rgba(212, 176, 106, 0.25);
+
+  --gold-600: #c49e58;
+  --gold-500: #d4b06a;
+  --gold-400: #e2c282;
+  --gold-100: rgba(212, 176, 106, 0.2);
+  --gold-050: rgba(212, 176, 106, 0.1);
+
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+

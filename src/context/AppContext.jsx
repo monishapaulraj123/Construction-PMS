@@ -7,7 +7,9 @@ import {
   landBuying as initialLandBuying,
   landSales as initialLandSales,
   employeeAssignments as initialEmployeeAssignments,
+  payments as initialPayments,
 } from '../data/mockData'
+import { getDefaultProjectEstimation } from '../utils/budgetCalculations'
 
 const AppContext = createContext()
 
@@ -294,6 +296,31 @@ export function AppProvider({ children }) {
     }
   }, [currentUser])
 
+  // --- Theme State & Persistence ---
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('cpms_theme')
+      if (saved === 'dark' || saved === 'light') return saved
+    } catch (e) {}
+    return 'light'
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cpms_theme', theme)
+    } catch (e) {}
+    document.documentElement.setAttribute('data-theme', theme)
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme')
+    } else {
+      document.body.classList.remove('dark-theme')
+    }
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
+
   const [properties, setProperties] = useState(defaultProperties)
   const [buyRequests, setBuyRequests] = useState(defaultBuyRequests)
   const [sellRequests, setSellRequests] = useState(defaultSellRequests)
@@ -302,8 +329,79 @@ export function AppProvider({ children }) {
 
   const [employees, setEmployees] = useState(initialEmployees)
   const [services, setServices] = useState(initialServices)
-  const [projects, setProjects] = useState(initialProjects)
+  const [payments, setPayments] = useState(initialPayments)
+
+  const [projects, setProjects] = useState(() => {
+    return initialProjects.map((p) => {
+      const est = getDefaultProjectEstimation(p.project_id === 1 ? 'standard' : 'premium')
+      return {
+        ...p,
+        budget_estimation: p.budget_estimation || est,
+        estimated_budget: p.budget_estimation ? p.budget_estimation.totalEstimatedBudget : (p.estimated_budget || est.totalEstimatedBudget),
+      }
+    })
+  })
+
   const [assignments, setAssignments] = useState(initialEmployeeAssignments)
+
+  const addProject = (projectData) => {
+    const newId = Math.max(0, ...projects.map((p) => p.project_id || 0)) + 1
+    const newProject = {
+      project_id: newId,
+      project_code: `PRJ-2026-${String(newId).padStart(3, '0')}`,
+      overall_progress_percentage: 0,
+      project_status: projectData.project_status || 'In Progress',
+      status: projectData.status !== false,
+      image: 'https://images.unsplash.com/photo-1541976590-713941681591?q=80&w=800&auto=format&fit=crop',
+      created_at: new Date().toISOString().split('T')[0],
+      ...projectData,
+    }
+    setProjects((prev) => [newProject, ...prev])
+    return newProject
+  }
+
+  const updateProject = (projectId, updatedData) => {
+    setProjects((prev) =>
+      prev.map((p) => (p.project_id === Number(projectId) ? { ...p, ...updatedData } : p))
+    )
+  }
+
+  const updateProjectBudget = (projectId, budgetEstimation) => {
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.project_id === Number(projectId)
+          ? {
+              ...p,
+              budget_estimation: budgetEstimation,
+              estimated_budget: budgetEstimation.totalEstimatedBudget,
+            }
+          : p
+      )
+    )
+  }
+
+  const addPayment = (paymentData) => {
+    const newId = Math.max(0, ...payments.map((p) => p.payment_id || 0)) + 1
+    const newPayment = {
+      payment_id: newId,
+      payment_number: paymentData.payment_number || `PAY-2026-${String(newId).padStart(3, '0')}`,
+      status: paymentData.status || (paymentData.payment_type === 'Income' ? 'Received' : 'Paid'),
+      payment_date: paymentData.payment_date || new Date().toISOString().split('T')[0],
+      ...paymentData,
+    }
+    setPayments((prev) => [newPayment, ...prev])
+    return newPayment
+  }
+
+  const updatePayment = (paymentId, updatedData) => {
+    setPayments((prev) =>
+      prev.map((p) => (p.payment_id === Number(paymentId) ? { ...p, ...updatedData } : p))
+    )
+  }
+
+  const deletePayment = (paymentId) => {
+    setPayments((prev) => prev.filter((p) => p.payment_id !== Number(paymentId)))
+  }
 
   const login = (email, password) => {
     const trimmed = (email || '').trim().toLowerCase()
@@ -514,7 +612,14 @@ export function AppProvider({ children }) {
         employees,
         services,
         projects,
+        payments,
         assignments,
+        addProject,
+        updateProject,
+        updateProjectBudget,
+        addPayment,
+        updatePayment,
+        deletePayment,
         submitBuyRequest,
         submitSellProperty,
         updatePropertyStatus,
@@ -522,6 +627,9 @@ export function AppProvider({ children }) {
         updateNegotiation,
         createTransaction,
         assignServicePerson,
+        theme,
+        setTheme,
+        toggleTheme,
       }}
     >
       {children}
@@ -544,7 +652,14 @@ export function useApp() {
       employees: [],
       services: [],
       projects: [],
+      payments: [],
       assignments: [],
+      addProject: () => {},
+      updateProject: () => {},
+      updateProjectBudget: () => {},
+      addPayment: () => {},
+      updatePayment: () => {},
+      deletePayment: () => {},
       submitBuyRequest: () => {},
       submitSellProperty: () => {},
       updatePropertyStatus: () => {},
@@ -552,6 +667,9 @@ export function useApp() {
       updateNegotiation: () => {},
       createTransaction: () => {},
       assignServicePerson: () => {},
+      theme: 'light',
+      setTheme: () => {},
+      toggleTheme: () => {},
     }
   }
   return ctx

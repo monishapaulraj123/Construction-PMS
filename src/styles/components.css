@@ -348,6 +348,36 @@ table.data-table {
 .data-table tbody tr:hover {
   background: var(--cream-050);
 }
+.data-table tbody tr.total-budget-row,
+.total-budget-row {
+  background: var(--forest-900) !important;
+}
+.data-table tbody tr.total-budget-row td,
+.total-budget-row td {
+  color: var(--gold-500) !important;
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.5px;
+  padding: 16px 18px !important;
+  border-bottom: none !important;
+}
+
+.dark-green-banner {
+  background: var(--forest-950) !important;
+  color: var(--gold-500) !important;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gold-500);
+}
+.dark-green-banner h1,
+.dark-green-banner h2,
+.dark-green-banner h3,
+.dark-green-banner h4,
+.dark-green-banner span,
+.dark-green-banner label,
+.dark-green-banner strong {
+  color: var(--gold-500) !important;
+}
+
 .cell-primary {
   color: var(--ink-900);
   font-weight: 600;
@@ -1240,4 +1270,107 @@ table.data-table {
     flex-shrink: 0;
   }
 }
+
+/* ---------------- DARK THEME COLOR-ONLY OVERRIDES ---------------- */
+[data-theme='dark'] body,
+.dark-theme body {
+  background-color: var(--cream-050) !important;
+  color: var(--ink-900) !important;
+}
+
+[data-theme='dark'] .card,
+.dark-theme .card,
+[data-theme='dark'] .data-table-wrap,
+.dark-theme .data-table-wrap,
+[data-theme='dark'] .modal-dialog,
+.dark-theme .modal-dialog,
+[data-theme='dark'] .modal-content,
+.dark-theme .modal-content {
+  background-color: var(--paper) !important;
+  color: var(--ink-900) !important;
+  border-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] .app-sidebar,
+.dark-theme .app-sidebar {
+  background: linear-gradient(180deg, #1E3932 0%, #162923 100%) !important;
+  border-right-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] .app-header,
+.dark-theme .app-header {
+  background: rgba(30, 57, 50, 0.96) !important;
+  border-bottom-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] .sidebar-user,
+.dark-theme .sidebar-user,
+[data-theme='dark'] .sidebar-footer,
+.dark-theme .sidebar-footer {
+  background-color: var(--cream-100) !important;
+  border-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] input,
+.dark-theme input,
+[data-theme='dark'] select,
+.dark-theme select,
+[data-theme='dark'] textarea,
+.dark-theme textarea,
+[data-theme='dark'] .search-bar,
+.dark-theme .search-bar,
+[data-theme='dark'] .filter-select,
+.dark-theme .filter-select {
+  background-color: var(--paper) !important;
+  color: var(--ink-900) !important;
+  border-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] table,
+.dark-theme table {
+  background-color: var(--paper) !important;
+}
+
+[data-theme='dark'] th,
+.dark-theme th {
+  background-color: var(--cream-100) !important;
+  color: var(--ink-900) !important;
+  border-bottom-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] td,
+.dark-theme td {
+  border-bottom-color: var(--line-100) !important;
+  color: var(--ink-900) !important;
+}
+
+[data-theme='dark'] tr:hover,
+.dark-theme tr:hover {
+  background-color: rgba(212, 176, 106, 0.08) !important;
+}
+
+[data-theme='dark'] .btn-secondary,
+.dark-theme .btn-secondary,
+[data-theme='dark'] .icon-btn,
+.dark-theme .icon-btn {
+  background-color: var(--paper) !important;
+  color: var(--ink-900) !important;
+  border-color: var(--line-100) !important;
+}
+
+[data-theme='dark'] .btn-secondary:hover,
+.dark-theme .btn-secondary:hover,
+[data-theme='dark'] .icon-btn:hover,
+.dark-theme .icon-btn:hover {
+  background-color: var(--cream-100) !important;
+  border-color: var(--gold-500) !important;
+  color: var(--gold-500) !important;
+}
+
+[data-theme='dark'] .hero-banner,
+.dark-theme .hero-banner {
+  background: linear-gradient(135deg, #1E3932 0%, #12211C 100%) !important;
+  border: 1px solid var(--line-100) !important;
+}
+
 

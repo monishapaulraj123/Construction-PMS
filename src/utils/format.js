@@ -5,6 +5,19 @@ export function formatCurrencyINR(value) {
 
 export const formatCurrency = formatCurrencyINR
 
+export function formatShortINR(value) {
+  if (value === null || value === undefined || isNaN(value)) return '₹0'
+  const val = Number(value)
+  const absVal = Math.abs(val)
+  const sign = val < 0 ? '-' : ''
+  if (absVal >= 10000000) {
+    return `${sign}₹${(absVal / 10000000).toFixed(2)} Cr`
+  } else if (absVal >= 100000) {
+    return `${sign}₹${(absVal / 100000).toFixed(2)} L`
+  }
+  return sign + '₹' + absVal.toLocaleString('en-IN')
+}
+
 export function formatDate(value) {
   if (!value) return '-'
   const d = new Date(value)

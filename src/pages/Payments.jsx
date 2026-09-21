@@ -7,12 +7,12 @@ import Modal from '../components/Modal'
 import ConfirmationDialog from '../components/ConfirmationDialog'
 import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { FormInput, SelectInput, DateInput } from '../components/FormInputs'
-import { payments as initialPayments, projects, services } from '../data/mockData'
 import { formatCurrencyINR, formatDate } from '../utils/format'
+import { useApp } from '../context/AppContext'
 import { useToast } from '../components/ToastContext'
 
 export default function Payments() {
-  const [paymentList, setPaymentList] = useState(initialPayments)
+  const { payments, projects, addPayment, updatePayment, deletePayment } = useApp()
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
@@ -23,30 +23,36 @@ export default function Payments() {
 
   const filtered = useMemo(
     () =>
-      paymentList.filter(
+      payments.filter(
         (p) =>
           (!search ||
-            p.payment_number.toLowerCase().includes(search.toLowerCase()) ||
-            p.project_name.toLowerCase().includes(search.toLowerCase()) ||
-            p.party_name.toLowerCase().includes(search.toLowerCase())) &&
+            (p.payment_number || '').toLowerCase().includes(search.toLowerCase()) ||
+            (p.project_name || '').toLowerCase().includes(search.toLowerCase()) ||
+            (p.party_name || '').toLowerCase().includes(search.toLowerCase())) &&
           (!typeFilter || p.payment_type === typeFilter)
       ),
-    [paymentList, search, typeFilter]
+    [payments, search, typeFilter]
   )
 
   const totalIncome = useMemo(
-    () => paymentList.filter((p) => p.payment_type === 'Income').reduce((sum, p) => sum + (p.amount || 0), 0),
-    [paymentList]
+    () => payments.filter((p) => p.payment_type === 'Income').reduce((sum, p) => sum + (p.amount || 0), 0),
+    [payments]
   )
   const totalExpense = useMemo(
-    () => paymentList.filter((p) => p.payment_type === 'Expense').reduce((sum, p) => sum + (p.amount || 0), 0),
-    [paymentList]
+    () => payments.filter((p) => p.payment_type === 'Expense').reduce((sum, p) => sum + (p.amount || 0), 0),
+    [payments]
   )
   const netBalance = totalIncome - totalExpense
 
   function openAdd() {
     setEditing(null)
-    setForm({ payment_type: 'Income', status: 'Received', payment_method: 'Bank Transfer (NEFT)', amount: 0 })
+    setForm({
+      payment_type: 'Income',
+      status: 'Received',
+      payment_method: 'Bank Transfer (NEFT)',
+      amount: 0,
+      project_name: projects[0]?.project_name || '',
+    })
     setModalOpen(true)
   }
 
@@ -58,29 +64,28 @@ export default function Payments() {
 
   function handleSave(e) {
     e.preventDefault()
+    const proj = projects.find((p) => p.project_name === form.project_name)
+    const payload = {
+      ...form,
+      project_id: proj ? proj.project_id : (form.project_id || 1),
+    }
+
     if (editing) {
-      setPaymentList((rs) => rs.map((r) => (r.payment_id === editing.payment_id ? { ...r, ...form } : r)))
+      updatePayment(editing.payment_id, payload)
       showToast('Payment record updated')
     } else {
-      const newId = Math.max(0, ...paymentList.map((r) => r.payment_id)) + 1
-      setPaymentList((rs) => [
-        {
-          ...form,
-          payment_id: newId,
-          payment_number: form.payment_number || `PAY-2026-${String(newId).padStart(3, '0')}`,
-          status: form.status || (form.payment_type === 'Income' ? 'Received' : 'Paid'),
-        },
-        ...rs,
-      ])
+      addPayment(payload)
       showToast('Payment voucher recorded')
     }
     setModalOpen(false)
   }
 
   function handleDelete() {
-    setPaymentList((rs) => rs.filter((r) => r.payment_id !== deleteTarget.payment_id))
-    showToast('Payment record removed')
-    setDeleteTarget(null)
+    if (deleteTarget) {
+      deletePayment(deleteTarget.payment_id)
+      showToast('Payment record removed')
+      setDeleteTarget(null)
+    }
   }
 
   return (
