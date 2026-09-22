@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Menu, Bell, MessageSquare, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
+import { Menu, Bell, MessageSquare, ChevronDown, LogOut, User, Sun, Moon, Globe } from 'lucide-react'
 import SearchBar from './SearchBar'
 import NotificationPanel from './NotificationPanel'
 import { getPageMeta } from '../data/pageMeta'
 import { useApp } from '../context/AppContext'
+import { useTranslation } from '../context/LanguageContext'
 
 export default function Header({ onMenuClick }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { currentUser, logout, theme, toggleTheme } = useApp()
-  const { title, description } = getPageMeta(location.pathname)
+  const { language, setLanguage, t, languages } = useTranslation()
+  const { title, description } = getPageMeta(location.pathname, t)
   const [showNotif, setShowNotif] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
 
@@ -35,15 +37,41 @@ export default function Header({ onMenuClick }) {
       </div>
 
       <div className="app-header-search">
-        <SearchBar placeholder="Search projects, properties, clients, materials..." />
+        <SearchBar placeholder={t('search_placeholder', 'Search projects, properties, clients, materials...')} />
       </div>
 
       <div className="app-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Language Selector Control */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--cream-100, rgba(0,0,0,0.04))', padding: '2px 8px', borderRadius: 6, border: '1px solid var(--border-color, #E2D9CC)' }}>
+          <Globe size={15} color="var(--forest-700, #2F5D50)" />
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: 'var(--ink-900, #162923)',
+              cursor: 'pointer',
+              outline: 'none',
+              padding: '2px 0',
+            }}
+            aria-label="Select Language"
+          >
+            {languages.map((opt) => (
+              <option key={opt.code} value={opt.code} style={{ background: 'var(--card-bg, #FFF)', color: '#000' }}>
+                {opt.native} ({opt.code.toUpperCase()})
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Quick Theme Toggle Button */}
         <button
           className="icon-btn"
           onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          title={theme === 'dark' ? t('switch_to_light', 'Switch to Light Theme') : t('switch_to_dark', 'Switch to Dark Theme')}
           aria-label="Toggle Theme"
         >
           {theme === 'dark' ? <Sun size={17} color="#D4B06A" /> : <Moon size={17} />}
@@ -87,9 +115,9 @@ export default function Header({ onMenuClick }) {
               {(currentUser?.name || 'A')[0].toUpperCase()}
             </div>
             <div className="hide-on-mobile" style={{ lineHeight: 1.2 }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>{currentUser?.name ? currentUser.name.split(' ')[0] : 'Administrator'}</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>{currentUser?.name ? currentUser.name.split(' ')[0] : t('administrator', 'Administrator')}</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--ink-500)' }}>
-                Role: <strong>{userRole || 'ADMIN'}</strong>
+                {t('role', 'Role')}: <strong>{userRole || 'ADMIN'}</strong>
               </div>
             </div>
             <ChevronDown size={15} color="var(--ink-500)" />
@@ -132,7 +160,7 @@ export default function Header({ onMenuClick }) {
                     navigate('/client/profile')
                   }}
                 >
-                  <User size={15} /> My Client Profile
+                  <User size={15} /> {t('my_client_profile', 'My Client Profile')}
                 </button>
               )}
 
@@ -148,7 +176,7 @@ export default function Header({ onMenuClick }) {
                 }}
                 onClick={handleLogout}
               >
-                <LogOut size={15} /> Sign Out
+                <LogOut size={15} /> {t('sign_out', 'Sign Out')}
               </button>
             </div>
           )}

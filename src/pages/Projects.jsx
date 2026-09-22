@@ -11,6 +11,7 @@ import {
   employees,
 } from '../data/mockData'
 import { useApp } from '../context/AppContext'
+import { useTranslation } from '../context/LanguageContext'
 
 const supervisors = employees.filter(
   (e) => e.employee_type_name === 'Site Supervisor' || e.employee_type_name === 'Civil Engineer'
@@ -19,6 +20,7 @@ const supervisors = employees.filter(
 export default function Projects() {
   const navigate = useNavigate()
   const { projects } = useApp()
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [constructionTypeFilter, setConstructionTypeFilter] = useState('')
   const [projectTypeFilter, setProjectTypeFilter] = useState('')
@@ -46,17 +48,17 @@ export default function Projects() {
       <div className="page-header">
         <div />
         <div className="page-header-actions">
-          <SecondaryButton icon={Download}>Export</SecondaryButton>
+          <SecondaryButton icon={Download}>{t('download', 'Export')}</SecondaryButton>
           <PrimaryButton icon={Plus} onClick={() => navigate('/projects/create')}>
-            Create Project
+            + {t('add', 'Create')} {t('projects', 'Project')}
           </PrimaryButton>
         </div>
       </div>
 
       <div className="toolbar">
-        <SearchBar placeholder="Search projects by name, code or city..." value={search} onChange={setSearch} />
+        <SearchBar placeholder={t('search_placeholder', 'Search projects by name, code or city...')} value={search} onChange={setSearch} />
         <select className="filter-select" value={constructionTypeFilter} onChange={(e) => setConstructionTypeFilter(e.target.value)}>
-          <option value="">All Construction Types</option>
+          <option value="">{t('filter', 'All')} {t('construction_types', 'Construction Types')}</option>
           {constructionTypes.map((t) => (
             <option key={t.construction_type_id} value={t.construction_type_name}>
               {t.construction_type_name}

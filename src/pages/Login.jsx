@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lock, Mail, AlertCircle, Eye, EyeOff, Building2 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
+import { useTranslation } from '../context/LanguageContext'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const { login, currentUser } = useApp()
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   // If already logged in, redirect based on stored role
@@ -207,7 +209,7 @@ export default function Login() {
                   color: '#2D3748',
                 }}
               >
-                Email / Username
+                {t('email', 'Email Address')}
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail
@@ -251,7 +253,7 @@ export default function Login() {
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
                 <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2D3748' }}>
-                  Password
+                  {t('password', 'Password')}
                 </label>
                 <a
                   href="#forgot"
@@ -323,7 +325,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Login Submit Button — ONLY place where "Login to Dashboard" appears */}
+            {/* Login Submit Button */}
             <button
               type="submit"
               style={{
@@ -352,7 +354,7 @@ export default function Login() {
                 e.currentTarget.style.boxShadow = '0 4px 14px rgba(47, 93, 80, 0.28)'
               }}
             >
-              <span>Login to Dashboard</span>
+              <span>{t('sign_in', 'Sign In')}</span>
               <span style={{ color: '#D4B06A', fontWeight: 800, fontSize: '1.1rem' }}>→</span>
             </button>
           </form>

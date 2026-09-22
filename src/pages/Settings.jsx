@@ -4,14 +4,15 @@ import { FormInput, SelectInput } from '../components/FormInputs'
 import { PrimaryButton } from '../components/Buttons'
 import { useToast } from '../components/ToastContext'
 import { useApp } from '../context/AppContext'
+import { useTranslation } from '../context/LanguageContext'
 
 const SECTIONS = [
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'preferences', label: 'System Preferences', icon: SlidersHorizontal },
-  { id: 'notifications', label: 'Notification Settings', icon: Bell },
-  { id: 'theme', label: 'Theme', icon: Palette },
-  { id: 'language', label: 'Language', icon: Globe },
-  { id: 'security', label: 'Security', icon: ShieldCheck },
+  { id: 'profile', keyLabel: 'profile', label: 'Profile', icon: User },
+  { id: 'preferences', keyLabel: 'system_preferences', label: 'System Preferences', icon: SlidersHorizontal },
+  { id: 'notifications', keyLabel: 'notification_settings', label: 'Notification Settings', icon: Bell },
+  { id: 'theme', keyLabel: 'theme_settings', label: 'Theme', icon: Palette },
+  { id: 'language', keyLabel: 'app_language', label: 'Language', icon: Globe },
+  { id: 'security', keyLabel: 'security', label: 'Security', icon: ShieldCheck },
 ]
 
 function Toggle({ on, onClick }) {
@@ -23,10 +24,13 @@ export default function Settings() {
   const [toggles, setToggles] = useState({ email: true, sms: false, push: true, weeklyDigest: true })
   const showToast = useToast()
   const { theme, setTheme } = useApp()
+  const { language, setLanguage, t, languages } = useTranslation()
 
   function flip(key) {
     setToggles((t) => ({ ...t, [key]: !t[key] }))
   }
+
+  const currentLangLabel = language === 'ta' ? 'Tamil' : language === 'hi' ? 'Hindi' : 'English'
 
   return (
     <div className="settings-layout">
@@ -35,7 +39,7 @@ export default function Settings() {
           <button key={s.id} className={active === s.id ? 'active' : ''} onClick={() => setActive(s.id)}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <s.icon size={16} />
-              {s.label}
+              {t(s.keyLabel, s.label)}
             </span>
           </button>
         ))}
@@ -57,7 +61,7 @@ export default function Settings() {
               <FormInput label="Email" defaultValue="admin@constructionpms.in" />
               <FormInput label="Phone" defaultValue="9840000000" />
               <div className="form-field full">
-                <PrimaryButton type="submit">Save Changes</PrimaryButton>
+                <PrimaryButton type="submit">{t('save_changes', 'Save Changes')}</PrimaryButton>
               </div>
             </form>
           </div>
@@ -65,7 +69,7 @@ export default function Settings() {
 
         {active === 'preferences' && (
           <div>
-            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>System Preferences</h3>
+            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>{t('system_preferences', 'System Preferences')}</h3>
             <div className="form-grid">
               <SelectInput label="Default Landing Page" options={['Dashboard', 'Projects', 'Reports']} defaultValue="Dashboard" />
               <SelectInput label="Date Format" options={['DD MMM YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD']} defaultValue="DD MMM YYYY" />
@@ -77,7 +81,7 @@ export default function Settings() {
 
         {active === 'notifications' && (
           <div>
-            <h3 style={{ marginBottom: 4, fontSize: '1rem' }}>Notification Settings</h3>
+            <h3 style={{ marginBottom: 4, fontSize: '1rem' }}>{t('notification_settings', 'Notification Settings')}</h3>
             <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>Choose how you'd like to be notified about project activity.</p>
             <div className="toggle-row">
               <div className="toggle-row-text">
@@ -112,7 +116,7 @@ export default function Settings() {
 
         {active === 'theme' && (
           <div>
-            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>Theme Settings</h3>
+            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>{t('theme_settings', 'Theme Settings')}</h3>
             <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>Select your preferred theme palette for the application.</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
               <div
@@ -127,7 +131,7 @@ export default function Settings() {
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: 'var(--forest-900)' }}>
-                  Light Theme {theme === 'light' && ' (Active)'}
+                  {t('light_theme', 'Light Theme')} {theme === 'light' && ' (Active)'}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--ink-500)' }}>
                   Approved standard forest green & cream visual interface (Default).
@@ -147,7 +151,7 @@ export default function Settings() {
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: '#F5F1E8' }}>
-                  Dark Theme {theme === 'dark' && ' (Active)'}
+                  {t('dark_theme', 'Dark Theme')} {theme === 'dark' && ' (Active)'}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#C8C4BA' }}>
                   Dark forest green brand palette (#162923 / #1E3932 / #D4B06A).
@@ -159,8 +163,26 @@ export default function Settings() {
 
         {active === 'language' && (
           <div>
-            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>Language</h3>
-            <SelectInput label="Application Language" options={['English', 'Tamil', 'Hindi']} defaultValue="English" />
+            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>{t('language_settings', 'Language Settings')}</h3>
+            <div className="form-field" style={{ maxWidth: 400 }}>
+              <label style={{ display: 'block', marginBottom: 6, fontSize: '0.86rem', fontWeight: 600 }}>
+                {t('app_language', 'Application Language')}
+              </label>
+              <select
+                className="input"
+                value={currentLangLabel}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setLanguage(val)
+                  showToast(`Language set to ${val}`)
+                }}
+                style={{ width: '100%', padding: '8px 12px' }}
+              >
+                <option value="English">English</option>
+                <option value="Tamil">தமிழ் (Tamil)</option>
+                <option value="Hindi">हिन्दी (Hindi)</option>
+              </select>
+            </div>
           </div>
         )}
 

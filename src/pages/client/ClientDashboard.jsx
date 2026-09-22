@@ -23,11 +23,13 @@ import StatusBadge from '../../components/StatusBadge'
 import Modal from '../../components/Modal'
 import { PrimaryButton, SecondaryButton } from '../../components/Buttons'
 import { useApp } from '../../context/AppContext'
+import { useTranslation } from '../../context/LanguageContext'
 import { formatCurrencyINR, formatDate } from '../../utils/format'
 import { useToast } from '../../components/ToastContext'
 
 export default function ClientDashboard() {
   const { properties, buyRequests, sellRequests, transactions, currentUser, submitBuyRequest } = useApp()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const showToast = useToast()
 

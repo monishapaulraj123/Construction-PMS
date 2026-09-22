@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import { ToastProvider } from './components/ToastContext'
 import { AppProvider, useApp } from './context/AppContext'
+import { LanguageProvider } from './context/LanguageContext'
 
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -79,93 +80,97 @@ function ProtectedRoute({ allowedRoles, children }) {
 
 export default function App() {
   return (
-    <AppProvider>
-      <ToastProvider>
-        <Routes>
-          {/* Public Common Login Route */}
-          <Route path="/login" element={<Login />} />
+    <LanguageProvider>
+      <AppProvider>
+        <ToastProvider>
+          <Routes>
+            {/* Public Common Login Route */}
+            <Route path="/login" element={<Login />} />
 
-          {/* Main App Layout */}
-          <Route element={<MainLayout />}>
-            {/* ADMIN Protected Routes */}
-            <Route path="/" element={<ProtectedRoute allowedRoles={['ADMIN']}><Dashboard /></ProtectedRoute>} />
-            <Route path="/real-estate/overview" element={<ProtectedRoute allowedRoles={['ADMIN']}><RealEstateOverview /></ProtectedRoute>} />
-            <Route path="/real-estate/properties" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProperties /></ProtectedRoute>} />
-            <Route path="/real-estate/buy-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><BuyRequests /></ProtectedRoute>} />
-            <Route path="/real-estate/sell-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><SellRequests /></ProtectedRoute>} />
-            <Route path="/real-estate/verification" element={<ProtectedRoute allowedRoles={['ADMIN']}><PropertyVerification /></ProtectedRoute>} />
-            <Route path="/real-estate/negotiations" element={<ProtectedRoute allowedRoles={['ADMIN']}><Negotiations /></ProtectedRoute>} />
-            <Route path="/real-estate/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><Transactions /></ProtectedRoute>} />
+            {/* Main App Layout */}
+            <Route element={<MainLayout />}>
+              {/* ADMIN Protected Routes */}
+              <Route path="/" element={<ProtectedRoute allowedRoles={['ADMIN']}><Dashboard /></ProtectedRoute>} />
+              <Route path="/real-estate/overview" element={<ProtectedRoute allowedRoles={['ADMIN']}><RealEstateOverview /></ProtectedRoute>} />
+              <Route path="/real-estate/properties" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProperties /></ProtectedRoute>} />
+              <Route path="/real-estate/buy-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><BuyRequests /></ProtectedRoute>} />
+              <Route path="/real-estate/sell-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><SellRequests /></ProtectedRoute>} />
+              <Route path="/real-estate/verification" element={<ProtectedRoute allowedRoles={['ADMIN']}><PropertyVerification /></ProtectedRoute>} />
+              <Route path="/real-estate/negotiations" element={<ProtectedRoute allowedRoles={['ADMIN']}><Negotiations /></ProtectedRoute>} />
+              <Route path="/real-estate/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><Transactions /></ProtectedRoute>} />
 
-            <Route path="/real-estate/land-buying" element={<Navigate to="/real-estate/overview" replace />} />
-            <Route path="/real-estate/land-sales" element={<Navigate to="/real-estate/overview" replace />} />
+              <Route path="/real-estate/land-buying" element={<Navigate to="/real-estate/overview" replace />} />
+              <Route path="/real-estate/land-sales" element={<Navigate to="/real-estate/overview" replace />} />
+              <Route path="/employee-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><EmployeeTypes /></ProtectedRoute>} />
+              <Route path="/employees" element={<ProtectedRoute allowedRoles={['ADMIN']}><Employees /></ProtectedRoute>} />
+              <Route path="/item-categories" element={<ProtectedRoute allowedRoles={['ADMIN']}><ItemCategories /></ProtectedRoute>} />
+              <Route path="/items" element={<ProtectedRoute allowedRoles={['ADMIN']}><Items /></ProtectedRoute>} />
+              <Route path="/suppliers" element={<ProtectedRoute allowedRoles={['ADMIN']}><Suppliers /></ProtectedRoute>} />
+              <Route path="/services" element={<ProtectedRoute allowedRoles={['ADMIN']}><Services /></ProtectedRoute>} />
+              <Route path="/construction-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><ConstructionTypes /></ProtectedRoute>} />
+              <Route path="/project-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectTypes /></ProtectedRoute>} />
+              <Route path="/construction-stages" element={<ProtectedRoute allowedRoles={['ADMIN']}><ConstructionStages /></ProtectedRoute>} />
+              <Route path="/clients" element={<ProtectedRoute allowedRoles={['ADMIN']}><Clients /></ProtectedRoute>} />
 
-            {/* Construction PMS Admin Routes */}
-            <Route path="/contracts" element={<ProtectedRoute allowedRoles={['ADMIN']}><Contracts /></ProtectedRoute>} />
-            <Route path="/work-management" element={<ProtectedRoute allowedRoles={['ADMIN']}><WorkManagement /></ProtectedRoute>} />
-            <Route path="/payments" element={<ProtectedRoute allowedRoles={['ADMIN']}><Payments /></ProtectedRoute>} />
-            <Route path="/employee-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><EmployeeTypes /></ProtectedRoute>} />
-            <Route path="/employees" element={<ProtectedRoute allowedRoles={['ADMIN']}><Employees /></ProtectedRoute>} />
-            <Route path="/item-categories" element={<ProtectedRoute allowedRoles={['ADMIN']}><ItemCategories /></ProtectedRoute>} />
-            <Route path="/items" element={<ProtectedRoute allowedRoles={['ADMIN']}><Items /></ProtectedRoute>} />
-            <Route path="/suppliers" element={<ProtectedRoute allowedRoles={['ADMIN']}><Suppliers /></ProtectedRoute>} />
-            <Route path="/services" element={<ProtectedRoute allowedRoles={['ADMIN']}><Services /></ProtectedRoute>} />
-            <Route path="/construction-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><ConstructionTypes /></ProtectedRoute>} />
-            <Route path="/project-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectTypes /></ProtectedRoute>} />
-            <Route path="/construction-stages" element={<ProtectedRoute allowedRoles={['ADMIN']}><ConstructionStages /></ProtectedRoute>} />
-            <Route path="/clients" element={<ProtectedRoute allowedRoles={['ADMIN']}><Clients /></ProtectedRoute>} />
-            <Route path="/projects" element={<ProtectedRoute allowedRoles={['ADMIN']}><Projects /></ProtectedRoute>} />
-            <Route path="/projects/create" element={<ProtectedRoute allowedRoles={['ADMIN']}><CreateProject /></ProtectedRoute>} />
-            <Route path="/projects/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectDetails /></ProtectedRoute>} />
-            <Route path="/project-planning" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectPlanning /></ProtectedRoute>} />
-            <Route path="/stage-tracking" element={<ProtectedRoute allowedRoles={['ADMIN']}><StageTracking /></ProtectedRoute>} />
-            <Route path="/progress-updates" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProgressUpdates /></ProtectedRoute>} />
-            <Route path="/site-updates" element={<ProtectedRoute allowedRoles={['ADMIN']}><SiteUpdates /></ProtectedRoute>} />
-            <Route path="/materials/requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><MaterialRequests /></ProtectedRoute>} />
-            <Route path="/materials/quotations" element={<ProtectedRoute allowedRoles={['ADMIN']}><Quotations /></ProtectedRoute>} />
-            <Route path="/materials/orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><Orders /></ProtectedRoute>} />
-            <Route path="/materials/deliveries" element={<ProtectedRoute allowedRoles={['ADMIN']}><Deliveries /></ProtectedRoute>} />
-            <Route path="/materials/inventory" element={<ProtectedRoute allowedRoles={['ADMIN']}><Inventory /></ProtectedRoute>} />
-            <Route path="/inspections" element={<ProtectedRoute allowedRoles={['ADMIN']}><Inspections /></ProtectedRoute>} />
-            <Route path="/rework" element={<ProtectedRoute allowedRoles={['ADMIN']}><Rework /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><Reports /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><Settings /></ProtectedRoute>} />
+              <Route path="/projects" element={<ProtectedRoute allowedRoles={['ADMIN']}><Projects /></ProtectedRoute>} />
+              <Route path="/projects/create" element={<ProtectedRoute allowedRoles={['ADMIN']}><CreateProject /></ProtectedRoute>} />
+              <Route path="/projects/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectDetails /></ProtectedRoute>} />
+              <Route path="/project-planning" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProjectPlanning /></ProtectedRoute>} />
+              <Route path="/stage-tracking" element={<ProtectedRoute allowedRoles={['ADMIN']}><StageTracking /></ProtectedRoute>} />
+              <Route path="/progress-updates" element={<ProtectedRoute allowedRoles={['ADMIN']}><ProgressUpdates /></ProtectedRoute>} />
+              <Route path="/site-updates" element={<ProtectedRoute allowedRoles={['ADMIN']}><SiteUpdates /></ProtectedRoute>} />
 
-            {/* CLIENT Protected Routes */}
-            <Route path="/client/dashboard" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientDashboard /></ProtectedRoute>} />
-            <Route path="/client/buy" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientBuy /></ProtectedRoute>} />
-            <Route path="/client/sell" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientSell /></ProtectedRoute>} />
-            <Route path="/client/requests" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientRequests /></ProtectedRoute>} />
-            <Route path="/client/transactions" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientTransactions /></ProtectedRoute>} />
-            <Route path="/client/documents" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientDocuments /></ProtectedRoute>} />
-            <Route path="/client/notifications" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientNotifications /></ProtectedRoute>} />
-            <Route path="/client/profile" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientProfile /></ProtectedRoute>} />
+              <Route path="/materials/requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><MaterialRequests /></ProtectedRoute>} />
+              <Route path="/materials/quotations" element={<ProtectedRoute allowedRoles={['ADMIN']}><Quotations /></ProtectedRoute>} />
+              <Route path="/materials/orders" element={<ProtectedRoute allowedRoles={['ADMIN']}><Orders /></ProtectedRoute>} />
+              <Route path="/materials/deliveries" element={<ProtectedRoute allowedRoles={['ADMIN']}><Deliveries /></ProtectedRoute>} />
+              <Route path="/materials/inventory" element={<ProtectedRoute allowedRoles={['ADMIN']}><Inventory /></ProtectedRoute>} />
 
-            {/* Redirect legacy /buyer/... and /seller/... routes to /client/... */}
-            <Route path="/buyer/dashboard" element={<Navigate to="/client/dashboard" replace />} />
-            <Route path="/buyer/properties" element={<Navigate to="/client/buy" replace />} />
-            <Route path="/buyer/requests" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/buyer/negotiations" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/buyer/transactions" element={<Navigate to="/client/transactions" replace />} />
-            <Route path="/buyer/documents" element={<Navigate to="/client/documents" replace />} />
-            <Route path="/buyer/notifications" element={<Navigate to="/client/notifications" replace />} />
-            <Route path="/buyer/profile" element={<Navigate to="/client/profile" replace />} />
+              <Route path="/contracts" element={<ProtectedRoute allowedRoles={['ADMIN']}><Contracts /></ProtectedRoute>} />
+              <Route path="/work-management" element={<ProtectedRoute allowedRoles={['ADMIN']}><WorkManagement /></ProtectedRoute>} />
+              <Route path="/payments" element={<ProtectedRoute allowedRoles={['ADMIN']}><Payments /></ProtectedRoute>} />
+              <Route path="/inspections" element={<ProtectedRoute allowedRoles={['ADMIN']}><Inspections /></ProtectedRoute>} />
+              <Route path="/rework" element={<ProtectedRoute allowedRoles={['ADMIN']}><Rework /></ProtectedRoute>} />
 
-            <Route path="/seller/dashboard" element={<Navigate to="/client/dashboard" replace />} />
-            <Route path="/seller/properties" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/seller/requests" element={<Navigate to="/client/sell" replace />} />
-            <Route path="/seller/verification" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/seller/buyer-interest" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/seller/negotiations" element={<Navigate to="/client/requests" replace />} />
-            <Route path="/seller/transactions" element={<Navigate to="/client/transactions" replace />} />
-            <Route path="/seller/documents" element={<Navigate to="/client/documents" replace />} />
-            <Route path="/seller/notifications" element={<Navigate to="/client/notifications" replace />} />
-            <Route path="/seller/profile" element={<Navigate to="/client/profile" replace />} />
+              <Route path="/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><Reports /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'CLIENT']}><Settings /></ProtectedRoute>} />
 
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </ToastProvider>
-    </AppProvider>
+              {/* UNIFIED CLIENT Protected Routes */}
+              <Route path="/client/dashboard" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientDashboard /></ProtectedRoute>} />
+              <Route path="/client/buy" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientBuy /></ProtectedRoute>} />
+              <Route path="/client/sell" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientSell /></ProtectedRoute>} />
+              <Route path="/client/requests" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientRequests /></ProtectedRoute>} />
+              <Route path="/client/transactions" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientTransactions /></ProtectedRoute>} />
+              <Route path="/client/documents" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientDocuments /></ProtectedRoute>} />
+              <Route path="/client/notifications" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientNotifications /></ProtectedRoute>} />
+              <Route path="/client/profile" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientProfile /></ProtectedRoute>} />
+
+              {/* Legacy Aliases for Buyer/Seller */}
+              <Route path="/buyer/dashboard" element={<Navigate to="/client/dashboard" replace />} />
+              <Route path="/buyer/properties" element={<Navigate to="/client/buy" replace />} />
+              <Route path="/buyer/requests" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/buyer/negotiations" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/buyer/transactions" element={<Navigate to="/client/transactions" replace />} />
+              <Route path="/buyer/documents" element={<Navigate to="/client/documents" replace />} />
+              <Route path="/buyer/notifications" element={<Navigate to="/client/notifications" replace />} />
+              <Route path="/buyer/profile" element={<Navigate to="/client/profile" replace />} />
+
+              <Route path="/seller/dashboard" element={<Navigate to="/client/dashboard" replace />} />
+              <Route path="/seller/properties" element={<Navigate to="/client/sell" replace />} />
+              <Route path="/seller/requests" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/seller/verification" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/seller/buyer-interest" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/seller/negotiations" element={<Navigate to="/client/requests" replace />} />
+              <Route path="/seller/transactions" element={<Navigate to="/client/transactions" replace />} />
+              <Route path="/seller/documents" element={<Navigate to="/client/documents" replace />} />
+              <Route path="/seller/notifications" element={<Navigate to="/client/notifications" replace />} />
+              <Route path="/seller/profile" element={<Navigate to="/client/profile" replace />} />
+
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </ToastProvider>
+      </AppProvider>
+    </LanguageProvider>
   )
 }

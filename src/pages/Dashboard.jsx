@@ -22,10 +22,12 @@ import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { projects, recentActivities, payments, items as materialsList, landBuying } from '../data/mockData'
 import { formatCurrencyINR } from '../utils/format'
 import { useApp } from '../context/AppContext'
+import { useTranslation } from '../context/LanguageContext'
 
 export default function Dashboard() {
   const { currentUser } = useApp()
-  const userName = currentUser?.name ? currentUser.name.split(' ')[0] : 'Administrator'
+  const { t } = useTranslation()
+  const userName = currentUser?.name ? currentUser.name.split(' ')[0] : t('administrator', 'Administrator')
 
   const activeProjects = projects.filter((p) => p.project_status !== 'Planning')
   const nearCompletion = projects.filter((p) => p.overall_progress_percentage >= 85).length
@@ -42,20 +44,20 @@ export default function Dashboard() {
     <div>
       <div className="hero-banner">
         <div className="hero-banner-inner">
-          <h2>Welcome back, {userName} 👋</h2>
-          <p>Real-time oversight across land acquisitions, construction projects, contractor services, and financials.</p>
+          <h2>{t('dash_header_title', 'Construction & Real Estate Dashboard')} — {userName} 👋</h2>
+          <p>{t('dash_header_desc', 'Overview of construction projects, real estate metrics, teams and site activities.')}</p>
           <div className="hero-banner-actions">
             <Link to="/projects">
-              <PrimaryButton icon={Plus}>New Project</PrimaryButton>
+              <PrimaryButton icon={Plus}>{t('projects', 'Projects')}</PrimaryButton>
             </Link>
-            <Link to="/real-estate/land-buying">
+            <Link to="/real-estate/overview">
               <SecondaryButton icon={Landmark} className="btn-on-dark">
-                Acquire Land
+                {t('real_estate', 'Real Estate')}
               </SecondaryButton>
             </Link>
             <Link to="/payments">
               <SecondaryButton icon={Wallet} className="btn-on-dark">
-                Record Payment
+                {t('payments', 'Payments')}
               </SecondaryButton>
             </Link>
           </div>
@@ -63,10 +65,10 @@ export default function Dashboard() {
       </div>
 
       <div className="stat-grid">
-        <StatCard icon={FolderKanban} iconBg="var(--forest-900)" iconColor="#fff" value={projects.length.toString()} label="Total Projects" trend="+8.4%" />
-        <StatCard icon={Activity} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value={activeProjects.length.toString()} label="Active Sites" trend="+12.5%" />
-        <StatCard icon={Landmark} iconBg="var(--green-100)" iconColor="var(--forest-900)" value={landBuying.length.toString()} label="Land Assets" trend="+1 parcel" />
-        <StatCard icon={Wallet} iconBg="var(--gold-050)" iconColor="var(--forest-900)" value={formatCurrencyINR(netBalance)} label="Net Cash Balance" trend="Positive" />
+        <StatCard icon={FolderKanban} iconBg="var(--forest-900)" iconColor="#fff" value={projects.length.toString()} label={t('total_projects', 'Total Projects')} trend="+8.4%" />
+        <StatCard icon={Activity} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value={activeProjects.length.toString()} label={t('active_sites', 'Active Sites')} trend="+12.5%" />
+        <StatCard icon={Landmark} iconBg="var(--green-100)" iconColor="var(--forest-900)" value={landBuying.length.toString()} label={t('land_properties', 'Land Properties')} trend="+1 parcel" />
+        <StatCard icon={Wallet} iconBg="var(--gold-050)" iconColor="var(--forest-900)" value={formatCurrencyINR(netBalance)} label={t('net_balance', 'Net Balance')} trend="Positive" />
       </div>
 
       <div className="mini-stat-row">
@@ -76,7 +78,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h4>{formatCurrencyINR(totalIncome)}</h4>
-            <span>Income Received</span>
+            <span>{t('income', 'Income')}</span>
           </div>
         </div>
         <div className="card mini-stat">
@@ -85,7 +87,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h4>{formatCurrencyINR(totalExpense)}</h4>
-            <span>Expenses Outflow</span>
+            <span>{t('expense', 'Expense')}</span>
           </div>
         </div>
         <div className="card mini-stat">
@@ -94,7 +96,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h4>{avgProgress}%</h4>
-            <span>Avg Site Progress</span>
+            <span>{t('progress_updates', 'Progress Updates')}</span>
           </div>
         </div>
       </div>
@@ -103,11 +105,11 @@ export default function Dashboard() {
         <div>
           <div className="section-head">
             <div>
-              <h3>Active Construction Projects</h3>
-              <p className="section-desc">Stage-wise execution progress on active sites</p>
+              <h3>{t('project_overview', 'Project Overview')}</h3>
+              <p className="section-desc">{t('dash_header_desc', 'Stage-wise execution progress on active sites')}</p>
             </div>
             <Link to="/projects" className="btn btn-secondary btn-sm">
-              View All Projects
+              {t('view', 'View')} {t('projects', 'Projects')}
             </Link>
           </div>
           <div className="project-grid">
@@ -122,10 +124,10 @@ export default function Dashboard() {
             <div className="card card-pad" style={{ borderLeft: '4px solid var(--gold-500)', background: 'var(--gold-050)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <AlertTriangle size={18} style={{ color: 'var(--amber-600, #d97706)' }} />
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Low Stock Alert</h4>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>{t('materials', 'Materials')} Alert</h4>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--ink-700)', marginBottom: 10 }}>
-                {lowStockMaterials.length} material(s) have reached minimum inventory threshold:
+                {lowStockMaterials.length} {t('materials', 'materials')} reached threshold:
               </p>
               {lowStockMaterials.map((m) => (
                 <div key={m.material_id || m.item_id} style={{ fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px dashed var(--line-200)' }}>
@@ -134,7 +136,7 @@ export default function Dashboard() {
                 </div>
               ))}
               <Link to="/items" className="btn btn-secondary btn-sm" style={{ marginTop: 10, alignSelf: 'flex-start' }}>
-                Manage Inventory
+                {t('inventory', 'Inventory')}
               </Link>
             </div>
           )}
@@ -142,13 +144,13 @@ export default function Dashboard() {
           <div className="card card-pad">
             <div className="section-head" style={{ marginBottom: 18 }}>
               <div>
-                <h3>Recent Site Activities</h3>
-                <p className="section-desc">Live progress and site updates feed</p>
+                <h3>{t('recent_activity', 'Recent Activity')}</h3>
+                <p className="section-desc">{t('site_updates', 'Site Updates')}</p>
               </div>
             </div>
             <ActivityFeed items={recentActivities} />
             <Link to="/progress-updates" className="btn btn-ghost btn-block" style={{ marginTop: 16 }}>
-              <ClipboardList size={15} /> View All Activity
+              <ClipboardList size={15} /> {t('view', 'View')} {t('recent_activity', 'Recent Activity')}
             </Link>
           </div>
         </div>
