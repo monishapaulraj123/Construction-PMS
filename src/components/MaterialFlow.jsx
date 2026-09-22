@@ -12,7 +12,7 @@ const steps = [
   { label: 'Material Usage', icon: HardHat },
 ]
 
-export default function MaterialFlow() {
+export default function MaterialFlow() {  
   return (
     <div className="card card-pad" style={{ marginBottom: 22 }}>
       <div className="flow-row scrollbar-thin">
