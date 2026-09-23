@@ -9,6 +9,7 @@ import HorizontalTimeline from '../components/HorizontalTimeline'
 import { constructionTypes, constructionStages } from '../data/mockData'
 import { useToast } from '../components/ToastContext'
 
+
 export default function ConstructionStages() {
   const [typeId, setTypeId] = useState(1)
   const [stagesByType, setStagesByType] = useState(constructionStages)
@@ -79,7 +80,7 @@ export default function ConstructionStages() {
             <PrimaryButton onClick={handleSave}>Add</PrimaryButton>
           </>
         }
-      >
+      > 
         <form className="form-grid" onSubmit={handleSave}>
           <FormInput label="Stage Name" required full value={form.stage_name} onChange={(e) => setForm({ ...form, stage_name: e.target.value })} />
           <FormInput
@@ -93,3 +94,5 @@ export default function ConstructionStages() {
     </div>
   )
 }
+
+
