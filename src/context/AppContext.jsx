@@ -61,7 +61,7 @@ const defaultProperties = [
     status: 'Approved',
     publication_status: 'Published',
     verification_status: 'Verified',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop',
+    image: '/avinashi_commercial_land.jpg',
     document_reference: 'DOC-CBE-2025-5510',
     created_at: '2025-12-15',
     description: 'High visibility frontage land parcel on Avinashi main highway.',

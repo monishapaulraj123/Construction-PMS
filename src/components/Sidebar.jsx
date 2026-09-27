@@ -61,7 +61,6 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       label: t('real_estate', 'Real Estate'),
       icon: Building,
       links: [
-        { to: '/real-estate/overview', label: t('overview', 'Overview'), icon: LayoutDashboard },
         { to: '/real-estate/properties', label: t('properties', 'Properties'), icon: Building },
         { to: '/real-estate/buy-requests', label: t('buy_requests', 'Buy Requests'), icon: Tag },
         { to: '/real-estate/sell-requests', label: t('sell_requests', 'Sell Requests'), icon: PlusCircle },

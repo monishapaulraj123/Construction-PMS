@@ -291,7 +291,11 @@ export default function CreateProject() {
           <div className="form-grid">
             <SelectInput
               label="Initial Construction Stage"
-              options={defaultStagesList}
+              options={(() => {
+                const selectedTypeObj = constructionTypes.find((t) => t.construction_type_name === form.construction_type_name)
+                const typeId = selectedTypeObj ? selectedTypeObj.construction_type_id : 1
+                return (constructionStages[typeId] || constructionStages[1] || []).map((s) => s.stage_name)
+              })()}
               value={form.construction_stage_name || ''}
               onChange={(e) => setForm({ ...form, construction_stage_name: e.target.value })}
             />

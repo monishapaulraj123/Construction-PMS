@@ -203,138 +203,96 @@ export default function ProjectBudgetEditor({ initialEstimation, onChange, readO
         </div>
       </div>
 
-      {/* 2. Category Scope Selection Grid */}
+      {/* 2. Category Scope Selection Grid & Cost Breakdown */}
       <div>
         <div style={{ marginBottom: 12 }}>
           <h4 style={{ fontSize: '0.94rem', fontWeight: 700, color: 'var(--ink-900)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Layers size={16} color="var(--forest-900)" /> Select Required Scope Categories ({budget.categories.filter((c) => c.selected).length} / {budget.categories.length} Selected)
           </h4>
           <p style={{ fontSize: '0.8rem', color: 'var(--ink-500)', margin: 0 }}>
-            Check the categories required for this project.
+            Check the categories required for this project and click the dropdown arrow to view or edit itemized cost breakdown.
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
           {budget.categories.map((cat) => {
             const def = SCOPE_CATEGORIES.find((c) => c.id === cat.id) || {}
-            return (
-              <div
-                key={cat.id}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: cat.selected ? '1.5px solid var(--forest-900)' : '1px solid var(--line-100)',
-                  background: cat.selected ? 'var(--cream-050)' : '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                }}
-              >
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: readOnly ? 'default' : 'pointer', flex: 1 }}
-                  onClick={() => toggleCategorySelected(cat.id)}
-                >
-                  {cat.selected ? (
-                    <CheckSquare size={18} color="var(--forest-900)" />
-                  ) : (
-                    <Square size={18} color="var(--ink-300)" />
-                  )}
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: cat.selected ? 700 : 500, color: cat.selected ? 'var(--ink-900)' : 'var(--ink-500)' }}>
-                      {def.icon || '📌'} {cat.name}
-                    </div>
-                    {cat.is_optional_addon && (
-                      <span style={{ fontSize: '0.72rem', color: 'var(--gold-600)', fontWeight: 600 }}>
-                        + Optional Client Add-on
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {cat.selected && (
-                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--forest-900)' }}>
-                      {formatCurrencyINR(cat.category_total)}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className="btn-icon"
-                    onClick={() => setExpandedCategoryId(expandedCategoryId === cat.id ? null : cat.id)}
-                    style={{ width: 28, height: 28, padding: 0 }}
-                  >
-                    {expandedCategoryId === cat.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </button>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* 3. Detailed Cost Breakdown Accordion */}
-      <div>
-        <h4 style={{ fontSize: '0.94rem', fontWeight: 700, color: 'var(--ink-900)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Wrench size={16} color="var(--forest-900)" /> Itemized Category Cost Breakdown & Annexure
-        </h4>
-
-        <div className="stack-14">
-          {budget.categories.filter((c) => c.selected).map((cat) => {
             const isExpanded = expandedCategoryId === cat.id
-            const def = SCOPE_CATEGORIES.find((c) => c.id === cat.id) || {}
 
             return (
               <div
                 key={cat.id}
                 style={{
-                  border: '1px solid var(--line-200)',
-                  borderRadius: 'var(--radius-md)',
-                  background: '#fff',
+                  gridColumn: isExpanded ? '1 / -1' : 'span 1',
+                  borderRadius: 'var(--radius-sm)',
+                  border: isExpanded
+                    ? '1.5px solid var(--forest-900)'
+                    : cat.selected
+                    ? '1.5px solid var(--forest-900)'
+                    : '1px solid var(--line-100)',
+                  borderLeft: isExpanded ? '4px solid var(--forest-900)' : undefined,
+                  background: cat.selected || isExpanded ? 'var(--cream-050)' : '#fff',
+                  transition: 'all 0.15s ease',
                   overflow: 'hidden',
                 }}
               >
-                {/* Header */}
+                {/* Header Card Row */}
                 <div
                   style={{
-                    padding: '12px 16px',
-                    background: 'var(--cream-100)',
+                    padding: '12px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    justify: 'space-between',
-                    cursor: 'pointer',
-                    userSelect: 'none',
+                    justifyContent: 'space-between',
+                    gap: 10,
                   }}
-                  onClick={() => setExpandedCategoryId(isExpanded ? null : cat.id)}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: '1.1rem' }}>{def.icon || '📌'}</span>
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: readOnly ? 'default' : 'pointer', flex: 1 }}
+                    onClick={() => toggleCategorySelected(cat.id)}
+                  >
+                    {cat.selected ? (
+                      <CheckSquare size={18} color="var(--forest-900)" />
+                    ) : (
+                      <Square size={18} color="var(--ink-300)" />
+                    )}
                     <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--ink-900)' }}>
-                        {cat.name}
-                        {cat.is_optional_addon && (
-                          <span style={{ marginLeft: 8, fontSize: '0.72rem', background: 'var(--gold-100)', color: 'var(--gold-600)', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
-                            Optional Add-on
-                          </span>
-                        )}
+                      <div style={{ fontSize: '0.86rem', fontWeight: cat.selected || isExpanded ? 700 : 500, color: cat.selected || isExpanded ? 'var(--ink-900)' : 'var(--ink-500)' }}>
+                        {def.icon || '📌'} {cat.name}
                       </div>
+                      {cat.is_optional_addon && (
+                        <span style={{ fontSize: '0.72rem', color: 'var(--gold-600)', fontWeight: 600 }}>
+                          + Optional Client Add-on
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--ink-500)', textTransform: 'uppercase' }}>Category Total</span>
-                      <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--forest-900)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {cat.selected && (
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--forest-900)' }}>
                         {formatCurrencyINR(cat.category_total)}
-                      </div>
-                    </div>
-                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="btn-icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (!cat.selected && !isExpanded) {
+                          toggleCategorySelected(cat.id)
+                        }
+                        setExpandedCategoryId(isExpanded ? null : cat.id)
+                      }}
+                      style={{ width: 28, height: 28, padding: 0 }}
+                    >
+                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
                   </div>
                 </div>
 
-                {/* Details */}
+                {/* Details Expanded Directly Inside The Same Card */}
                 {isExpanded && (
-                  <div style={{ padding: 16 }} className="stack-16">
+                  <div style={{ padding: 16, borderTop: '1px solid var(--line-200)', background: '#fff' }} className="stack-16">
                     {/* Optional Add-on toggle */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--sand-100)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
                       <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ink-700)', display: 'flex', alignItems: 'center', gap: 8, cursor: readOnly ? 'default' : 'pointer' }}>

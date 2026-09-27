@@ -156,8 +156,32 @@
   border-bottom: 1px solid var(--line-100);
 }
 
+.app-header-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
 .app-header-title h2 {
   font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.dashboard-header-title {
+  font-size: 1.1rem;
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  color: var(--ink-900);
+}
+
+.dashboard-header-title .title-line-1,
+.dashboard-header-title .title-line-2 {
+  display: block;
+  white-space: nowrap;
 }
 
 .app-header-title p {

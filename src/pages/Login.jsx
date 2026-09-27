@@ -43,6 +43,7 @@ export default function Login() {
 
   return (
     <div
+      className="login-page-wrapper"
       style={{
         minHeight: '100vh',
         width: '100vw',
@@ -50,12 +51,12 @@ export default function Login() {
         padding: 0,
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
-        background: '#FAF8F3',
+        background: 'var(--cream-050)',
         overflowX: 'hidden',
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Left Side — User Uploaded Green Modern House Image with #2F5D50 Overlay */}
+      {/* Left Side — Green Modern House Image with Overlay */}
       <div
         style={{
           backgroundImage: `linear-gradient(180deg, rgba(35, 68, 58, 0.35) 0%, rgba(20, 45, 38, 0.65) 100%), url('/images/login-house.jpg')`,
@@ -109,23 +110,22 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Clean Building Image Body — ALL middle/bottom hero text & icon badges REMOVED as required */}
-
         {/* Bottom Copyright Tag */}
         <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
           © Construction Project Management & Real Estate Enterprise Platform
         </div>
       </div>
 
-      {/* Right Side — Premium Clean Login Panel */}
+      {/* Right Side — Premium Login Panel */}
       <div
+        className="login-panel-right"
         style={{
           padding: '48px 60px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          background: '#FAF8F3',
+          background: 'var(--cream-050)',
           minHeight: '100vh',
           boxSizing: 'border-box',
           position: 'relative',
@@ -137,36 +137,37 @@ export default function Login() {
           viewBox="0 0 200 200"
           fill="none"
         >
-          <path d="M200 0H70C140 30 180 90 200 170V0Z" fill="#2F5D50" />
-          <path d="M200 0H110C160 40 185 100 200 140V0Z" fill="#D4B06A" opacity="0.4" />
+          <path d="M200 0H70C140 30 180 90 200 170V0Z" fill="var(--forest-900)" />
+          <path d="M200 0H110C160 40 185 100 200 140V0Z" fill="var(--gold-500)" opacity="0.4" />
         </svg>
 
         {/* Bottom-Right Architectural Line Art Background Accent */}
         <svg
-          style={{ position: 'absolute', bottom: 0, right: 0, width: 220, height: 220, pointerEvents: 'none', opacity: 0.1 }}
+          style={{ position: 'absolute', bottom: 0, right: 0, width: 220, height: 220, pointerEvents: 'none', opacity: 0.12 }}
           viewBox="0 0 200 200"
           fill="none"
-          stroke="#2F5D50"
+          stroke="var(--forest-900)"
           strokeWidth="1"
         >
           <path d="M20 180 L180 180 M40 180 L40 60 L120 20 L180 60 L180 180 M40 100 L180 100 M40 140 L180 140 M100 180 L100 60" />
         </svg>
 
-        <div style={{ maxWidth: 410, width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          {/* Top Header — Logo Mark + Construction PMS Title ONLY (NO "LOGIN TO DASHBOARD" subtitle) */}
+        <div className="login-card-container" style={{ maxWidth: 410, width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          {/* Top Header */}
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 12 }}>
-              <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
-              <Building2 size={32} color="#D4B06A" />
-              <div style={{ height: 1, width: 44, background: '#D4B06A' }} />
+              <div style={{ height: 1, width: 44, background: 'var(--gold-500)' }} />
+              <Building2 size={32} color="var(--gold-500)" />
+              <div style={{ height: 1, width: 44, background: 'var(--gold-500)' }} />
             </div>
 
             <h2
+              className="login-title"
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: '2.15rem',
                 fontWeight: 800,
-                color: '#2F5D50',
+                color: 'var(--forest-900)',
                 margin: 0,
                 letterSpacing: '-0.02em',
               }}
@@ -179,15 +180,15 @@ export default function Login() {
           {error && (
             <div
               style={{
-                background: '#fef2f2',
-                border: '1px solid #fca5a5',
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid var(--red-500)',
                 borderRadius: 8,
                 padding: '12px 14px',
                 marginBottom: 22,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                color: '#b91c1c',
+                color: 'var(--red-600)',
                 fontSize: '0.84rem',
               }}
             >
@@ -206,7 +207,7 @@ export default function Login() {
                   marginBottom: 7,
                   fontSize: '0.84rem',
                   fontWeight: 600,
-                  color: '#2D3748',
+                  color: 'var(--ink-700)',
                 }}
               >
                 {t('email', 'Email Address')}
@@ -214,33 +215,24 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <Mail
                   size={18}
-                  color="#2F5D50"
-                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
+                  color="var(--gold-500)"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.9 }}
                 />
                 <input
                   type="text"
+                  className="login-input"
                   placeholder="name@example.com"
                   style={{
                     width: '100%',
                     padding: '12px 14px 12px 42px',
                     borderRadius: 8,
-                    border: '1px solid #E2DCD2',
-                    background: '#F6F2EA',
+                    border: '1px solid var(--line-100)',
+                    background: 'var(--cream-100)',
                     fontSize: '0.9rem',
-                    color: '#1F2937',
+                    color: 'var(--ink-900)',
                     outline: 'none',
                     boxSizing: 'border-box',
                     transition: 'all 0.2s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#2F5D50'
-                    e.target.style.background = '#FFFFFF'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(47, 93, 80, 0.12)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#E2DCD2'
-                    e.target.style.background = '#F6F2EA'
-                    e.target.style.boxShadow = 'none'
                   }}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -252,7 +244,7 @@ export default function Login() {
             {/* Password Field */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
-                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#2D3748' }}>
+                <label style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--ink-700)' }}>
                   {t('password', 'Password')}
                 </label>
                 <a
@@ -261,7 +253,7 @@ export default function Login() {
                     e.preventDefault()
                     alert('Password reset instructions sent to registered email.')
                   }}
-                  style={{ fontSize: '0.78rem', color: '#D4B06A', textDecoration: 'none', fontWeight: 600 }}
+                  style={{ fontSize: '0.78rem', color: 'var(--gold-500)', textDecoration: 'none', fontWeight: 600 }}
                 >
                   Forgot Password?
                 </a>
@@ -269,33 +261,24 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <Lock
                   size={18}
-                  color="#2F5D50"
-                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.8 }}
+                  color="var(--gold-500)"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.9 }}
                 />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  className="login-input"
                   placeholder="Enter your password"
                   style={{
                     width: '100%',
                     padding: '12px 42px 12px 42px',
                     borderRadius: 8,
-                    border: '1px solid #E2DCD2',
-                    background: '#F6F2EA',
+                    border: '1px solid var(--line-100)',
+                    background: 'var(--cream-100)',
                     fontSize: '0.9rem',
-                    color: '#1F2937',
+                    color: 'var(--ink-900)',
                     outline: 'none',
                     boxSizing: 'border-box',
                     transition: 'all 0.2s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#2F5D50'
-                    e.target.style.background = '#FFFFFF'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(47, 93, 80, 0.12)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#E2DCD2'
-                    e.target.style.background = '#F6F2EA'
-                    e.target.style.boxShadow = 'none'
                   }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -313,7 +296,7 @@ export default function Login() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: '#A09686',
+                    color: 'var(--ink-500)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -328,10 +311,11 @@ export default function Login() {
             {/* Login Submit Button */}
             <button
               type="submit"
+              className="btn-primary btn-login-submit"
               style={{
                 width: '100%',
                 padding: '14px',
-                background: '#2F5D50',
+                background: 'var(--forest-900)',
                 color: '#FFFFFF',
                 fontSize: '0.92rem',
                 fontWeight: 700,
@@ -342,39 +326,32 @@ export default function Login() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
-                boxShadow: '0 4px 14px rgba(47, 93, 80, 0.28)',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
                 transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#24493f'
-                e.currentTarget.style.boxShadow = '0 6px 18px rgba(47, 93, 80, 0.38)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2F5D50'
-                e.currentTarget.style.boxShadow = '0 4px 14px rgba(47, 93, 80, 0.28)'
               }}
             >
               <span>{t('sign_in', 'Sign In')}</span>
-              <span style={{ color: '#D4B06A', fontWeight: 800, fontSize: '1.1rem' }}>→</span>
+              <span style={{ color: 'var(--gold-500)', fontWeight: 800, fontSize: '1.1rem' }}>→</span>
             </button>
           </form>
 
           {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '26px 0', color: '#9E9484', fontSize: '0.78rem', fontWeight: 600 }}>
-            <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
+          <div style={{ display: 'flex', alignItems: 'center', margin: '26px 0', color: 'var(--ink-500)', fontSize: '0.78rem', fontWeight: 600 }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--line-100)' }} />
             <span style={{ padding: '0 14px' }}>OR</span>
-            <div style={{ flex: 1, height: '1px', background: '#E5DFD5' }} />
+            <div style={{ flex: 1, height: '1px', background: 'var(--line-100)' }} />
           </div>
 
           {/* Google Sign In Button */}
           <button
             type="button"
+            className="btn-google"
             onClick={() => alert('Google authentication is currently unavailable. Please log in with your email and password.')}
             style={{
               width: '100%',
               padding: '12px',
-              background: '#FFFFFF',
-              border: '1px solid #D4B06A',
+              background: 'var(--paper)',
+              border: '1px solid var(--gold-500)',
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
@@ -382,18 +359,9 @@ export default function Login() {
               gap: 12,
               fontSize: '0.88rem',
               fontWeight: 600,
-              color: '#1F2937',
+              color: 'var(--ink-900)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#FAF8F3'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 175, 106, 0.25)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#FFFFFF'
-              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.03)'
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24">

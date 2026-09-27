@@ -67,36 +67,54 @@
 }
 
 /* ---------------- Dark Theme Overrides (Forest Green + Warm Gold) ---------------- */
+/* ---------------- Dark Theme Overrides (Richer Modern Forest Dark) ---------------- */
 [data-theme='dark'],
 .dark-theme {
-  --cream-050: #162923;
-  --cream-100: #1e3932;
-  --sand-100: #22423a;
+  --cream-050: #0B1612; /* Deep luxury obsidian-forest page background */
+  --cream-100: #0F1F19; /* Header / Table Header / Secondary surface */
+  --sand-100: #142620;
+  --sand-050: #0D1C16;
 
-  --paper: #263f38;
+  --paper: #142620;      /* Crisp Card background surface */
+  --paper-elevated: #1A332B; /* Modals / Dropdowns / Popups */
 
-  --ink-900: #f5f1e8;
-  --ink-700: #c8c4ba;
-  --ink-500: #9e9a90;
-  --ink-300: #757168;
+  --ink-900: #F8F6F0; /* Luminous warm off-white primary text */
+  --ink-700: #CBE0D8; /* Crisp secondary body text */
+  --ink-500: #8CA096; /* Soft muted metadata text */
+  --ink-300: #5C7066; /* Disabled text */
 
-  --line-100: rgba(212, 176, 106, 0.22);
-  --line-200: rgba(212, 176, 106, 0.35);
+  --line-100: #244238; /* Crisp primary borders */
+  --line-200: #1D362E; /* Subtle secondary borders */
 
-  --forest-950: #101f1a;
-  --forest-900: #2f5d50;
-  --forest-800: #3b6e61;
-  --forest-700: #488273;
-  --forest-600: #579888;
-  --forest-line: rgba(212, 176, 106, 0.25);
+  --forest-950: #060E0B;
+  --forest-900: #1E483D;
+  --forest-800: #275C4E;
+  --forest-700: #337362;
+  --forest-600: #428B77;
+  --forest-line: #244238;
 
-  --gold-600: #c49e58;
-  --gold-500: #d4b06a;
-  --gold-400: #e2c282;
-  --gold-100: rgba(212, 176, 106, 0.2);
-  --gold-050: rgba(212, 176, 106, 0.1);
+  --gold-600: #C29D52;
+  --gold-500: #D4B06A;
+  --gold-400: #E7C782;
+  --gold-100: rgba(212, 176, 106, 0.22);
+  --gold-050: rgba(212, 176, 106, 0.12);
 
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --green-700: #4EB89B;
+  --green-500: #65CCA7;
+  --green-100: rgba(101, 204, 167, 0.22);
+
+  --amber-600: #E5B26B;
+  --amber-500: #D48C38;
+  --amber-100: rgba(212, 140, 56, 0.22);
+
+  --red-600: #F58476;
+  --red-500: #C95549;
+  --red-100: rgba(201, 85, 73, 0.22);
+
+  --gray-500: #8CA096;
+  --gray-100: #142620;
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.65);
 }
 

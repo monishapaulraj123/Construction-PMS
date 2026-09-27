@@ -91,7 +91,7 @@ export default function App() {
             <Route element={<MainLayout />}>
               {/* ADMIN Protected Routes */}
               <Route path="/" element={<ProtectedRoute allowedRoles={['ADMIN']}><Dashboard /></ProtectedRoute>} />
-              <Route path="/real-estate/overview" element={<ProtectedRoute allowedRoles={['ADMIN']}><RealEstateOverview /></ProtectedRoute>} />
+              <Route path="/real-estate/overview" element={<Navigate to="/real-estate/properties" replace />} />
               <Route path="/real-estate/properties" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProperties /></ProtectedRoute>} />
               <Route path="/real-estate/buy-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><BuyRequests /></ProtectedRoute>} />
               <Route path="/real-estate/sell-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><SellRequests /></ProtectedRoute>} />
@@ -99,8 +99,8 @@ export default function App() {
               <Route path="/real-estate/negotiations" element={<ProtectedRoute allowedRoles={['ADMIN']}><Negotiations /></ProtectedRoute>} />
               <Route path="/real-estate/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><Transactions /></ProtectedRoute>} />
 
-              <Route path="/real-estate/land-buying" element={<Navigate to="/real-estate/overview" replace />} />
-              <Route path="/real-estate/land-sales" element={<Navigate to="/real-estate/overview" replace />} />
+              <Route path="/real-estate/land-buying" element={<Navigate to="/real-estate/properties" replace />} />
+              <Route path="/real-estate/land-sales" element={<Navigate to="/real-estate/properties" replace />} />
               <Route path="/employee-types" element={<ProtectedRoute allowedRoles={['ADMIN']}><EmployeeTypes /></ProtectedRoute>} />
               <Route path="/employees" element={<ProtectedRoute allowedRoles={['ADMIN']}><Employees /></ProtectedRoute>} />
               <Route path="/item-categories" element={<ProtectedRoute allowedRoles={['ADMIN']}><ItemCategories /></ProtectedRoute>} />

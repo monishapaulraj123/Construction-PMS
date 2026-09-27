@@ -26,13 +26,20 @@ export default function Header({ onMenuClick }) {
 
   return (
     <header className="app-header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
         <button className="icon-btn menu-toggle" onClick={onMenuClick} aria-label="Open menu">
           <Menu size={18} />
         </button>
         <div className="app-header-title">
-          <h2>{title}</h2>
-          <p>{description}</p>
+          {location.pathname === '/' || location.pathname === '/dashboard' || (title && String(title).includes('Construction & Real Estate')) ? (
+            <h2 className="dashboard-header-title">
+              <span className="title-line-1">Construction &amp; Real Estate</span>
+              <span className="title-line-2">Dashboard</span>
+            </h2>
+          ) : (
+            <h2>{title}</h2>
+          )}
+          {description ? <p>{description}</p> : null}
         </div>
       </div>
 
@@ -142,11 +149,11 @@ export default function Header({ onMenuClick }) {
               <div style={{ padding: '0 10px 8px 10px', fontSize: '0.75rem', color: 'var(--ink-500)' }}>
                 {currentUser?.email}
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid var(--cream-200)', margin: '4px 0 8px 0' }} />
+              <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '4px 0 8px 0' }} />
               
               {userRole === 'CLIENT' && (
                 <button
-                  className="btn"
+                  className="btn btn-secondary"
                   style={{
                     width: '100%',
                     justifyContent: 'flex-start',
@@ -165,14 +172,13 @@ export default function Header({ onMenuClick }) {
               )}
 
               <button
-                className="btn"
+                className="btn btn-logout"
                 style={{
                   width: '100%',
                   justifyContent: 'flex-start',
                   gap: 8,
                   fontSize: '0.82rem',
                   padding: '8px 10px',
-                  color: 'var(--coral-500)',
                 }}
                 onClick={handleLogout}
               >

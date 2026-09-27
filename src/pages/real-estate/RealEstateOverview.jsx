@@ -93,8 +93,8 @@ export default function RealEstateOverview() {
         style={{
           padding: 20,
           marginBottom: 24,
-          background: 'linear-gradient(135deg, var(--cream-100) 0%, #fff 100%)',
-          borderLeft: '4px solid var(--brand-gold)',
+          background: 'linear-gradient(135deg, var(--cream-100) 0%, var(--paper) 100%)',
+          borderLeft: '4px solid var(--gold-500)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',

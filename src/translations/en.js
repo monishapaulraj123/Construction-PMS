@@ -105,7 +105,7 @@ export const en = {
   // Common Header & Metadata
   app_title: 'Construction PMS & Real Estate',
   dash_header_title: 'Construction & Real Estate Dashboard',
-  dash_header_desc: 'Overview of construction projects, real estate metrics, teams and site activities.',
+  dash_header_desc: '',
   login_header_title: 'Unified Enterprise Login',
   login_header_desc: 'Role-based access for Admin, Buyer, and Seller users.',
 

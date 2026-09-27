@@ -1,5 +1,5 @@
 const meta = [
-  { pattern: /^\/$/, keyTitle: 'dash_header_title', keyDesc: 'dash_header_desc', title: 'Construction & Real Estate Dashboard', description: 'Overview of construction projects, real estate metrics, teams and site activities.' },
+  { pattern: /^(\/|\/dashboard)$/, keyTitle: 'dash_header_title', keyDesc: 'dash_header_desc', title: 'Construction & Real Estate Dashboard', description: '' },
   { pattern: /^\/login/, keyTitle: 'login_header_title', keyDesc: 'login_header_desc', title: 'Unified Enterprise Login', description: 'Role-based access for Admin, Buyer, and Seller users.' },
   
   // Real Estate Admin

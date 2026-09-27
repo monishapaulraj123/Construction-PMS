@@ -45,12 +45,11 @@ export default function Dashboard() {
       <div className="hero-banner">
         <div className="hero-banner-inner">
           <h2>{t('dash_header_title', 'Construction & Real Estate Dashboard')} — {userName} 👋</h2>
-          <p>{t('dash_header_desc', 'Overview of construction projects, real estate metrics, teams and site activities.')}</p>
           <div className="hero-banner-actions">
             <Link to="/projects">
               <PrimaryButton icon={Plus}>{t('projects', 'Projects')}</PrimaryButton>
             </Link>
-            <Link to="/real-estate/overview">
+            <Link to="/real-estate/properties">
               <SecondaryButton icon={Landmark} className="btn-on-dark">
                 {t('real_estate', 'Real Estate')}
               </SecondaryButton>
@@ -149,7 +148,7 @@ export default function Dashboard() {
               </div>
             </div>
             <ActivityFeed items={recentActivities} />
-            <Link to="/progress-updates" className="btn btn-ghost btn-block" style={{ marginTop: 16 }}>
+            <Link to="/progress-updates" className="btn btn-secondary btn-block btn-recent-activity" style={{ marginTop: 16 }}>
               <ClipboardList size={15} /> {t('view', 'View')} {t('recent_activity', 'Recent Activity')}
             </Link>
           </div>

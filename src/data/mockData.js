@@ -341,7 +341,7 @@ export const employees = [
     qualification: 'Master Wood Craftsman',
     gender: 'Male',
     employment_status: 'Permanent',
-    profile_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+    profile_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop',
     status: true,
     completed_projects_list: [
       { project_name: 'Green Valley Residence', service: 'Carpentry', completed_date: 'Jul 2026', duration: '18 days', status: 'Completed' },
@@ -460,7 +460,7 @@ export const employees = [
     qualification: 'Master Craftsman',
     gender: 'Male',
     employment_status: 'Permanent',
-    profile_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+    profile_image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop',
     status: true,
     completed_projects_list: [
       { project_name: 'Poes Garden Residence', service: 'Carpentry', completed_date: 'Aug 2026', duration: '28 days', status: 'Completed' },
@@ -1775,8 +1775,8 @@ export const constructionTypes = [
   { construction_type_id: 2, construction_type_code: 'CT-02', construction_type_name: 'Hospital', description: 'Healthcare and medical facilities', icon: '🏥', image: 'https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=600&auto=format&fit=crop', stages_count: 9, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
   { construction_type_id: 3, construction_type_code: 'CT-03', construction_type_name: 'College', description: 'Educational campuses and institutions', icon: '🏫', image: 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=600&auto=format&fit=crop', stages_count: 15, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
   { construction_type_id: 4, construction_type_code: 'CT-04', construction_type_name: 'Commercial Building', description: 'Offices, retail and mixed-use towers', icon: '🏢', image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop', stages_count: 7, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
-  { construction_type_id: 5, construction_type_code: 'CT-05', construction_type_name: 'Industrial Building', description: 'Factories, warehouses and plants', icon: '🏭', image: '/images/categories/industrial_building.jpg', stages_count: 8, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
-  { construction_type_id: 6, construction_type_code: 'CT-06', construction_type_name: 'Road', description: 'Highways and road infrastructure', icon: '🛣️', image: '/images/categories/road.jpg', stages_count: 9, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
+  { construction_type_id: 5, construction_type_code: 'CT-05', construction_type_name: 'Industrial Building', description: 'Factories, warehouses and plants', icon: '🏭', image: '/images/categories/industrial_building.jpg', stages_count: 12, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
+  { construction_type_id: 6, construction_type_code: 'CT-06', construction_type_name: 'Road', description: 'Highways and road infrastructure', icon: '🛣️', image: '/images/categories/road.jpg', stages_count: 10, status: true, created_at: '2025-11-01 10:00:00', created_by: 1 },
 ]
 
 export const projectTypes = [
@@ -1816,6 +1816,23 @@ export const constructionStages = {
     { stage_id: 208, stage_code: 'STG-08', stage_name: 'Finishing', stage_sequence: 8, description: 'Hygienic finishes and cladding', estimated_duration_days: 18, status: true },
     { stage_id: 209, stage_code: 'STG-09', stage_name: 'Final Inspection', stage_sequence: 9, description: 'Compliance and handover', estimated_duration_days: 4, status: true },
   ],
+  3: [
+    { stage_id: 301, stage_code: 'STG-01', stage_name: 'Site Survey & Preparation', stage_sequence: 1, description: 'Topographical survey, boundary marking and site levelling', estimated_duration_days: 6, status: true },
+    { stage_id: 302, stage_code: 'STG-02', stage_name: 'Excavation & Earthwork', stage_sequence: 2, description: 'Mass excavation for foundation and basements', estimated_duration_days: 10, status: true },
+    { stage_id: 303, stage_code: 'STG-03', stage_name: 'Foundation & Substructure', stage_sequence: 3, description: 'Footings, pile foundation and pedestal casting', estimated_duration_days: 18, status: true },
+    { stage_id: 304, stage_code: 'STG-04', stage_name: 'Plinth & Ground Beams', stage_sequence: 4, description: 'Plinth beam casting, damp proofing and soil backfilling', estimated_duration_days: 8, status: true },
+    { stage_id: 305, stage_code: 'STG-05', stage_name: 'Structural Framework', stage_sequence: 5, description: 'Multi-storey RCC columns, beams and slab casting', estimated_duration_days: 35, status: true },
+    { stage_id: 306, stage_code: 'STG-06', stage_name: 'Masonry & Partitions', stage_sequence: 6, description: 'Classroom blockwork, corridor walls and acoustic partitions', estimated_duration_days: 22, status: true },
+    { stage_id: 307, stage_code: 'STG-07', stage_name: 'Roofing & Waterproofing', stage_sequence: 7, description: 'Roof slab casting, heat insulation and terrace waterproofing', estimated_duration_days: 12, status: true },
+    { stage_id: 308, stage_code: 'STG-08', stage_name: 'Electrical & IT Conduiting', stage_sequence: 8, description: 'Power distribution, lab wiring and IT networking conduits', estimated_duration_days: 18, status: true },
+    { stage_id: 309, stage_code: 'STG-09', stage_name: 'Plumbing & Water Supply', stage_sequence: 9, description: 'Overhead tank, drainage risers and lab plumbing lines', estimated_duration_days: 14, status: true },
+    { stage_id: 310, stage_code: 'STG-10', stage_name: 'HVAC & Fire Safety', stage_sequence: 10, description: 'Auditorium AC ducting, fire hydrants and sprinklers', estimated_duration_days: 15, status: true },
+    { stage_id: 311, stage_code: 'STG-11', stage_name: 'Plastering & Rendering', stage_sequence: 11, description: 'Smooth internal plastering and external sand-faced render', estimated_duration_days: 16, status: true },
+    { stage_id: 312, stage_code: 'STG-12', stage_name: 'Flooring & Lab Counters', stage_sequence: 12, description: 'Corridor granite, classroom tiles and science lab counters', estimated_duration_days: 14, status: true },
+    { stage_id: 313, stage_code: 'STG-13', stage_name: 'Painting & Acoustics', stage_sequence: 13, description: 'Interior emulsion, exterior weather-coat & auditorium acoustics', estimated_duration_days: 12, status: true },
+    { stage_id: 314, stage_code: 'STG-14', stage_name: 'Campus Development', stage_sequence: 14, description: 'Internal paver roads, campus lighting and landscaping', estimated_duration_days: 15, status: true },
+    { stage_id: 315, stage_code: 'STG-15', stage_name: 'Testing & Handover', stage_sequence: 15, description: 'Safety compliance audit, MEP testing and final handover', estimated_duration_days: 5, status: true },
+  ],
   4: [
     { stage_id: 401, stage_code: 'STG-01', stage_name: 'Site Preparation', stage_sequence: 1, description: 'Clearing and levelling the plot', estimated_duration_days: 4, status: true },
     { stage_id: 402, stage_code: 'STG-02', stage_name: 'Foundation', stage_sequence: 2, description: 'Pile and raft foundation', estimated_duration_days: 14, status: true },
@@ -1824,6 +1841,32 @@ export const constructionStages = {
     { stage_id: 405, stage_code: 'STG-05', stage_name: 'MEP Works', stage_sequence: 5, description: 'HVAC, electrical, fire systems', estimated_duration_days: 25, status: true },
     { stage_id: 406, stage_code: 'STG-06', stage_name: 'Interior Finishing', stage_sequence: 6, description: 'False ceiling, flooring, paint', estimated_duration_days: 22, status: true },
     { stage_id: 407, stage_code: 'STG-07', stage_name: 'Final Inspection', stage_sequence: 7, description: 'Fit-out review and handover', estimated_duration_days: 3, status: true },
+  ],
+  5: [
+    { stage_id: 501, stage_code: 'STG-01', stage_name: 'Site Survey & Earthwork', stage_sequence: 1, description: 'Boundary survey, site grading and mass excavation', estimated_duration_days: 6, status: true },
+    { stage_id: 502, stage_code: 'STG-02', stage_name: 'Heavy Foundation', stage_sequence: 2, description: 'Isolated footings and machine foundation beds', estimated_duration_days: 16, status: true },
+    { stage_id: 503, stage_code: 'STG-03', stage_name: 'Structural Steel Erection', stage_sequence: 3, description: 'Steel column, truss and PEB framework erection', estimated_duration_days: 25, status: true },
+    { stage_id: 504, stage_code: 'STG-04', stage_name: 'Industrial Heavy Flooring', stage_sequence: 4, description: 'VDF laser screed concrete flooring and hardener', estimated_duration_days: 14, status: true },
+    { stage_id: 505, stage_code: 'STG-05', stage_name: 'Masonry & Cladding', stage_sequence: 5, description: 'Perimeter brick masonry and puff panel side sheeting', estimated_duration_days: 16, status: true },
+    { stage_id: 506, stage_code: 'STG-06', stage_name: 'Industrial Roofing', stage_sequence: 6, description: 'Metal roof sheeting, insulation and polycarbonate skylights', estimated_duration_days: 12, status: true },
+    { stage_id: 507, stage_code: 'STG-07', stage_name: 'Shutters & Dock Doors', stage_sequence: 7, description: 'Motorized rolling shutters and dock levellers', estimated_duration_days: 7, status: true },
+    { stage_id: 508, stage_code: 'STG-08', stage_name: 'Power Distribution', stage_sequence: 8, description: 'Transformer yard, HT/LT panels and busbar trunking', estimated_duration_days: 18, status: true },
+    { stage_id: 509, stage_code: 'STG-09', stage_name: 'Fire Protection & Piping', stage_sequence: 9, description: 'Fire hydrant ring main, sprinklers and compressed air lines', estimated_duration_days: 15, status: true },
+    { stage_id: 510, stage_code: 'STG-10', stage_name: 'Industrial Ventilation', stage_sequence: 10, description: 'Roof extractor fans, AHUs and ventilation ductwork', estimated_duration_days: 10, status: true },
+    { stage_id: 511, stage_code: 'STG-11', stage_name: 'Epoxy Floor Coating', stage_sequence: 11, description: 'Heavy-duty anti-static epoxy floor coat & line marking', estimated_duration_days: 8, status: true },
+    { stage_id: 512, stage_code: 'STG-12', stage_name: 'Testing & Handover', stage_sequence: 12, description: 'Utility load testing, fire NOC audit and final handover', estimated_duration_days: 5, status: true },
+  ],
+  6: [
+    { stage_id: 601, stage_code: 'STG-01', stage_name: 'Route Survey & Clearing', stage_sequence: 1, description: 'Alignment marking, site clearing and utility mapping', estimated_duration_days: 5, status: true },
+    { stage_id: 602, stage_code: 'STG-02', stage_name: 'Earthwork & Embankment', stage_sequence: 2, description: 'Cut and fill excavation and embankment formation', estimated_duration_days: 12, status: true },
+    { stage_id: 603, stage_code: 'STG-03', stage_name: 'Subgrade Preparation', stage_sequence: 3, description: 'Soil compaction, moisture conditioning and levelling', estimated_duration_days: 8, status: true },
+    { stage_id: 604, stage_code: 'STG-04', stage_name: 'Drainage & Culverts', stage_sequence: 4, description: 'Side drain construction and cross-drainage pipe culverts', estimated_duration_days: 14, status: true },
+    { stage_id: 605, stage_code: 'STG-05', stage_name: 'Granular Sub-Base (GSB)', stage_sequence: 5, description: 'Spreading and compacting granular sub-base layer', estimated_duration_days: 9, status: true },
+    { stage_id: 606, stage_code: 'STG-06', stage_name: 'Wet Mix Macadam (WMM)', stage_sequence: 6, description: 'WMM base course laying and heavy roller compaction', estimated_duration_days: 10, status: true },
+    { stage_id: 607, stage_code: 'STG-07', stage_name: 'Prime & Tack Coat', stage_sequence: 7, description: 'Bituminous prime coat and binder tack coat spraying', estimated_duration_days: 3, status: true },
+    { stage_id: 608, stage_code: 'STG-08', stage_name: 'Asphalt Pavement', stage_sequence: 8, description: 'Dense bituminous macadam and asphalt concrete wearing coat', estimated_duration_days: 12, status: true },
+    { stage_id: 609, stage_code: 'STG-09', stage_name: 'Road Shoulders & Kerbs', stage_sequence: 9, description: 'Earthen shoulders, kerb stone casting and median works', estimated_duration_days: 8, status: true },
+    { stage_id: 610, stage_code: 'STG-10', stage_name: 'Marking & Signage', stage_sequence: 10, description: 'Thermoplastic road marking, safety signs and handover', estimated_duration_days: 5, status: true },
   ],
 }
 
@@ -2372,7 +2415,7 @@ export const landBuying = [
     document_reference: 'DOC-CBE-2025-5510',
     status: 'In Progress',
     remarks: 'Parent deed verification and DTCP approval sanction underway.',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop',
+    image: '/avinashi_commercial_land.jpg',
   },
 ]
 

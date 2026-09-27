@@ -105,7 +105,7 @@ export const hi = {
   // Common Header & Metadata
   app_title: 'कंस्ट्रक्शन PMS और रियल एस्टेट',
   dash_header_title: 'कंस्ट्रक्शन और रियल एस्टेट डैशबोर्ड',
-  dash_header_desc: 'निर्माण परियोजनाओं, रियल एस्टेट मेट्रिक्स और साइट गतिविधियों का अवलोकन।',
+  dash_header_desc: '',
   login_header_title: 'एकीकृत एंटरप्राइज लॉगिन',
   login_header_desc: 'एडमिन, खरीदार और विक्रेता उपयोगकर्ताओं के लिए लॉगिन।',
 
