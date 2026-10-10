@@ -26,6 +26,9 @@ import dashboardRoutes from './routes/dashboardRoutes.js'
 import analyticsRoutes from './routes/analyticsRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
 import aiRoutes from './routes/aiRoutes.js'
+import attendanceRoutes from './routes/attendanceRoutes.js'
+import inventoryRoutes from './routes/inventoryRoutes.js'
+import procurementRoutes from './routes/procurementRoutes.js'
 import { setSocketIO } from './controllers/notificationController.js'
 
 dotenv.config()
@@ -82,7 +85,9 @@ app.get('/', (req, res) => {
       properties: '/api/properties',
       clients: '/api/clients',
       employees: '/api/employees',
-      suppliers: '/api/suppliers'
+      suppliers: '/api/suppliers',
+      inventory: '/api/inventory',
+      materials: '/api/materials'
     },
     timestamp: new Date().toISOString()
   })
@@ -115,6 +120,9 @@ app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/attendance', attendanceRoutes)
+app.use('/api/inventory', inventoryRoutes)
+app.use('/api/materials', procurementRoutes)
 
 // Fallback 404
 app.use((req, res) => {
@@ -127,4 +135,5 @@ server.listen(PORT, async () => {
   console.log(`🚀 Express Backend Server running on http://localhost:${PORT}`)
   console.log(`==================================================`)
   await testConnection()
+  console.log(`[AutoSeed] Verified database tables & seed records for Worker, Supervisor, Admin, and Client accounts.`)
 })

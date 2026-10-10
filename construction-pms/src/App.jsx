@@ -38,6 +38,7 @@ import Settings from './pages/Settings'
 import Contracts from './pages/Contracts'
 import WorkManagement from './pages/WorkManagement'
 import Payments from './pages/Payments'
+import AttendanceManagement from './pages/AttendanceManagement'
 
 // Admin Real Estate
 import RealEstateOverview from './pages/real-estate/RealEstateOverview'
@@ -73,12 +74,26 @@ function ProtectedRoute({ allowedRoles, children }) {
   if (normalizedAllowed.length > 0 && !normalizedAllowed.includes(userRole)) {
     if (userRole === 'CLIENT') {
       return <Navigate to="/client/dashboard" replace />
+    } else if (userRole === 'WORKER' || userRole === 'SUPERVISOR') {
+      return <Navigate to="/attendance" replace />
     } else {
       return <Navigate to="/" replace />
     }
   }
 
   return children
+}
+
+function RootHomeRedirect() {
+  const { currentUser } = useApp()
+  const userRole = String(currentUser?.role || '').toUpperCase()
+  if (userRole === 'WORKER' || userRole === 'SUPERVISOR') {
+    return <Navigate to="/attendance" replace />
+  }
+  if (userRole === 'CLIENT') {
+    return <Navigate to="/client/dashboard" replace />
+  }
+  return <Dashboard />
 }
 
 export default function App() {
@@ -92,8 +107,8 @@ export default function App() {
 
             {/* Main App Layout */}
             <Route element={<MainLayout />}>
-              {/* ADMIN Protected Routes */}
-              <Route path="/" element={<ProtectedRoute allowedRoles={['ADMIN']}><Dashboard /></ProtectedRoute>} />
+              {/* Role-based Root Route */}
+              <Route path="/" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER']}><RootHomeRedirect /></ProtectedRoute>} />
               <Route path="/real-estate/overview" element={<Navigate to="/real-estate/properties" replace />} />
               <Route path="/real-estate/properties" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProperties /></ProtectedRoute>} />
               <Route path="/real-estate/buy-requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><BuyRequests /></ProtectedRoute>} />
@@ -137,6 +152,7 @@ export default function App() {
               <Route path="/rework" element={<ProtectedRoute allowedRoles={['ADMIN']}><Rework /></ProtectedRoute>} />
 
               <Route path="/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><Reports /></ProtectedRoute>} />
+              <Route path="/attendance" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER']}><AttendanceManagement /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'CLIENT']}><Settings /></ProtectedRoute>} />
 
               {/* UNIFIED CLIENT Protected Routes */}

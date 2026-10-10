@@ -186,4 +186,51 @@ export const aiAPI = {
     api.post('/ai/chat', { query, confirmAction, actionData, source }).then((res) => res.data),
 }
 
+export const attendanceAPI = {
+  getToday: () => api.get('/attendance/today').then((res) => res.data),
+  checkIn: (locationData) => api.post('/attendance/check-in', locationData).then((res) => res.data),
+  checkOut: () => api.post('/attendance/check-out').then((res) => res.data),
+  getDashboard: () => api.get('/attendance/dashboard').then((res) => res.data),
+  getSites: () => api.get('/attendance/sites').then((res) => res.data.sites),
+  createSite: (siteData) => api.post('/attendance/sites', siteData).then((res) => res.data),
+  updateSite: (id, siteData) => api.put(`/attendance/sites/${id}`, siteData).then((res) => res.data),
+  getAssignments: () => api.get('/attendance/assignments').then((res) => res.data.assignments),
+  createAssignment: (data) => api.post('/attendance/assignments', data).then((res) => res.data),
+  getHistory: (params) => api.get('/attendance/history', { params }).then((res) => res.data.history),
+  getCorrections: () => api.get('/attendance/corrections').then((res) => res.data.corrections),
+  createCorrection: (data) => api.post('/attendance/corrections', data).then((res) => res.data),
+  reviewCorrection: (id, data) => api.patch(`/attendance/corrections/${id}/review`, data).then((res) => res.data),
+  createUserAccount: (data) => api.post('/attendance/create-user-account', data).then((res) => res.data),
+  exportCSV: (params) => api.get('/attendance/export', { params, responseType: 'blob' }),
+  exportCSVUrl: `${API_BASE_URL}/attendance/export`,
+}
+
+export const inventoryAPI = {
+  getDashboard: () => api.get('/inventory/dashboard').then((res) => res.data),
+  getMaterials: (params) => api.get('/inventory/materials', { params }).then((res) => res.data.data),
+  createMaterial: (data) => api.post('/inventory/materials', data).then((res) => res.data),
+  updateMaterial: (id, data) => api.put(`/inventory/materials/${id}`, data).then((res) => res.data),
+  archiveMaterial: (id) => api.delete(`/inventory/materials/${id}`).then((res) => res.data),
+  stockIn: (data) => api.post('/inventory/stock-in', data).then((res) => res.data),
+  stockOut: (data) => api.post('/inventory/stock-out', data).then((res) => res.data),
+  getAllocations: () => api.get('/inventory/allocations').then((res) => res.data.data),
+  createAllocation: (data) => api.post('/inventory/allocate', data).then((res) => res.data),
+  issueAllocation: (data) => api.post('/inventory/allocations/issue', data).then((res) => res.data),
+  returnSite: (data) => api.post('/inventory/allocations/return', data).then((res) => res.data),
+  getTransactions: (params) => api.get('/inventory/transactions', { params }).then((res) => res.data.data),
+  getReports: () => api.get('/inventory/reports').then((res) => res.data),
+}
+
+export const procurementAPI = {
+  getRFQs: () => api.get('/materials/rfq').then((res) => res.data.data),
+  createRFQ: (data) => api.post('/materials/rfq', data).then((res) => res.data),
+  getQuotations: (rfqId) => api.get('/materials/quotations', { params: { rfq_id: rfqId } }).then((res) => res.data.data),
+  createQuotation: (data) => api.post('/materials/quotations', data).then((res) => res.data),
+  getRecommendations: (rfqId) => api.get(`/materials/rfq/${rfqId}/recommendations`).then((res) => res.data.data),
+  getPOs: () => api.get('/materials/po').then((res) => res.data.data),
+  createPOFromQuotation: (data) => api.post('/materials/po/from-quotation', data).then((res) => res.data),
+  updatePOStatus: (id, status) => api.patch(`/materials/po/${id}/status`, { status }).then((res) => res.data),
+  addPOPayment: (id, amount) => api.post(`/materials/po/${id}/payment`, { amount }).then((res) => res.data),
+}
+
 export default api

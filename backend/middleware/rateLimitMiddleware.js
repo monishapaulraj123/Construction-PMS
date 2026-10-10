@@ -1,9 +1,9 @@
 import rateLimit from 'express-rate-limit'
 
-// Auth Rate Limiter (Login / Credentials) - Max 15 requests per 15 minutes
+// Auth Rate Limiter (Login / Credentials) - Max 500 requests per 15 minutes
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

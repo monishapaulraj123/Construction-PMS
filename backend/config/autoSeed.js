@@ -84,17 +84,63 @@ export async function runAutoSeed() {
     "phone": "9843300112",
     "status": "Active",
     "created_at": "2026-02-01"
+  },
+  {
+    "user_id": 601,
+    "name": "Arun Supervisor",
+    "email": "supervisor@pms.com",
+    "password_hash": "password123",
+    "role": "SUPERVISOR",
+    "phone": "9840011223",
+    "status": "Active",
+    "created_at": "2026-02-01"
+  },
+  {
+    "user_id": 602,
+    "name": "Supervisor Lead",
+    "email": "supervisor@constructionpms.in",
+    "password_hash": "password123",
+    "role": "SUPERVISOR",
+    "phone": "9840011224",
+    "status": "Active",
+    "created_at": "2026-02-01"
+  },
+  {
+    "user_id": 701,
+    "name": "Deepak Worker",
+    "email": "worker@pms.com",
+    "password_hash": "password123",
+    "role": "WORKER",
+    "phone": "9840055667",
+    "status": "Active",
+    "created_at": "2026-02-01"
+  },
+  {
+    "user_id": 702,
+    "name": "Worker Specialist",
+    "email": "worker@constructionpms.in",
+    "password_hash": "password123",
+    "role": "WORKER",
+    "phone": "9840055668",
+    "status": "Active",
+    "created_at": "2026-02-01"
   }
 ]
     for (const u of users) {
       await connection.query(
         `INSERT INTO users (user_id, name, email, password_hash, role, phone, status) 
          VALUES (?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE name=VALUES(name), phone=VALUES(phone), role=VALUES(role), status=VALUES(status)`,
-        [u.user_id, u.name, u.email, u.password_hash || '$2b$10$8K1p/a0dL1LXMIgoEDFRwO5mE0X95gH3F/K9L1u9o1b.87eW4m2xW', u.role, u.phone || '', u.status || 'Active']
+         ON DUPLICATE KEY UPDATE name=VALUES(name), password_hash=VALUES(password_hash), role=VALUES(role), status=VALUES(status)`,
+        [u.user_id, u.name, u.email, u.password_hash || 'password123', u.role, u.phone || '', u.status || 'Active']
       )
     }
-    console.log(`[AutoSeed] Verified ${users.length} users`)
+
+    // Link Employees to User Accounts
+    await connection.query(`UPDATE employees SET user_id = 601 WHERE employee_id = 1 AND (user_id IS NULL OR user_id = 0)`).catch(() => {})
+    await connection.query(`UPDATE employees SET user_id = 701 WHERE employee_id = 2 AND (user_id IS NULL OR user_id = 0)`).catch(() => {})
+
+    console.log(`[AutoSeed] Verified ${users.length} users and linked employee user accounts`)
+
 
     // 2. Seed Employee Types
     const employeeTypes = [
@@ -5963,6 +6009,267 @@ export async function runAutoSeed() {
         )
       }
       console.log('[AutoSeed] Verified initial notifications')
+    }
+
+    // 16. Seed Construction Sites for Workforce Attendance
+    const [siteRows] = await connection.query('SELECT COUNT(*) as cnt FROM construction_sites')
+    if (siteRows[0].cnt === 0) {
+      const initialSites = [
+        {
+          site_code: 'SITE-001',
+          site_name: 'Green Valley Residence Site',
+          project_id: 1,
+          address: 'No 12, OMR Bypass Road, Sholinganallur, Chennai, Tamil Nadu 600119',
+          latitude: 12.9010,
+          longitude: 80.2279,
+          radius_meters: 300,
+          max_gps_accuracy: 150,
+          working_start_time: '09:00',
+          working_end_time: '18:00',
+          grace_period_minutes: 15,
+          supervisor_id: 101,
+          supervisor_name: 'Santhosh',
+          status: 'Active'
+        },
+        {
+          site_code: 'SITE-002',
+          site_name: 'City Hospital Block B Site',
+          project_id: 2,
+          address: 'Block B, Mount Road, Guindy, Chennai, Tamil Nadu 600032',
+          latitude: 13.0067,
+          longitude: 80.2020,
+          radius_meters: 400,
+          max_gps_accuracy: 150,
+          working_start_time: '08:30',
+          working_end_time: '17:30',
+          grace_period_minutes: 15,
+          supervisor_id: 102,
+          supervisor_name: 'Arun',
+          status: 'Active'
+        }
+      ]
+      for (const s of initialSites) {
+        await connection.query(
+          `INSERT INTO construction_sites 
+           (site_code, site_name, project_id, address, latitude, longitude, radius_meters, max_gps_accuracy, working_start_time, working_end_time, grace_period_minutes, supervisor_id, supervisor_name, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [s.site_code, s.site_name, s.project_id, s.address, s.latitude, s.longitude, s.radius_meters, s.max_gps_accuracy, s.working_start_time, s.working_end_time, s.grace_period_minutes, s.supervisor_id, s.supervisor_name, s.status]
+        )
+      }
+      console.log('[AutoSeed] Verified initial construction sites')
+    }
+
+    // 17. Seed Worker Site Assignments
+    const [asnRows] = await connection.query('SELECT COUNT(*) as cnt FROM worker_site_assignments')
+    if (asnRows[0].cnt === 0) {
+      const [sites] = await connection.query('SELECT site_id FROM construction_sites LIMIT 2')
+      const [emps] = await connection.query('SELECT employee_id FROM employees LIMIT 10')
+      if (sites.length > 0 && emps.length > 0) {
+        const site1Id = sites[0].site_id
+        const site2Id = sites[1] ? sites[1].site_id : site1Id
+        const todayStr = new Date().toISOString().split('T')[0]
+        
+        for (let i = 0; i < emps.length; i++) {
+          const empId = emps[i].employee_id
+          const siteId = i % 2 === 0 ? site1Id : site2Id
+          await connection.query(
+            `INSERT INTO worker_site_assignments (worker_id, site_id, assigned_date, status)
+             VALUES (?, ?, ?, 'Active')`,
+            [empId, siteId, todayStr]
+          )
+        }
+        console.log('[AutoSeed] Verified initial worker site assignments')
+      }
+    }
+
+    // 18. Seed Material Allocations (Project Allocations)
+    const [alcCountRows] = await connection.query('SELECT COUNT(*) as cnt FROM material_allocations')
+    if (alcCountRows[0].cnt === 0) {
+      const [items] = await connection.query('SELECT item_id FROM items LIMIT 5')
+      const [prjs] = await connection.query('SELECT project_id FROM projects LIMIT 2')
+      if (items.length > 0 && prjs.length > 0) {
+        const prj1 = prjs[0].project_id
+        const prj2 = prjs[1] ? prjs[1].project_id : prj1
+        
+        const initialAllocations = [
+          { code: 'ALC-PRJ1-001', item_id: items[0].item_id, project_id: prj1, allocated: 350, issued: 200, returned: 10, remarks: 'Foundation & Pillar Slab Casting Phase 1' },
+          { code: 'ALC-PRJ1-002', item_id: items[3] ? items[3].item_id : items[0].item_id, project_id: prj1, allocated: 15, issued: 10, returned: 0, remarks: 'Structural Steel Rebar Reinforcement' },
+          { code: 'ALC-PRJ2-001', item_id: items[1] ? items[1].item_id : items[0].item_id, project_id: prj2, allocated: 1500, issued: 800, returned: 50, remarks: 'Masonry & Plastering Work' },
+        ]
+
+        for (const a of initialAllocations) {
+          await connection.query(
+            `INSERT INTO material_allocations 
+             (allocation_code, item_id, project_id, allocated_quantity, issued_quantity, returned_quantity, status, allocated_date, remarks, created_by)
+             VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', CURDATE(), ?, 1)`,
+            [a.code, a.item_id, a.project_id, a.allocated, a.issued, a.returned, a.remarks]
+          )
+        }
+        console.log('[AutoSeed] Verified initial material allocations')
+      }
+    }
+
+    // 19. Seed RFQs & Quotations
+    const [rfqCountRows] = await connection.query('SELECT COUNT(*) as cnt FROM material_rfqs')
+    if (rfqCountRows[0].cnt === 0) {
+      const [items] = await connection.query('SELECT item_id FROM items LIMIT 5')
+      const [prjs] = await connection.query('SELECT project_id FROM projects LIMIT 2')
+      const [supps] = await connection.query('SELECT supplier_id FROM suppliers LIMIT 3')
+
+      if (items.length > 0 && prjs.length > 0 && supps.length > 0) {
+        const prjId = prjs[0].project_id
+        const supp1 = supps[0].supplier_id
+        const supp2 = supps[1] ? supps[1].supplier_id : supp1
+
+        // Insert RFQ 1
+        const [rfqRes1] = await connection.query(
+          `INSERT INTO material_rfqs (rfq_code, title, project_id, required_delivery_date, status, remarks, created_by)
+           VALUES ('RFQ-2026-001', 'Bulk Cement & TMT Rebar Requirement for Slab Level 2', ?, DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'PUBLISHED', 'High grade UltraTech Cement & Tata TMT Steel needed.', 1)`,
+          [prjId]
+        )
+        const rfqId1 = rfqRes1.insertId
+
+        // RFQ Items
+        await connection.query(
+          `INSERT INTO rfq_items (rfq_id, item_id, requested_quantity) VALUES (?, ?, 400), (?, ?, 10)`,
+          [rfqId1, items[0].item_id, rfqId1, items[3] ? items[3].item_id : items[0].item_id]
+        )
+
+        // Insert Supplier Quotation 1
+        const [qtnRes1] = await connection.query(
+          `INSERT INTO supplier_quotations (quotation_code, rfq_id, supplier_id, delivery_days, status, total_amount, remarks)
+           VALUES ('QTN-SUP1-001', ?, ?, 5, 'ACCEPTED', 236000.00, 'Includes site delivery & 30 days payment credit terms.')`,
+          [rfqId1, supp1]
+        )
+        const qtnId1 = qtnRes1.insertId
+
+        await connection.query(
+          `INSERT INTO quotation_items (quotation_id, item_id, quoted_quantity, unit_price, line_total, has_certification)
+           VALUES (?, ?, 400, 420.00, 168000.00, 1), (?, ?, 10, 6800.00, 68000.00, 1)`,
+          [qtnId1, items[0].item_id, qtnId1, items[3] ? items[3].item_id : items[0].item_id]
+        )
+
+        // Insert Supplier Quotation 2
+        const [qtnRes2] = await connection.query(
+          `INSERT INTO supplier_quotations (quotation_code, rfq_id, supplier_id, delivery_days, status, total_amount, remarks)
+           VALUES ('QTN-SUP2-002', ?, ?, 7, 'SUBMITTED', 245000.00, 'Competitive quote with premium quality assurance.')`,
+          [rfqId1, supp2]
+        )
+        const qtnId2 = qtnRes2.insertId
+
+        await connection.query(
+          `INSERT INTO quotation_items (quotation_id, item_id, quoted_quantity, unit_price, line_total, has_certification)
+           VALUES (?, ?, 400, 435.00, 174000.00, 1), (?, ?, 10, 7100.00, 71000.00, 1)`,
+          [qtnId2, items[0].item_id, qtnId2, items[3] ? items[3].item_id : items[0].item_id]
+        )
+
+        console.log('[AutoSeed] Verified initial RFQs & Supplier Quotations')
+      }
+    }
+
+    // 20. Seed Purchase Orders
+    const [poCountRows] = await connection.query('SELECT COUNT(*) as cnt FROM purchase_orders')
+    if (poCountRows[0].cnt === 0) {
+      const [items] = await connection.query('SELECT item_id FROM items LIMIT 5')
+      const [prjs] = await connection.query('SELECT project_id FROM projects LIMIT 2')
+      const [supps] = await connection.query('SELECT supplier_id FROM suppliers LIMIT 3')
+      const [qtns] = await connection.query('SELECT quotation_id, rfq_id FROM supplier_quotations LIMIT 1')
+
+      if (items.length > 0 && prjs.length > 0 && supps.length > 0) {
+        const prjId1 = prjs[0].project_id
+        const prjId2 = prjs[1] ? prjs[1].project_id : prjId1
+        const supp1 = supps[0].supplier_id
+        const supp2 = supps[1] ? supps[1].supplier_id : supp1
+        const qtnId = qtns.length > 0 ? qtns[0].quotation_id : null
+        const rfqId = qtns.length > 0 ? qtns[0].rfq_id : null
+
+        // PO 1
+        const [poRes1] = await connection.query(
+          `INSERT INTO purchase_orders (po_code, quotation_id, rfq_id, project_id, supplier_id, expected_delivery_date, delivery_location, status, total_amount, paid_amount, remarks, created_by)
+           VALUES ('PO-2026-001', ?, ?, ?, ?, DATE_ADD(CURDATE(), INTERVAL 7 DAY), 'Green Valley Main Site Store', 'ISSUED', 236000.00, 100000.00, 'Initial 40% advance paid. Balance due upon site unloading inspection.', 1)`,
+          [qtnId, rfqId, prjId1, supp1]
+        )
+        const poId1 = poRes1.insertId
+
+        await connection.query(
+          `INSERT INTO purchase_order_items (po_id, item_id, quantity, unit_price, line_total)
+           VALUES (?, ?, 400, 420.00, 168000.00), (?, ?, 10, 6800.00, 68000.00)`,
+          [poId1, items[0].item_id, poId1, items[3] ? items[3].item_id : items[0].item_id]
+        )
+
+        // PO 2
+        const [poRes2] = await connection.query(
+          `INSERT INTO purchase_orders (po_code, quotation_id, rfq_id, project_id, supplier_id, expected_delivery_date, delivery_location, status, total_amount, paid_amount, remarks, created_by)
+           VALUES ('PO-2026-002', NULL, NULL, ?, ?, DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'City Hospital Site Store B', 'COMPLETED', 2880.00, 2880.00, 'Full payment settled upon verified material delivery.', 1)`,
+          [prjId2, supp2]
+        )
+        const poId2 = poRes2.insertId
+
+        await connection.query(
+          `INSERT INTO purchase_order_items (po_id, item_id, quantity, unit_price, line_total)
+           VALUES (?, ?, 120, 24.00, 2880.00)`,
+          [poId2, items[2] ? items[2].item_id : items[0].item_id]
+        )
+
+        console.log('[AutoSeed] Verified initial Purchase Orders')
+      }
+    }
+
+    // 21. Seed Attendance History Records
+    const [attCountRows] = await connection.query('SELECT COUNT(*) as cnt FROM attendance_records')
+    if (attCountRows[0].cnt === 0) {
+      const [sites] = await connection.query('SELECT site_id, latitude, longitude FROM construction_sites LIMIT 2')
+      const [emps] = await connection.query('SELECT employee_id FROM employees LIMIT 10')
+      
+      if (sites.length > 0 && emps.length > 0) {
+        const site1 = sites[0]
+        const site2 = sites[1] || site1
+
+        const sampleAttendance = []
+        // Generate past 7 days of attendance for employees
+        for (let i = 1; i <= 7; i++) {
+          const d = new Date()
+          d.setDate(d.getDate() - i)
+          const dateStr = d.toISOString().split('T')[0]
+
+          for (let j = 0; j < emps.length; j++) {
+            const empId = emps[j].employee_id
+            const site = j % 2 === 0 ? site1 : site2
+            const isLate = (i + j) % 5 === 0 ? 1 : 0
+            const checkInHour = isLate ? '09:25:00' : '08:55:00'
+            const checkOutHour = '18:05:00'
+            const statusStr = isLate ? 'Late' : 'Present'
+            const dist = 35 + (j * 12) % 150
+
+            sampleAttendance.push({
+              worker_id: empId,
+              site_id: site.site_id,
+              date: dateStr,
+              check_in: `${dateStr} ${checkInHour}`,
+              check_out: `${dateStr} ${checkOutHour}`,
+              hours: isLate ? 8.65 : 9.15,
+              lat: Number(site.latitude) + (j * 0.0001),
+              lon: Number(site.longitude) + (j * 0.0001),
+              accuracy: 12.5,
+              distance: dist,
+              status: statusStr,
+              is_late: isLate,
+              remarks: isLate ? 'Slight traffic delay on OMR' : 'Verified spot check-in within geofence'
+            })
+          }
+        }
+
+        for (const att of sampleAttendance) {
+          await connection.query(
+            `INSERT INTO attendance_records 
+             (worker_id, site_id, date, check_in_at, check_out_at, hours_worked, latitude, longitude, gps_accuracy, distance_meters, status, is_late, remarks)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE hours_worked=VALUES(hours_worked)`,
+            [att.worker_id, att.site_id, att.date, att.check_in, att.check_out, att.hours, att.lat, att.lon, att.accuracy, att.distance, att.status, att.is_late, att.remarks]
+          )
+        }
+        console.log('[AutoSeed] Verified initial attendance history records')
+      }
     }
 
     console.log('[AutoSeed] Database seeding completed successfully with 100% complete records!')

@@ -16,10 +16,13 @@ export default function Login() {
   // If already logged in, redirect based on stored role
   useEffect(() => {
     if (currentUser) {
-      if (currentUser.role === 'ADMIN') {
+      const role = String(currentUser.role || '').toUpperCase()
+      if (role === 'ADMIN') {
         navigate('/', { replace: true })
-      } else if (currentUser.role === 'CLIENT') {
+      } else if (role === 'CLIENT') {
         navigate('/client/dashboard', { replace: true })
+      } else if (role === 'SUPERVISOR' || role === 'WORKER') {
+        navigate('/attendance', { replace: true })
       }
     }
   }, [currentUser, navigate])
@@ -34,10 +37,13 @@ export default function Login() {
       return
     }
 
-    if (res.user.role === 'ADMIN') {
+    const role = String(res.user?.role || '').toUpperCase()
+    if (role === 'ADMIN') {
       navigate('/')
-    } else if (res.user.role === 'CLIENT') {
+    } else if (role === 'CLIENT') {
       navigate('/client/dashboard')
+    } else if (role === 'SUPERVISOR' || role === 'WORKER') {
+      navigate('/attendance')
     } else {
       navigate('/')
     }

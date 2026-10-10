@@ -37,6 +37,7 @@ import {
   Bell,
   UserCheck,
   ChevronRight,
+  MapPin,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useTranslation } from '../context/LanguageContext'
@@ -48,10 +49,14 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
   const userRole = String(currentUser?.role || '').toUpperCase()
 
   const isClient = userRole === 'CLIENT'
+  const isWorker = userRole === 'WORKER'
+  const isSupervisor = userRole === 'SUPERVISOR'
 
   // Dynamic Standalone link
   const standaloneLink = isClient
     ? { to: '/client/dashboard', label: t('client_dash_title', 'Client Dashboard'), keyLabel: 'client_dash_title', icon: LayoutDashboard, end: true }
+    : (isWorker || isSupervisor)
+    ? { to: '/attendance', label: isSupervisor ? 'Supervisor Attendance' : 'GPS Spot Attendance', keyLabel: 'attendance', icon: MapPin, end: true }
     : { to: '/', label: t('dashboard', 'Dashboard'), keyLabel: 'dashboard', icon: LayoutDashboard, end: true }
 
   // Dynamic Admin sections
@@ -126,6 +131,14 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       ],
     },
     {
+      id: 'workforce_attendance',
+      label: t('workforce_attendance', 'Workforce Attendance'),
+      icon: MapPin,
+      links: [
+        { to: '/attendance', label: t('attendance_management', 'Attendance Management'), icon: MapPin },
+      ],
+    },
+    {
       id: 'quality_reports',
       label: t('quality_control', 'Quality & Reports'),
       icon: ClipboardCheck,
@@ -133,6 +146,32 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
         { to: '/inspections', label: t('inspections', 'Inspections'), icon: ClipboardCheck },
         { to: '/rework', label: t('rework', 'Rework'), icon: RotateCcw },
         { to: '/reports', label: t('reports', 'Reports'), icon: BarChart3 },
+      ],
+    },
+  ]
+
+  // Dynamic Worker sections
+  const workerSections = [
+    {
+      id: 'workforce_attendance',
+      label: 'GPS Attendance',
+      icon: MapPin,
+      links: [
+        { to: '/attendance', label: 'Spot Attendance (GPS)', icon: MapPin },
+        { to: '/settings', label: 'Account Settings', icon: Settings },
+      ],
+    },
+  ]
+
+  // Dynamic Supervisor sections
+  const supervisorSections = [
+    {
+      id: 'workforce_attendance',
+      label: 'Site Attendance',
+      icon: MapPin,
+      links: [
+        { to: '/attendance', label: 'Workforce Attendance', icon: MapPin },
+        { to: '/settings', label: 'Account Settings', icon: Settings },
       ],
     },
   ]
@@ -162,7 +201,7 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
     },
   ]
 
-  const sections = isClient ? clientSections : adminSections
+  const sections = isClient ? clientSections : (isWorker ? workerSections : (isSupervisor ? supervisorSections : adminSections))
 
   const [expandedSection, setExpandedSection] = useState(null)
 
