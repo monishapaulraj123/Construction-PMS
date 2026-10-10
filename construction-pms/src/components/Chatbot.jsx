@@ -13,11 +13,6 @@ export default function Chatbot() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Hide Chatbot on Login page or when user is not logged in
-  if (!currentUser || location.pathname === '/login') {
-    return null
-  }
-
   const role = String(currentUser?.role || '').toUpperCase()
   const isAdmin = role === 'ADMIN'
 
@@ -209,6 +204,11 @@ export default function Chatbot() {
       recognitionRef.current = rec
       setIsListening(true)
     }
+  }
+
+  // Hide Chatbot on Login page or when user is not logged in
+  if (!currentUser || location.pathname === '/login') {
+    return null
   }
 
   return (
