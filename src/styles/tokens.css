@@ -1,0 +1,120 @@
+:root {
+  /* ---- Color: forest / cream / gold construction palette ---- */
+  --forest-950: #244a3f;
+  --forest-900: #2f5d50;
+  --forest-800: #386e5f;
+  --forest-700: #427f6d;
+  --forest-600: #4e9382;
+  --forest-line: rgba(255, 255, 255, 0.08);
+
+  --cream-100: #f7f2e7;
+  --cream-050: #fbf8f1;
+  --sand-100: #efe7d4;
+
+  --paper: #ffffff;
+
+  --ink-900: #262218;
+  --ink-700: #4a453a;
+  --ink-500: #7d7666;
+  --ink-300: #a9a294;
+
+  --line-100: #ece3d0;
+  --line-200: #e1d6bd;
+
+  --gold-600: #b8934f;
+  --gold-500: #d4b06a;
+  --gold-400: #ddbe83;
+  --gold-100: #f4e6c8;
+  --gold-050: #faf1de;
+
+  --green-700: #4a927e;
+  --green-500: #6eb6a2;
+  --green-100: #deede9;
+
+  --amber-600: #a76a1f;
+  --amber-500: #c98a3e;
+  --amber-100: #f6e6cd;
+
+  --red-600: #a24d43;
+  --red-500: #bf6155;
+  --red-100: #f3ded9;
+
+  --gray-500: #8b8578;
+  --gray-100: #eeeae0;
+
+  /* ---- Type ---- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --fs-2xl: 2.05rem;
+  --fs-xl: 1.5rem;
+  --fs-lg: 1.15rem;
+  --fs-md: 0.98rem;
+  --fs-sm: 0.86rem;
+  --fs-xs: 0.76rem;
+
+  /* ---- Spacing / shape ---- */
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(38, 34, 24, 0.04), 0 8px 24px -12px rgba(38, 34, 24, 0.12);
+  --shadow-pop: 0 12px 32px -8px rgba(28, 50, 38, 0.22);
+
+  --sidebar-w: 264px;
+  --header-h: 76px;
+}
+
+/* ---------------- Dark Theme Overrides (Forest Green + Warm Gold) ---------------- */
+/* ---------------- Dark Theme Overrides (Richer Modern Forest Dark) ---------------- */
+[data-theme='dark'],
+.dark-theme {
+  --cream-050: #0B1612; /* Deep luxury obsidian-forest page background */
+  --cream-100: #0F1F19; /* Header / Table Header / Secondary surface */
+  --sand-100: #142620;
+  --sand-050: #0D1C16;
+
+  --paper: #142620;      /* Crisp Card background surface */
+  --paper-elevated: #1A332B; /* Modals / Dropdowns / Popups */
+
+  --ink-900: #F8F6F0; /* Luminous warm off-white primary text */
+  --ink-700: #CBE0D8; /* Crisp secondary body text */
+  --ink-500: #8CA096; /* Soft muted metadata text */
+  --ink-300: #5C7066; /* Disabled text */
+
+  --line-100: #244238; /* Crisp primary borders */
+  --line-200: #1D362E; /* Subtle secondary borders */
+
+  --forest-950: #060E0B;
+  --forest-900: #1E483D;
+  --forest-800: #275C4E;
+  --forest-700: #337362;
+  --forest-600: #428B77;
+  --forest-line: #244238;
+
+  --gold-600: #C29D52;
+  --gold-500: #D4B06A;
+  --gold-400: #E7C782;
+  --gold-100: rgba(212, 176, 106, 0.22);
+  --gold-050: rgba(212, 176, 106, 0.12);
+
+  --green-700: #4EB89B;
+  --green-500: #65CCA7;
+  --green-100: rgba(101, 204, 167, 0.22);
+
+  --amber-600: #E5B26B;
+  --amber-500: #D48C38;
+  --amber-100: rgba(212, 140, 56, 0.22);
+
+  --red-600: #F58476;
+  --red-500: #C95549;
+  --red-100: rgba(201, 85, 73, 0.22);
+
+  --gray-500: #8CA096;
+  --gray-100: #142620;
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.65);
+}
+
