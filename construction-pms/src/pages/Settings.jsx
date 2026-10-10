@@ -7,10 +7,9 @@ import { useApp } from '../context/AppContext'
 import { useTranslation } from '../context/LanguageContext'
 
 const SECTIONS = [
-  { id: 'profile', keyLabel: 'profile', label: 'Profile', icon: User },
+  { id: 'theme', keyLabel: 'theme_settings', label: 'Theme & Appearance', icon: Palette },
   { id: 'preferences', keyLabel: 'system_preferences', label: 'System Preferences', icon: SlidersHorizontal },
   { id: 'notifications', keyLabel: 'notification_settings', label: 'Notification Settings', icon: Bell },
-  { id: 'theme', keyLabel: 'theme_settings', label: 'Theme', icon: Palette },
   { id: 'language', keyLabel: 'app_language', label: 'Language', icon: Globe },
   { id: 'security', keyLabel: 'security', label: 'Security', icon: ShieldCheck },
 ]
@@ -20,11 +19,11 @@ function Toggle({ on, onClick }) {
 }
 
 export default function Settings() {
-  const [active, setActive] = useState('profile')
+  const [active, setActive] = useState('theme')
   const [toggles, setToggles] = useState({ email: true, sms: false, push: true, weeklyDigest: true })
   const showToast = useToast()
-  const { theme, setTheme } = useApp()
-  const { language, setLanguage, t, languages } = useTranslation()
+  const { theme, setTheme, accentColor, setAccentColor, fontSize, setFontSize } = useApp()
+  const { language, setLanguage, t } = useTranslation()
 
   function flip(key) {
     setToggles((t) => ({ ...t, [key]: !t[key] }))
@@ -49,17 +48,23 @@ export default function Settings() {
         {active === 'profile' && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-              <div className="avatar-lg">A</div>
+              <div className="avatar-lg" style={{ background: 'var(--forest-800)', color: 'var(--gold-400)', fontWeight: 800 }}>
+                {currentUser?.name ? currentUser.name[0].toUpperCase() : 'A'}
+              </div>
               <div>
-                <div className="cell-primary" style={{ fontSize: '1.05rem' }}>Administrator</div>
-                <div className="text-muted" style={{ fontSize: '0.82rem' }}>Admin</div>
+                <div className="cell-primary" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                  {currentUser?.name || 'Arun Supervisor'}
+                </div>
+                <div className="text-muted" style={{ fontSize: '0.82rem', textTransform: 'capitalize' }}>
+                  {currentUser?.role || 'Supervisor'} Account
+                </div>
               </div>
             </div>
-            <form className="form-grid" onSubmit={(e) => { e.preventDefault(); showToast('Profile updated') }}>
-              <FormInput label="Display Name" defaultValue="Administrator" />
-              <FormInput label="Role" defaultValue="Admin" disabled />
-              <FormInput label="Email" defaultValue="admin@constructionpms.in" />
-              <FormInput label="Phone" defaultValue="9840000000" />
+            <form className="form-grid" onSubmit={(e) => { e.preventDefault(); showToast('Profile details updated successfully!') }}>
+              <FormInput label="Display Name" defaultValue={currentUser?.name || 'Arun Supervisor'} />
+              <FormInput label="Role" defaultValue={currentUser?.role || 'SUPERVISOR'} disabled />
+              <FormInput label="Email Address" defaultValue={currentUser?.email || 'supervisor@pms.com'} />
+              <FormInput label="Contact Phone" defaultValue={currentUser?.phone || '9840011223'} />
               <div className="form-field full">
                 <PrimaryButton type="submit">{t('save_changes', 'Save Changes')}</PrimaryButton>
               </div>
@@ -116,47 +121,129 @@ export default function Settings() {
 
         {active === 'theme' && (
           <div>
-            <h3 style={{ marginBottom: 16, fontSize: '1rem' }}>{t('theme_settings', 'Theme Settings')}</h3>
-            <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>Select your preferred theme palette for the application.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            {/* 1. Theme Selection */}
+            <h3 style={{ marginBottom: 6, fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)' }}>
+              {t('theme_settings', 'Theme Selection')}
+            </h3>
+            <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>
+              Select your preferred visual mode for the interface.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 28 }}>
               <div
-                onClick={() => { setTheme('light'); showToast('Light Theme applied') }}
+                onClick={() => { setTheme('light'); showToast('Light Theme applied', 'success') }}
                 style={{
                   cursor: 'pointer',
                   padding: 16,
-                  borderRadius: 8,
-                  border: theme === 'light' ? '2px solid var(--forest-700)' : '1px solid var(--border-color)',
-                  background: 'var(--cream-100)',
+                  borderRadius: 10,
+                  border: theme === 'light' ? '2px solid var(--forest-700)' : '1px solid var(--line-100)',
+                  background: 'var(--cream-050)',
+                  boxShadow: theme === 'light' ? '0 4px 14px rgba(27, 56, 48, 0.15)' : 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: 'var(--forest-900)' }}>
-                  {t('light_theme', 'Light Theme')} {theme === 'light' && ' (Active)'}
+                <div style={{ fontWeight: 700, fontSize: '0.94rem', marginBottom: 4, color: 'var(--forest-900)' }}>
+                  ☀️ {t('light_theme', 'Light Theme')} {theme === 'light' && ' ✓'}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--ink-500)' }}>
-                  Approved standard forest green & cream visual interface (Default).
+                  Approved classic forest green & warm cream aesthetic (Default).
                 </div>
               </div>
 
               <div
-                onClick={() => { setTheme('dark'); showToast('Dark Theme applied') }}
+                onClick={() => { setTheme('dark'); showToast('Dark Theme applied', 'success') }}
                 style={{
                   cursor: 'pointer',
                   padding: 16,
-                  borderRadius: 8,
-                  border: theme === 'dark' ? '2px solid #D4B06A' : '1px solid var(--border-color)',
-                  background: '#1E3932',
+                  borderRadius: 10,
+                  border: theme === 'dark' ? '2px solid #D4B06A' : '1px solid var(--line-100)',
+                  background: '#1B3830',
                   color: '#F5F1E8',
+                  boxShadow: theme === 'dark' ? '0 4px 14px rgba(0, 0, 0, 0.3)' : 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: '0.92rem', marginBottom: 4, color: '#F5F1E8' }}>
-                  {t('dark_theme', 'Dark Theme')} {theme === 'dark' && ' (Active)'}
+                <div style={{ fontWeight: 700, fontSize: '0.94rem', marginBottom: 4, color: '#F5F1E8' }}>
+                  🌙 {t('dark_theme', 'Dark Theme')} {theme === 'dark' && ' ✓'}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#C8C4BA' }}>
-                  Dark forest green brand palette (#162923 / #1E3932 / #D4B06A).
+                  Deep forest night palette (#142D26 / #1B3830 / #D4B06A).
                 </div>
               </div>
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '24px 0' }} />
+
+            {/* 2. Color Preferences */}
+            <h3 style={{ marginBottom: 6, fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)' }}>
+              Color Preferences
+            </h3>
+            <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>
+              Choose your accent branding color preference.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 28 }}>
+              {[
+                { id: 'emerald', label: 'Forest Green', hex: '#1B3830' },
+                { id: 'gold', label: 'Rich Gold', hex: '#D4AF37' },
+                { id: 'navy', label: 'Royal Navy', hex: '#1E3A8A' },
+                { id: 'slate', label: 'Slate Charcoal', hex: '#334155' },
+              ].map((c) => (
+                <div
+                  key={c.id}
+                  onClick={() => { setAccentColor(c.id); showToast(`${c.label} accent applied`, 'success') }}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '12px 14px',
+                    borderRadius: 8,
+                    border: accentColor === c.id ? `2px solid ${c.hex}` : '1px solid var(--line-100)',
+                    background: 'var(--paper)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: c.hex, border: '1px solid rgba(0,0,0,0.1)' }} />
+                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--ink-900)' }}>{c.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '24px 0' }} />
+
+            {/* 3. Font Size Preferences */}
+            <h3 style={{ marginBottom: 6, fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)' }}>
+              Font Size Preferences
+            </h3>
+            <p className="text-muted" style={{ fontSize: '0.84rem', marginBottom: 16 }}>
+              Adjust text scale for improved readability on your device.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {[
+                { id: 'normal', label: 'Default (100%)', sample: 'Aa' },
+                { id: 'medium', label: 'Medium (105%)', sample: 'Aa+' },
+                { id: 'large', label: 'Large (112%)', sample: 'Aa++' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => { setFontSize(f.id); showToast(`Font size set to ${f.label}`, 'success') }}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '10px 18px',
+                    borderRadius: 8,
+                    border: fontSize === f.id ? '2px solid var(--forest-700)' : '1px solid var(--line-100)',
+                    background: fontSize === f.id ? 'var(--forest-050, rgba(27,56,48,0.06))' : 'var(--paper)',
+                    fontWeight: fontSize === f.id ? 700 : 500,
+                    color: fontSize === f.id ? 'var(--forest-900)' : 'var(--ink-800)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: '0.86rem',
+                  }}
+                >
+                  <span style={{ fontSize: '1rem', fontWeight: 700, opacity: 0.8 }}>{f.sample}</span>
+                  <span>{f.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}

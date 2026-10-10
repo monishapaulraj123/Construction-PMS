@@ -228,6 +228,55 @@ export function AppProvider({ children }) {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
   }
 
+  // Accent Color Preference (Persisted)
+  const [accentColor, setAccentColor] = useState(() => {
+    try {
+      return localStorage.getItem('cpms_accent_color') || 'emerald'
+    } catch (e) {
+      return 'emerald'
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cpms_accent_color', accentColor)
+    } catch (e) {}
+    document.documentElement.setAttribute('data-accent', accentColor)
+  }, [accentColor])
+
+  // Font Size Preference (Persisted)
+  const [fontSize, setFontSize] = useState(() => {
+    try {
+      return localStorage.getItem('cpms_font_size') || 'normal'
+    } catch (e) {
+      return 'normal'
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cpms_font_size', fontSize)
+    } catch (e) {}
+    if (fontSize === 'large') {
+      document.documentElement.style.fontSize = '17px'
+    } else if (fontSize === 'medium') {
+      document.documentElement.style.fontSize = '16px'
+    } else {
+      document.documentElement.style.fontSize = '15px'
+    }
+  }, [fontSize])
+
+  // Update authenticated user session locally and persist
+  const updateCurrentUser = (updatedData) => {
+    setCurrentUser((prev) => {
+      const merged = { ...prev, ...updatedData }
+      try {
+        localStorage.setItem('cpms_user', JSON.stringify(merged))
+      } catch (e) {}
+      return merged
+    })
+  }
+
   // Application Data States
   const [properties, setProperties] = useState(defaultProperties)
   const [buyRequests, setBuyRequests] = useState(defaultBuyRequests)
@@ -754,6 +803,11 @@ export function AppProvider({ children }) {
         theme,
         setTheme,
         toggleTheme,
+        accentColor,
+        setAccentColor,
+        fontSize,
+        setFontSize,
+        updateCurrentUser,
         refreshBackendData,
         notifications,
         unreadNotifCount,
@@ -774,6 +828,7 @@ export function useApp() {
       currentUser: null,
       login: async () => ({ success: false, error: 'App session loading. Please refresh or try again in a moment.' }),
       logout: () => {},
+      updateCurrentUser: () => {},
       properties: [],
       buyRequests: [],
       sellRequests: [],
@@ -800,6 +855,10 @@ export function useApp() {
       theme: 'light',
       setTheme: () => {},
       toggleTheme: () => {},
+      accentColor: 'emerald',
+      setAccentColor: () => {},
+      fontSize: 'normal',
+      setFontSize: () => {},
       refreshBackendData: async () => {},
       notifications: [],
       unreadNotifCount: 0,

@@ -10,6 +10,8 @@ export function matchChatbotRule(query, currentUser, contextData = {}, lang = 'e
   const normalized = query.toLowerCase().trim().replace(/[^\w\s]/gi, '')
   const role = String(currentUser?.role || '').toUpperCase()
   const isAdmin = role === 'ADMIN'
+  const isSupervisor = role === 'SUPERVISOR'
+  const isWorker = role === 'WORKER'
 
   const {
     projects = [],
@@ -19,6 +21,123 @@ export function matchChatbotRule(query, currentUser, contextData = {}, lang = 'e
     transactions = [],
     clients = [],
   } = contextData
+
+  // --- SUPERVISOR INTENTS ---
+  if (isSupervisor) {
+    if (normalized.includes('setting') || normalized.includes('profile') || normalized.includes('account')) {
+      return {
+        text: "Navigating to Account Settings page...",
+        response: "Navigating to Account Settings page...",
+        navigateTo: '/settings',
+      }
+    }
+    if (normalized.includes('add site') || normalized.includes('create site') || normalized.includes('geofence')) {
+      return {
+        text: "To add a construction site:\n1. Open Site Attendance -> Site Management tab.\n2. Click '+ Add Construction Site'.\n3. Enter Site Code, Name, Address, Coordinates (Lat/Lon), and Geofence Radius (m).\n4. Assign Supervisor and Save.",
+        response: "To add a construction site:\n1. Open Site Attendance -> Site Management tab.\n2. Click '+ Add Construction Site'.\n3. Enter Site Code, Name, Address, Coordinates (Lat/Lon), and Geofence Radius (m).\n4. Assign Supervisor and Save.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('assign') || normalized.includes('worker assignment')) {
+      return {
+        text: "To assign a worker to a construction site:\n1. Open Site Attendance -> Worker Assignments tab.\n2. Click '+ Assign Worker to Site'.\n3. Select the worker employee code and target site.\n4. Save assignment.",
+        response: "To assign a worker to a construction site:\n1. Open Site Attendance -> Worker Assignments tab.\n2. Click '+ Assign Worker to Site'.\n3. Select the worker employee code and target site.\n4. Save assignment.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('correction') || normalized.includes('approve') || normalized.includes('reject')) {
+      return {
+        text: "To review worker attendance correction requests:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click 'Review' on the pending request.\n3. Enter remarks and select Approve or Reject.",
+        response: "To review worker attendance correction requests:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click 'Review' on the pending request.\n3. Enter remarks and select Approve or Reject.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (
+      normalized.includes('attendance') ||
+      normalized.includes('site') ||
+      normalized.includes('workforce') ||
+      normalized.includes('help') ||
+      normalized.includes('navigate') ||
+      normalized.includes('go to') ||
+      normalized.includes('open')
+    ) {
+      return {
+        text: "As your AI Supervisor Assistant, I can help you manage construction sites, assign workers, review correction requests, and navigate to Attendance or Settings.",
+        response: "As your AI Supervisor Assistant, I can help you manage construction sites, assign workers, review correction requests, and navigate to Attendance or Settings.",
+        navigateTo: '/attendance',
+      }
+    }
+    return {
+      text: "Hello Supervisor! Ask me how to add sites, assign workers, review correction requests, or navigate pages.",
+      response: "Hello Supervisor! Ask me how to add sites, assign workers, review correction requests, or navigate pages.",
+      navigateTo: '/attendance',
+    }
+  }
+
+  // --- WORKER INTENTS ---
+  if (isWorker) {
+    if (normalized.includes('setting') || normalized.includes('profile') || normalized.includes('theme') || normalized.includes('color') || normalized.includes('font')) {
+      return {
+        text: "You can change your theme, color scheme, font size, or edit your personal profile (Name & Phone) on the Settings page or via 'My Profile' in the top-right header menu.",
+        response: "You can change your theme, color scheme, font size, or edit your personal profile (Name & Phone) on the Settings page or via 'My Profile' in the top-right header menu.",
+        navigateTo: '/settings',
+      }
+    }
+    if (normalized.includes('check out') || normalized.includes('checkout') || normalized.includes('leaving') || normalized.includes('end shift')) {
+      return {
+        text: "To mark your daily Check-Out:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Once your shift is complete, click 'Mark Check-Out' to record your departure timestamp and calculate worked hours.",
+        response: "To mark your daily Check-Out:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Once your shift is complete, click 'Mark Check-Out' to record your departure timestamp and calculate worked hours.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('check in') || normalized.includes('checkin') || normalized.includes('mark') || normalized.includes('gps') || normalized.includes('geofence')) {
+      return {
+        text: "To mark your daily GPS Spot Attendance:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Click 'Acquire GPS' to capture your device's actual location.\n3. Ensure you are physically inside the site geofence radius. (If outside, check-in will be rejected with 'You are outside this site').\n4. Click 'Mark Check-In'.",
+        response: "To mark your daily GPS Spot Attendance:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Click 'Acquire GPS' to capture your device's actual location.\n3. Ensure you are physically inside the site geofence radius. (If outside, check-in will be rejected with 'You are outside this site').\n4. Click 'Mark Check-In'.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('assigned site') || normalized.includes('my site') || normalized.includes('where is my site') || normalized.includes('which site')) {
+      return {
+        text: "Your assigned construction site details (Site Name, Address, Geofence Radius, Shift Timings, and Supervisor) are displayed directly on the 'Spot Attendance (GPS)' tab of the Site Attendance page.",
+        response: "Your assigned construction site details (Site Name, Address, Geofence Radius, Shift Timings, and Supervisor) are displayed directly on the 'Spot Attendance (GPS)' tab of the Site Attendance page.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('history') || normalized.includes('report') || normalized.includes('hours') || normalized.includes('past attendance') || normalized.includes('shifts')) {
+      return {
+        text: "To view your personal attendance history and reports:\n1. Open Site Attendance -> History & Reports tab.\n2. You can filter records by date range, review daily check-in/out timestamps and worked hours, and export a CSV report.",
+        response: "To view your personal attendance history and reports:\n1. Open Site Attendance -> History & Reports tab.\n2. You can filter records by date range, review daily check-in/out timestamps and worked hours, and export a CSV report.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (normalized.includes('correction') || normalized.includes('missed') || normalized.includes('wrong time') || normalized.includes('request')) {
+      return {
+        text: "To submit an attendance correction request:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click '+ Submit Correction Request'.\n3. Select date, enter requested check-in/out times and your reason.\n4. Submit the request for supervisor review. You can monitor the approval status right there.",
+        response: "To submit an attendance correction request:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click '+ Submit Correction Request'.\n3. Select date, enter requested check-in/out times and your reason.\n4. Submit the request for supervisor review. You can monitor the approval status right there.",
+        navigateTo: '/attendance',
+      }
+    }
+    if (
+      normalized.includes('attendance') ||
+      normalized.includes('site') ||
+      normalized.includes('help') ||
+      normalized.includes('navigate') ||
+      normalized.includes('go to') ||
+      normalized.includes('open')
+    ) {
+      return {
+        text: "As your Worker Assistant, I can help you with:\n• GPS Spot Attendance (Check-in/out & geofence validation)\n• Viewing your assigned construction site\n• Attendance History & Reports\n• Submitting Correction Requests\n• Theme, color & personal profile settings",
+        response: "As your Worker Assistant, I can help you with:\n• GPS Spot Attendance (Check-in/out & geofence validation)\n• Viewing your assigned construction site\n• Attendance History & Reports\n• Submitting Correction Requests\n• Theme, color & personal profile settings",
+        navigateTo: '/attendance',
+      }
+    }
+    return {
+      text: "Hello Worker! I am your Worker Assistant. Ask me about GPS check-in/out, your assigned site, attendance history, or submitting correction requests.",
+      response: "Hello Worker! I am your Worker Assistant. Ask me about GPS check-in/out, your assigned site, attendance history, or submitting correction requests.",
+      navigateTo: '/attendance',
+    }
+  }
 
   // Multi-language quick reply dictionary
   const getQuickReplies = (keys) => {

@@ -15,6 +15,8 @@ export default function Chatbot() {
 
   const role = String(currentUser?.role || '').toUpperCase()
   const isAdmin = role === 'ADMIN'
+  const isSupervisor = role === 'SUPERVISOR'
+  const isWorker = role === 'WORKER'
 
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
@@ -43,14 +45,18 @@ export default function Chatbot() {
     }
   }, [])
 
-  // Initialize clean welcome message without predefined questions
+  // Initialize role-tailored welcome message
   useEffect(() => {
-    const welcomeText = t(
-      isAdmin ? 'chatbot_welcome_admin' : 'chatbot_welcome_client',
-      isAdmin
-        ? 'Hello Administrator! 👋 I am your AI Management Assistant. Ask me about active projects, payments, clients, properties, or system navigation.'
-        : 'Hello! 👋 Welcome to the Construction & Real Estate Management System. Ask me about your projects, available properties, buy/sell requests, or payments.'
-    )
+    let welcomeText = ''
+    if (isSupervisor) {
+      welcomeText = 'Hello Supervisor! 👋 I am your Supervisor Assistant. Ask me about workforce site management, worker assignments, geofence radius, reviewing correction requests, or page navigation.'
+    } else if (isWorker) {
+      welcomeText = 'Hello Worker! 👋 I am your Worker Assistant. Ask me about GPS attendance, marking check-in/out, your assigned site, attendance history, or submitting correction requests.'
+    } else if (isAdmin) {
+      welcomeText = 'Hello Administrator! 👋 I am your AI Management Assistant. Ask me about active projects, payments, clients, properties, or system navigation.'
+    } else {
+      welcomeText = 'Hello! 👋 Welcome to the Construction & Real Estate Management System. Ask me about your projects, available properties, buy/sell requests, or payments.'
+    }
 
     setMessages([
       {
@@ -60,7 +66,7 @@ export default function Chatbot() {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ])
-  }, [language, isAdmin, t])
+  }, [language, isAdmin, isSupervisor, isWorker, t])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -294,12 +300,28 @@ export default function Chatbot() {
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.96rem', color: 'var(--gold-400, #D4B06A)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>{t(isAdmin ? 'chatbot_title_admin' : 'chatbot_title_client', isAdmin ? 'AI Admin Assistant' : 'AI Client Assistant')}</span>
+                  <span>
+                    {isSupervisor
+                      ? 'Supervisor Assistant'
+                      : isWorker
+                      ? 'Worker Assistant'
+                      : isAdmin
+                      ? 'Admin Assistant'
+                      : 'Client Assistant'}
+                  </span>
                   <Sparkles size={13} color="var(--gold-400)" />
                 </div>
                 <div style={{ fontSize: '0.74rem', color: 'rgba(255, 255, 255, 0.75)', display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} />
-                  <span>{t(isAdmin ? 'chatbot_subtitle_admin' : 'chatbot_subtitle_client', isAdmin ? 'MySQL Database AI Assistant' : 'Voice & DB AI Assistant')}</span>
+                  <span>
+                    {isSupervisor
+                      ? 'Workforce & Site Management'
+                      : isWorker
+                      ? 'GPS Attendance & Shifts'
+                      : isAdmin
+                      ? 'System Management'
+                      : 'Client Services'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -490,6 +512,35 @@ export default function Chatbot() {
                 <span>AI processing database query...</span>
               </div>
             )}
+            {isWorker && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6, marginBottom: 4 }}>
+                {[
+                  'How to mark GPS check-in?',
+                  'What is my assigned site?',
+                  'View attendance history',
+                  'Submit correction request',
+                ].map((chip) => (
+                  <button
+                    key={chip}
+                    onClick={() => handleSendMessage(chip)}
+                    type="button"
+                    style={{
+                      background: 'rgba(212, 175, 106, 0.18)',
+                      border: '1px solid var(--gold-400, #D4B06A)',
+                      color: 'var(--forest-950, #142D26)',
+                      padding: '5px 11px',
+                      borderRadius: 14,
+                      fontSize: '0.73rem',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -534,10 +585,13 @@ export default function Chatbot() {
               placeholder={
                 isListening
                   ? 'Listening to speech...'
-                  : t(
-                      isAdmin ? 'chatbot_input_placeholder_admin' : 'chatbot_input_placeholder_client',
-                      isAdmin ? 'Ask for projects, client stats, payments...' : 'Ask about properties, buy/sell, progress...'
-                    )
+                  : isSupervisor
+                  ? 'Ask about site management, worker assignments...'
+                  : isWorker
+                  ? 'Ask about GPS check-in, site location, corrections...'
+                  : isAdmin
+                  ? 'Ask for projects, client stats, payments...'
+                  : 'Ask about properties, buy/sell, progress...'
               }
               value={input}
               onChange={(e) => setInput(e.target.value)}

@@ -14,6 +14,7 @@ import {
   createCorrectionRequest,
   reviewCorrectionRequest,
   exportAttendanceCSV,
+  importAttendanceCSV,
   createUserAccountForEmployee,
 } from '../controllers/attendanceController.js'
 import { authenticateToken, requireAuth, requireAdmin } from '../middleware/authMiddleware.js'
@@ -39,15 +40,18 @@ router.put('/sites/:id', requireAdmin, updateSite)
 
 // Worker Assignments
 router.get('/assignments', getAssignments)
-router.post('/assignments', requireAdmin, createAssignment)
+router.post('/assignments', createAssignment)
 
 // History & Reports
 router.get('/history', getAttendanceHistory)
 router.get('/export', exportAttendanceCSV)
+router.post('/import-csv', requireAdmin, importAttendanceCSV)
 
 // Correction Requests
 router.get('/corrections', getCorrectionRequests)
 router.post('/corrections', createCorrectionRequest)
+router.patch('/corrections/:id/review', reviewCorrectionRequest)
+
 // User Account Provisioning for Supervisors & Workers (Admin Only)
 router.post('/create-user-account', requireAdmin, createUserAccountForEmployee)
 

@@ -27,16 +27,12 @@ import {
   Home,
   FileText,
   CheckSquare,
-  Wallet,
-  Building,
-  Tag,
-  FileCheck2,
-  Scale,
   CreditCard,
   PlusCircle,
   Bell,
   UserCheck,
   ChevronRight,
+  MapPin,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useTranslation } from '../context/LanguageContext'
@@ -48,10 +44,17 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
   const userRole = String(currentUser?.role || '').toUpperCase()
 
   const isClient = userRole === 'CLIENT'
+  const isWorker = userRole === 'WORKER'
+  const isSupervisor = userRole === 'SUPERVISOR'
+  const isAdmin = userRole === 'ADMIN' || (!isClient && !isWorker && !isSupervisor)
 
   // Dynamic Standalone link
   const standaloneLink = isClient
     ? { to: '/client/dashboard', label: t('client_dash_title', 'Client Dashboard'), keyLabel: 'client_dash_title', icon: LayoutDashboard, end: true }
+    : isWorker
+    ? { to: '/attendance', label: 'Site Attendance', keyLabel: 'site_attendance', icon: MapPin, end: true }
+    : isSupervisor
+    ? { to: '/attendance?tab=dashboard', label: 'My Attendance', keyLabel: 'my_attendance', icon: MapPin, end: true }
     : { to: '/', label: t('dashboard', 'Dashboard'), keyLabel: 'dashboard', icon: LayoutDashboard, end: true }
 
   // Dynamic Admin sections
@@ -162,7 +165,10 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
     },
   ]
 
-  const sections = isClient ? clientSections : adminSections
+  // Dynamic Worker sections (Exactly 2 items total in sidebar: Site Attendance & Settings)
+  const workerSections = []
+
+  const sections = isClient ? clientSections : (isWorker ? workerSections : adminSections)
 
   const [expandedSection, setExpandedSection] = useState(null)
 
@@ -204,18 +210,23 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {/* Standalone Dashboard Link */}
+        {/* Standalone Dashboard / Attendance Link */}
         <div style={{ marginBottom: '10px' }}>
-          <NavLink
-            to={standaloneLink.to}
-            end={standaloneLink.end}
-            onClick={onNavigate}
-            title={standaloneLink.label}
-            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-          >
-            <LayoutDashboard size={18} style={{ flexShrink: 0 }} />
-            <span>{standaloneLink.label}</span>
-          </NavLink>
+          {(() => {
+            const StandaloneIcon = standaloneLink.icon || LayoutDashboard
+            return (
+              <NavLink
+                to={standaloneLink.to}
+                end={standaloneLink.end}
+                onClick={onNavigate}
+                title={standaloneLink.label}
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+              >
+                <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
+                <span>{standaloneLink.label}</span>
+              </NavLink>
+            )
+          })()}
         </div>
 
         {/* Collapsible Module Sections */}

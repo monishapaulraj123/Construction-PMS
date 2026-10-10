@@ -153,7 +153,7 @@ export default function App() {
 
               <Route path="/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><Reports /></ProtectedRoute>} />
               <Route path="/attendance" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER']}><AttendanceManagement /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'CLIENT']}><Settings /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER', 'CLIENT']}><Settings /></ProtectedRoute>} />
 
               {/* UNIFIED CLIENT Protected Routes */}
               <Route path="/client/dashboard" element={<ProtectedRoute allowedRoles={['CLIENT']}><ClientDashboard /></ProtectedRoute>} />

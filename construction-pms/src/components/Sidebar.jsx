@@ -51,12 +51,15 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
   const isClient = userRole === 'CLIENT'
   const isWorker = userRole === 'WORKER'
   const isSupervisor = userRole === 'SUPERVISOR'
+  const isAdmin = userRole === 'ADMIN' || (!isClient && !isWorker && !isSupervisor)
 
   // Dynamic Standalone link
   const standaloneLink = isClient
     ? { to: '/client/dashboard', label: t('client_dash_title', 'Client Dashboard'), keyLabel: 'client_dash_title', icon: LayoutDashboard, end: true }
-    : (isWorker || isSupervisor)
-    ? { to: '/attendance', label: isSupervisor ? 'Supervisor Attendance' : 'GPS Spot Attendance', keyLabel: 'attendance', icon: MapPin, end: true }
+    : isWorker
+    ? { to: '/attendance', label: 'Site Attendance', keyLabel: 'site_attendance', icon: MapPin, end: true }
+    : isSupervisor
+    ? { to: '/attendance?tab=dashboard', label: 'My Attendance', keyLabel: 'my_attendance', icon: MapPin, end: true }
     : { to: '/', label: t('dashboard', 'Dashboard'), keyLabel: 'dashboard', icon: LayoutDashboard, end: true }
 
   // Dynamic Admin sections
@@ -150,28 +153,27 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
     },
   ]
 
-  // Dynamic Worker sections
-  const workerSections = [
-    {
-      id: 'workforce_attendance',
-      label: 'GPS Attendance',
-      icon: MapPin,
-      links: [
-        { to: '/attendance', label: 'Spot Attendance (GPS)', icon: MapPin },
-        { to: '/settings', label: 'Account Settings', icon: Settings },
-      ],
-    },
-  ]
+  // Dynamic Worker sections (Exactly 2 items total in sidebar: GPS Attendance & Settings)
+  const workerSections = []
 
-  // Dynamic Supervisor sections
+  // Dynamic Supervisor sections (Exactly 3 primary items + Settings in footer)
   const supervisorSections = [
     {
-      id: 'workforce_attendance',
-      label: 'Site Attendance',
-      icon: MapPin,
+      id: 'site_workforce_mgmt',
+      label: 'Site & Workforce Management',
+      icon: Building2,
       links: [
-        { to: '/attendance', label: 'Workforce Attendance', icon: MapPin },
-        { to: '/settings', label: 'Account Settings', icon: Settings },
+        { to: '/attendance?tab=sites', label: 'Site & Workforce Overview', icon: Building2 },
+      ],
+    },
+    {
+      id: 'assignments_reports',
+      label: 'Work Assignments & Reports',
+      icon: Users,
+      links: [
+        { to: '/attendance?tab=assignments', label: 'Worker Assignments', icon: Users },
+        { to: '/attendance?tab=history', label: 'Attendance Reports', icon: FileText },
+        { to: '/attendance?tab=corrections', label: 'Correction Requests', icon: CheckSquare },
       ],
     },
   ]
@@ -243,18 +245,23 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {/* Standalone Dashboard Link */}
+        {/* Standalone Dashboard / Attendance Link */}
         <div style={{ marginBottom: '10px' }}>
-          <NavLink
-            to={standaloneLink.to}
-            end={standaloneLink.end}
-            onClick={onNavigate}
-            title={standaloneLink.label}
-            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-          >
-            <LayoutDashboard size={18} style={{ flexShrink: 0 }} />
-            <span>{standaloneLink.label}</span>
-          </NavLink>
+          {(() => {
+            const StandaloneIcon = standaloneLink.icon || LayoutDashboard
+            return (
+              <NavLink
+                to={standaloneLink.to}
+                end={standaloneLink.end}
+                onClick={onNavigate}
+                title={standaloneLink.label}
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+              >
+                <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
+                <span>{standaloneLink.label}</span>
+              </NavLink>
+            )
+          })()}
         </div>
 
         {/* Collapsible Module Sections */}

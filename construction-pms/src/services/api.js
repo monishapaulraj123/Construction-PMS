@@ -42,6 +42,10 @@ export const authAPI = {
     const res = await api.get('/auth/me')
     return res.data
   },
+  updateProfile: async (data) => {
+    const res = await api.put('/auth/profile', data)
+    return res.data
+  },
 }
 
 // Master Data APIs
@@ -203,6 +207,7 @@ export const attendanceAPI = {
   createUserAccount: (data) => api.post('/attendance/create-user-account', data).then((res) => res.data),
   exportCSV: (params) => api.get('/attendance/export', { params, responseType: 'blob' }),
   exportCSVUrl: `${API_BASE_URL}/attendance/export`,
+  importCSV: (csvData) => api.post('/attendance/import-csv', { csvData }).then((res) => res.data),
 }
 
 export const inventoryAPI = {

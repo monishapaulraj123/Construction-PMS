@@ -218,3 +218,61 @@ export async function googleLogin(req, res) {
     return res.status(500).json({ success: false, error: 'Google authentication failed.' })
   }
 }
+
+// PUT /api/auth/profile
+// Permitted: name, phone. Role and permissions are strictly read-only.
+export async function updateProfile(req, res) {
+  try {
+    if (!req.user || !req.user.user_id) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' })
+    }
+
+    const { name, phone } = req.body
+
+    // Update users table for permitted fields only
+    if (name || phone !== undefined) {
+      await db.query(
+        'UPDATE users SET name = COALESCE(?, name), phone = COALESCE(?, phone) WHERE user_id = ?',
+        [name ? name.trim() : null, phone ? phone.trim() : null, req.user.user_id]
+      )
+    }
+
+    // Sync with employees table if linked
+    if (name || phone) {
+      try {
+        const parts = (name || '').trim().split(' ')
+        const firstName = parts[0] || ''
+        const lastName = parts.slice(1).join(' ') || ''
+        if (firstName) {
+          await db.query(
+            'UPDATE employees SET first_name = ?, last_name = ?, phone = COALESCE(?, phone) WHERE user_id = ?',
+            [firstName, lastName, phone ? phone.trim() : null, req.user.user_id]
+          )
+        } else if (phone) {
+          await db.query('UPDATE employees SET phone = ? WHERE user_id = ?', [phone.trim(), req.user.user_id])
+        }
+      } catch (empSyncErr) {
+        // Silently continue if employee record is not linked
+      }
+    }
+
+    const [rows] = await db.query(
+      'SELECT user_id, name, email, role, phone, status, avatar FROM users WHERE user_id = ?',
+      [req.user.user_id]
+    )
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user: rows[0],
+    })
+  } catch (error) {
+    console.error('[Update Profile Error]', error)
+    return res.status(500).json({ success: false, message: 'Failed to update personal profile.' })
+  }
+}
+

@@ -7,17 +7,24 @@ import { getPageMeta } from '../data/pageMeta'
 import { useApp } from '../context/AppContext'
 import { useTranslation } from '../context/LanguageContext'
 import { startListening, speakText, stopSpeaking } from '../utils/speech'
-import { aiAPI } from '../services/api'
+import { aiAPI, authAPI } from '../services/api'
+import { useToast } from './ToastContext'
 
 export default function Header({ onMenuClick }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { currentUser, logout, theme, toggleTheme } = useApp()
+  const { currentUser, logout, theme, toggleTheme, updateCurrentUser } = useApp()
   const { language, setLanguage, t, languages } = useTranslation()
   const { title, description } = getPageMeta(location.pathname, t)
+  const showToast = useToast()
 
   const [showNotif, setShowNotif] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
+
+  // My Profile Modal State
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '' })
+  const [savingProfile, setSavingProfile] = useState(false)
 
   // Voice Assistant Push-to-Talk State
   const [isVoiceListening, setIsVoiceListening] = useState(false)
@@ -363,25 +370,32 @@ export default function Header({ onMenuClick }) {
               </div>
               <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '4px 0 8px 0' }} />
 
-              {userRole === 'CLIENT' && (
-                <button
-                  className="btn btn-secondary"
-                  style={{
-                    width: '100%',
-                    justifyContent: 'flex-start',
-                    gap: 8,
-                    fontSize: '0.82rem',
-                    padding: '8px 10px',
-                    marginBottom: 4,
-                  }}
-                  onClick={() => {
-                    setShowUserDropdown(false)
+              {/* My Profile Button for All Roles */}
+              <button
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'flex-start',
+                  gap: 8,
+                  fontSize: '0.82rem',
+                  padding: '8px 10px',
+                  marginBottom: 4,
+                }}
+                onClick={() => {
+                  setShowUserDropdown(false)
+                  if (userRole === 'CLIENT') {
                     navigate('/client/profile')
-                  }}
-                >
-                  <User size={15} /> {t('my_client_profile', 'My Client Profile')}
-                </button>
-              )}
+                  } else {
+                    setProfileForm({
+                      name: currentUser?.name || '',
+                      phone: currentUser?.phone || '',
+                    })
+                    setShowProfileModal(true)
+                  }
+                }}
+              >
+                <User size={15} /> {t('my_profile', 'My Profile')}
+              </button>
 
               <button
                 className="btn btn-logout"
@@ -400,6 +414,187 @@ export default function Header({ onMenuClick }) {
           )}
         </div>
       </div>
+
+      {/* My Profile Modal for Worker / Staff */}
+      {showProfileModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.55)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+          }}
+          onClick={() => setShowProfileModal(false)}
+        >
+          <div
+            style={{
+              background: 'var(--paper, #FFFFFF)',
+              borderRadius: 14,
+              width: '100%',
+              maxWidth: 480,
+              boxShadow: '0 20px 48px rgba(0, 0, 0, 0.25)',
+              border: '1.5px solid var(--line-100, #EAE5D9)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid var(--line-100)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'var(--cream-050)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <User size={18} color="var(--forest-800)" />
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)' }}>
+                  My Profile
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="btn btn-ghost btn-sm"
+                style={{ padding: 4 }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setSavingProfile(true)
+                try {
+                  const res = await authAPI.updateProfile(profileForm)
+                  if (res && res.success) {
+                    showToast('Profile updated successfully!', 'success')
+                    if (res.user) {
+                      updateCurrentUser(res.user)
+                    } else {
+                      updateCurrentUser(profileForm)
+                    }
+                    setShowProfileModal(false)
+                  } else {
+                    showToast(res?.message || 'Failed to update profile.', 'error')
+                  }
+                } catch (err) {
+                  // Fallback to local session update if offline
+                  updateCurrentUser(profileForm)
+                  showToast('Profile details updated locally.', 'success')
+                  setShowProfileModal(false)
+                } finally {
+                  setSavingProfile(false)
+                }
+              }}
+              style={{ padding: 22 }}
+            >
+              {/* Profile Card Banner */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: 12, background: 'var(--cream-050)', borderRadius: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--forest-800)', color: 'var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
+                  {currentUser?.name ? currentUser.name[0].toUpperCase() : 'W'}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.96rem', color: 'var(--ink-900)' }}>
+                    {currentUser?.name || 'Worker User'}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, background: 'var(--forest-100)', color: 'var(--forest-900)', padding: '2px 8px', borderRadius: 4, letterSpacing: '0.04em' }}>
+                      {currentUser?.role || 'WORKER'}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--ink-500)' }}>Active Account</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Permitted Field 1: Display Name */}
+              <div className="form-field" style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-900)' }}>
+                  Full Name (Permitted)
+                </label>
+                <input
+                  type="text"
+                  className="input"
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
+                  required
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Permitted Field 2: Contact Phone */}
+              <div className="form-field" style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-900)' }}>
+                  Contact Phone (Permitted)
+                </label>
+                <input
+                  type="tel"
+                  className="input"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                  placeholder="e.g. 9840012345"
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Restricted Field 1: Email Address (Read-only) */}
+              <div className="form-field" style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-500)' }}>
+                  Email Address 🔒 (Restricted)
+                </label>
+                <input
+                  type="email"
+                  className="input"
+                  value={currentUser?.email || ''}
+                  disabled
+                  style={{ width: '100%', background: 'var(--cream-050)', color: 'var(--ink-500)', cursor: 'not-allowed' }}
+                />
+                <span style={{ fontSize: '0.72rem', color: 'var(--ink-400)', marginTop: 2, display: 'block' }}>
+                  Email is locked to your account credentials.
+                </span>
+              </div>
+
+              {/* Restricted Field 2: Assigned Role & Permissions */}
+              <div style={{ padding: 12, background: 'var(--cream-050)', borderRadius: 8, border: '1px solid var(--line-100)', marginBottom: 20 }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-700)', marginBottom: 4 }}>
+                  🔒 Assigned Role &amp; Permissions (Restricted)
+                </div>
+                <div style={{ fontSize: '0.76rem', color: 'var(--ink-500)', lineHeight: 1.5 }}>
+                  Role: <strong>{currentUser?.role || 'WORKER'}</strong>. Role elevation and administrative rights cannot be modified from profile settings.
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(false)}
+                  className="btn btn-secondary"
+                  disabled={savingProfile}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={savingProfile}
+                >
+                  {savingProfile ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

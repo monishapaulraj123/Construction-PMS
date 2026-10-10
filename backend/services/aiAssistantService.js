@@ -188,6 +188,119 @@ export async function processAiQuery({ query, confirmAction, actionData, user, s
     }
   }
 
+  const isWorker = role === 'WORKER'
+  const isSupervisor = role === 'SUPERVISOR'
+
+  // 1.5 Worker Assistant Specialized Intents
+  if (isWorker) {
+    if (
+      lowerQuery === 'hi' ||
+      lowerQuery === 'hello' ||
+      lowerQuery === 'hey' ||
+      lowerQuery.includes('how are you') ||
+      lowerQuery.includes('வணக்கம்')
+    ) {
+      return {
+        text: isTamil
+          ? 'வணக்கம்! 👋 நான் உங்கள் Worker Assistant. GPS வருகை பதிவு (Check-in/out), ஒதுக்கப்பட்ட தளம், வருகை வரலாறு அல்லது திருத்த கோரிக்கைகள் குறித்து என்னிடம் கேட்கலாம்.'
+          : 'Hello! 👋 I am your Worker Assistant. Ask me about GPS attendance check-in/out, your assigned construction site, attendance history, or submitting correction requests.',
+        lang: langCode,
+      }
+    }
+
+    if (
+      lowerQuery.includes('setting') ||
+      lowerQuery.includes('profile') ||
+      lowerQuery.includes('theme') ||
+      lowerQuery.includes('color') ||
+      lowerQuery.includes('font')
+    ) {
+      return {
+        text: isTamil
+          ? 'தீம், நிறம், எழுத்துரு அளவு அல்லது சுயவிவரத்தை மாற்ற Settings பக்கத்திற்கு செல்லவும்.'
+          : 'You can change theme, color scheme, font size, or edit your personal profile (Name & Phone) on the Settings page or via "My Profile" in the top-right user menu.',
+        lang: langCode,
+        navigateTo: '/settings',
+      }
+    }
+
+    if (
+      lowerQuery.includes('check out') ||
+      lowerQuery.includes('checkout') ||
+      lowerQuery.includes('leaving') ||
+      lowerQuery.includes('end shift')
+    ) {
+      return {
+        text: isTamil
+          ? 'Check-Out செய்ய: Site Attendance -> Spot Attendance (GPS) சென்று "Mark Check-Out" பட்டனை அழுத்தவும்.'
+          : 'To mark your daily Check-Out:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Click "Mark Check-Out" to record your departure timestamp and calculate shift hours.',
+        lang: langCode,
+        navigateTo: '/attendance',
+      }
+    }
+
+    if (
+      lowerQuery.includes('check in') ||
+      lowerQuery.includes('checkin') ||
+      lowerQuery.includes('gps') ||
+      lowerQuery.includes('geofence') ||
+      lowerQuery.includes('attendance') ||
+      lowerQuery.includes('mark')
+    ) {
+      return {
+        text: isTamil
+          ? 'GPS வருகை பதிவு செய்ய: Site Attendance -> Spot Attendance (GPS) சென்று "Acquire GPS" கிளிக் செய்து உங்கள் தள எல்லைக்குள் உள்ளதை உறுதிசெய்து "Mark Check-In" கொடுக்கவும்.'
+          : 'To mark your daily GPS Spot Attendance:\n1. Open Site Attendance -> Spot Attendance (GPS) tab.\n2. Click "Acquire GPS" to capture your device location.\n3. Ensure you are physically inside the site geofence radius (check-in will be rejected if outside).\n4. Click "Mark Check-In".',
+        lang: langCode,
+        navigateTo: '/attendance',
+      }
+    }
+
+    if (
+      lowerQuery.includes('assigned site') ||
+      lowerQuery.includes('my site') ||
+      lowerQuery.includes('site') ||
+      lowerQuery.includes('location')
+    ) {
+      return {
+        text: isTamil
+          ? 'உங்களுக்கு ஒதுக்கப்பட்ட கட்டுமான தளத்தின் பெயர், முகவரி, ஜியோஃபென்ஸ் ஆரம் மற்றும் மேற்பார்வையாளர் விவரங்களை Spot Attendance (GPS) தாவலில் பார்க்கலாம்.'
+          : 'Your assigned construction site details (Site Name, Address, Geofence Radius, Shift Timings, and Supervisor) are displayed directly on the "Spot Attendance (GPS)" tab of the Site Attendance page.',
+        lang: langCode,
+        navigateTo: '/attendance',
+      }
+    }
+
+    if (
+      lowerQuery.includes('history') ||
+      lowerQuery.includes('report') ||
+      lowerQuery.includes('past attendance') ||
+      lowerQuery.includes('hours')
+    ) {
+      return {
+        text: isTamil
+          ? 'உங்கள் முந்தைய வருகை விவரங்களைப் பார்க்க Site Attendance -> History & Reports தாவலுக்குச் செல்லவும்.'
+          : 'To view your personal attendance history and reports:\n1. Open Site Attendance -> History & Reports tab.\n2. Review your check-in/out timestamps, hours worked, and statuses, or export a CSV report.',
+        lang: langCode,
+        navigateTo: '/attendance',
+      }
+    }
+
+    if (
+      lowerQuery.includes('correction') ||
+      lowerQuery.includes('missed') ||
+      lowerQuery.includes('request')
+    ) {
+      return {
+        text: isTamil
+          ? 'வருகை திருத்த கோரிக்கை சமர்ப்பிக்க: Site Attendance -> Correction Requests சென்று "+ Submit Correction Request" கிளிக் செய்து காரணம் மற்றும் நேரத்தை பதிவு செய்யவும்.'
+          : 'To submit an attendance correction request:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click "+ Submit Correction Request".\n3. Enter your requested check-in/out time and reason for supervisor review.',
+        lang: langCode,
+        navigateTo: '/attendance',
+      }
+    }
+  }
+
   // 2. Greetings & Conversational Queries ("hi", "hello", "how are you")
   if (
     lowerQuery === 'hi' ||
@@ -398,6 +511,8 @@ export async function processAiQuery({ query, confirmAction, actionData, user, s
 
   // 8. General Direct Navigation Mapping ("Buy Request pageக்கு போ", "Open Payments", etc.)
   const navMap = [
+    { keywords: ['attendance', 'spot attendance', 'site attendance', 'workforce attendance', 'checkin', 'check in', 'site management', 'geofence', 'correction'], route: '/attendance', labelTa: 'Workforce Attendance', labelEn: 'Attendance Management' },
+    { keywords: ['setting', 'settings', 'account settings', 'profile'], route: '/settings', labelTa: 'Settings', labelEn: 'Account Settings' },
     { keywords: ['buy request', 'buyrequest', 'வாங்கல் கோரிக்கை'], route: isAdmin ? '/buy-requests' : '/client/buy', labelTa: 'Buy Request', labelEn: 'Buy Request' },
     { keywords: ['sell request', 'sellrequest', 'விற்பனை கோரிக்கை'], route: isAdmin ? '/sell-requests' : '/client/sell', labelTa: 'Sell Request', labelEn: 'Sell Request' },
     { keywords: ['project planning', 'create project', 'திட்டம் உருவாக்கு'], route: isAdmin ? '/projects/create' : '/client/projects', labelTa: 'Project Planning', labelEn: 'Project Planning' },
