@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { MessageSquare, X, Send, Bot, User, Sparkles, Mic, MicOff, Check, XCircle, Volume2, VolumeX } from 'lucide-react'
 import { aiAPI } from '../services/api'
 import { useApp } from '../context/AppContext'
@@ -11,6 +11,13 @@ export default function Chatbot() {
   const { currentUser, projects = [], properties = [], clients = [], buyRequests = [], sellRequests = [], transactions = [] } = useApp()
   const { t, language } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Hide Chatbot on Login page or when user is not logged in
+  if (!currentUser || location.pathname === '/login') {
+    return null
+  }
+
   const role = String(currentUser?.role || '').toUpperCase()
   const isAdmin = role === 'ADMIN'
 
