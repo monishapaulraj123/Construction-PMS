@@ -70,6 +70,24 @@ io.on('connection', (socket) => {
   })
 })
 
+// Root system info endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    system: 'Construction & Real Estate Enterprise PMS REST API',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      projects: '/api/projects',
+      properties: '/api/properties',
+      clients: '/api/clients',
+      employees: '/api/employees',
+      suppliers: '/api/suppliers'
+    },
+    timestamp: new Date().toISOString()
+  })
+})
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Construction & Real Estate Backend Service Running' })
