@@ -1,0 +1,29 @@
+{
+  "name": "construction-pms",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "axios": "^1.20.0",
+    "lucide-react": "^0.383.0",
+    "polygon-clipping": "^0.15.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^19.3.0",
+    "react-router-dom": "^6.23.1",
+    "recharts": "^3.10.1",
+    "socket.io-client": "^4.8.4",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.2.0"
+  }
+}
