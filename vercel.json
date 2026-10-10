@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd construction-pms && npm install && npm run build",
+  "outputDirectory": "construction-pms/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
