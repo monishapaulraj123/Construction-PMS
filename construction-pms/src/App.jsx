@@ -3,6 +3,8 @@ import MainLayout from './components/MainLayout'
 import { ToastProvider } from './components/ToastContext'
 import { AppProvider, useApp } from './context/AppContext'
 import { LanguageProvider } from './context/LanguageContext'
+import Chatbot from './components/Chatbot'
+import WhatsAppButton from './components/WhatsAppButton'
 
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -171,6 +173,8 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
+          <WhatsAppButton />
+          <Chatbot />
         </ToastProvider>
       </AppProvider>
     </LanguageProvider>

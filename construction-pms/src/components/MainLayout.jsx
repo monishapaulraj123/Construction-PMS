@@ -61,8 +61,6 @@ export default function MainLayout() {
         <main className="app-content">
           <Outlet />
         </main>
-        <WhatsAppButton />
-        <Chatbot />
       </div>
     </div>
   )
