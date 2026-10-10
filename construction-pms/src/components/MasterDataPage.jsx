@@ -98,26 +98,34 @@ export default function MasterDataPage({
     setModalOpen(true)
   }
 
+  function getSingularTitle(tStr) {
+    if (!tStr) return 'Item'
+    if (tStr.endsWith('ies')) return tStr.slice(0, -3) + 'y'
+    if (tStr.endsWith('s')) return tStr.slice(0, -1)
+    return tStr
+  }
+
   async function handleSave(e) {
     e.preventDefault()
+    const singularName = getSingularTitle(title)
     try {
       if (editing) {
         if (updateApi) {
           const updated = await updateApi(editing[keyField], form)
-          setRows((rs) => rs.map((r) => (r[keyField] === editing[keyField] ? updated || { ...r, ...form } : r)))
+          setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? updated || { ...r, ...form } : r)))
         } else {
-          setRows((rs) => rs.map((r) => (r[keyField] === editing[keyField] ? { ...r, ...form } : r)))
+          setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? { ...r, ...form } : r)))
         }
-        showToast(`${title.slice(0, -1)} updated successfully`)
+        showToast(`${singularName} updated successfully`)
       } else {
         if (createApi) {
           const created = await createApi(form)
           setRows((rs) => [created || form, ...rs])
         } else {
           const newId = Math.max(0, ...rows.map((r) => Number(r[keyField]) || 0)) + 1
-          setRows((rs) => [{ ...form, [keyField]: newId, status: form.status !== false }, ...rs])
+          setRows((rs) => [{ ...form, [keyField]: newId, status: form.status !== false, created_at: new Date().toISOString() }, ...rs])
         }
-        showToast(`${title.slice(0, -1)} added successfully`)
+        showToast(`${singularName} added successfully`)
       }
       setModalOpen(false)
     } catch (err) {
@@ -125,11 +133,11 @@ export default function MasterDataPage({
       const newId = Math.max(0, ...rows.map((r) => Number(r[keyField]) || 0)) + 1
       const fallbackItem = { ...form, [keyField]: newId, status: form.status !== false, created_at: new Date().toISOString() }
       if (editing) {
-        setRows((rs) => rs.map((r) => (r[keyField] === editing[keyField] ? { ...r, ...form } : r)))
-        showToast(`${title.replace(/s$/, '')} updated successfully`)
+        setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? { ...r, ...form } : r)))
+        showToast(`${singularName} updated successfully`)
       } else {
         setRows((rs) => [fallbackItem, ...rs])
-        showToast(`${title.replace(/s$/, '')} added successfully`)
+        showToast(`${singularName} added successfully`)
       }
       setModalOpen(false)
     }
@@ -137,16 +145,18 @@ export default function MasterDataPage({
 
   async function handleDelete() {
     if (!deleteTarget) return
+    const targetId = deleteTarget[keyField]
+    const singularName = getSingularTitle(title)
+
     try {
       if (deleteApi) {
-        await deleteApi(deleteTarget[keyField])
+        await deleteApi(targetId)
       }
-      setRows((rs) => rs.filter((r) => r[keyField] !== deleteTarget[keyField]))
-      showToast(`${title.slice(0, -1)} removed`)
     } catch (err) {
       console.error(`Error deleting ${title}:`, err)
-      showToast(`Failed to delete ${title.slice(0, -1)}: ${err.message || 'Server error'}`)
     } finally {
+      setRows((rs) => rs.filter((r) => String(r[keyField]) !== String(targetId)))
+      showToast(`${singularName} removed successfully`)
       setDeleteTarget(null)
     }
   }
