@@ -5,9 +5,10 @@ import { aiAPI } from '../services/api'
 import { useApp } from '../context/AppContext'
 import { useTranslation } from '../context/LanguageContext'
 import { startListening, speakText, stopSpeaking } from '../utils/speech'
+import { matchChatbotRule } from './chatbotRules'
 
 export default function Chatbot() {
-  const { currentUser } = useApp()
+  const { currentUser, projects = [], properties = [], clients = [], buyRequests = [], sellRequests = [], transactions = [] } = useApp()
   const { t, language } = useTranslation()
   const navigate = useNavigate()
   const role = String(currentUser?.role || '').toUpperCase()
@@ -128,13 +129,35 @@ export default function Chatbot() {
       }
     } catch (err) {
       setLoading(false)
-      const errorMsg = {
+      const contextData = { projects, properties, clients, buyRequests, sellRequests, transactions }
+      const ruleResult = matchChatbotRule(trimmed, currentUser, contextData, language)
+
+      const fallbackText = ruleResult?.text || (
+        isAdmin
+          ? "I am your AI Construction & Real Estate Assistant. Ask me for dashboard metrics, active projects, property verification, or client details!"
+          : "Welcome! You can ask me about available properties, buy/sell requests, construction stage progress, or payment details."
+      )
+
+      const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: 'Sorry, could not process request right now. Please check backend connection.',
+        text: fallbackText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        quickReplies: ruleResult?.quickReplies || [],
       }
-      setMessages((prev) => [...prev, errorMsg])
+
+      setMessages((prev) => [...prev, botMsg])
+
+      if (speechEnabled) {
+        const isTamilResp = language === 'ta' || /[\u0B80-\u0BFF]/.test(fallbackText)
+        speakText(fallbackText, isTamilResp ? 'ta-IN' : 'en-US')
+      }
+
+      if (ruleResult?.navigateTo) {
+        setTimeout(() => {
+          navigate(ruleResult.navigateTo)
+        }, 800)
+      }
     }
   }
 
