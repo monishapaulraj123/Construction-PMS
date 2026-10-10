@@ -128,8 +128,49 @@ export function matchChatbotRule(query, currentUser, contextData = {}, lang = 'e
       }
 
       return {
+        text: responseText,
         response: responseText,
+        navigateTo: '/projects',
         quickReplies: getQuickReplies(['summary', 'properties', 'pending']),
+      }
+    }
+
+    // 4. Employee / Staff / Worker Intent
+    if (
+      normalized.includes('employee') ||
+      normalized.includes('staff') ||
+      normalized.includes('worker') ||
+      normalized.includes('team') ||
+      normalized.includes('engineer') ||
+      normalized.includes('ஊழியர்') ||
+      normalized.includes('ஊழியர்கள்') ||
+      normalized.includes('कर्मचारी')
+    ) {
+      let responseText = ''
+      if (lang === 'ta') {
+        responseText = `எங்கள் அமைப்பில் தற்போது **12+ தொழில்முறை ஊழியர்கள்** (கள பொறியாளர்கள், திட்ட மேலாளர்கள், ஆர்கிடெக்ட்கள், மேசன் மேற்பார்வையாளர்கள் மற்றும் கணக்காளர்கள்) ஒதுக்கப்பட்டுள்ளனர். ஊழியர்கள் பக்கத்தில் முழு பட்டியலையும் பெறலாம்.`
+      } else if (lang === 'hi') {
+        responseText = `हमारे सिस्टम में वर्तमान में **12+ पेशेवर कर्मचारी** (साइट इंजीनियर, प्रोजेक्ट मैनेजर, आर्किटेक्ट, चिनाई पर्यवेक्षक और लेखाकार) असाइन किए गए हैं। आप कर्मचारी पृष्ठ पर पूरी सूची देख सकते हैं।`
+      } else {
+        responseText = `Our system manages **12+ active staff members** across key technical roles:\n\n• **Site Engineers** (Civil & Structural)\n• **Project Managers** (Construction Oversight)\n• **Architects & CAD Designers** (2D/3D Planning)\n• **Mason Supervisors & Electricians**\n• **Accountants & Procurement Managers**\n\nNavigating to the Employees section to view the complete staff roster...`
+      }
+
+      return {
+        text: responseText,
+        response: responseText,
+        navigateTo: '/employees',
+        quickReplies: getQuickReplies(['summary', 'projects', 'clients']),
+      }
+    }
+
+    // 5. Supplier / Vendor Intent
+    if (normalized.includes('supplier') || normalized.includes('vendor') || normalized.includes('material') || normalized.includes('வழங்குநர்') || normalized.includes('आपूर्तिकर्ता')) {
+      let responseText = `Our database tracks verified suppliers for Cement, Steel, Sand, Bricks, Electricals, and Plumbing materials.`
+      return {
+        text: responseText,
+        response: responseText,
+        navigateTo: '/suppliers',
+        quickReplies: getQuickReplies(['summary', 'projects']),
       }
     }
 
