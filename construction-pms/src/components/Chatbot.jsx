@@ -28,11 +28,15 @@ export default function Chatbot() {
   useEffect(() => {
     const handleToggle = () => setOpen((prev) => !prev)
     const handleOpen = () => setOpen(true)
+    window.toggleChatbot = handleToggle
+    window.openChatbot = handleOpen
     window.addEventListener('toggle-chatbot', handleToggle)
     window.addEventListener('open-chatbot', handleOpen)
     return () => {
       window.removeEventListener('toggle-chatbot', handleToggle)
       window.removeEventListener('open-chatbot', handleOpen)
+      delete window.toggleChatbot
+      delete window.openChatbot
     }
   }, [])
 

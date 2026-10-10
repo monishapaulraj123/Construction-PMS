@@ -226,7 +226,7 @@ export default function Header({ onMenuClick }) {
               style={{
                 position: 'absolute',
                 top: '115%',
-                right: -60,
+                right: 0,
                 width: 320,
                 padding: '14px 16px',
                 zIndex: 1000,
@@ -297,7 +297,13 @@ export default function Header({ onMenuClick }) {
           className="icon-btn"
           title={t('ai_chatbot', 'AI Assistant Chatbot')}
           aria-label="AI Assistant Chatbot"
-          onClick={() => window.dispatchEvent(new CustomEvent('toggle-chatbot'))}
+          onClick={() => {
+            if (typeof window.toggleChatbot === 'function') {
+              window.toggleChatbot()
+            } else {
+              window.dispatchEvent(new CustomEvent('toggle-chatbot'))
+            }
+          }}
         >
           <MessageSquare size={17} />
         </button>
