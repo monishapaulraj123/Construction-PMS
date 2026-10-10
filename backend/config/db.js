@@ -36,32 +36,51 @@ export async function testConnection() {
     connection = await pool.getConnection()
     console.log(`[Database] Connected successfully to MySQL database '${process.env.DB_NAME || 'construction_realestate_db'}'`)
 
-    // 0. Ensure base schema exists from schema.sql if connecting to a fresh database (e.g. Aiven defaultdb)
+    // 0. Disable foreign key checks temporarily and guarantee users table exists
     try {
-      const [tableCheck] = await connection.query(`SHOW TABLES LIKE 'users'`)
-      if (!tableCheck || tableCheck.length === 0) {
-        console.log('[Database Schema] Initializing base tables from schema.sql...')
-        const schemaPath = path.join(__dirname, '../database/schema.sql')
-        if (fs.existsSync(schemaPath)) {
-          const sqlFile = fs.readFileSync(schemaPath, 'utf8')
-          const statements = sqlFile
-            .replace(/--.*$/gm, '')
-            .split(';')
-            .map(s => s.trim())
-            .filter(s => s.length > 0 && !s.toLowerCase().startsWith('create database') && !s.toLowerCase().startsWith('use '))
+      await connection.query('SET FOREIGN_KEY_CHECKS = 0')
 
-          for (const stmt of statements) {
-            try {
-              await connection.query(stmt)
-            } catch (stmtErr) {
-              // Ignore if already exists or harmless syntax variation
-            }
+      // Ensure users table exists immediately to satisfy foreign keys
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          user_id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(150) NOT NULL,
+          email VARCHAR(150) UNIQUE NOT NULL,
+          password_hash VARCHAR(255) NULL,
+          role VARCHAR(50) NOT NULL DEFAULT 'CLIENT',
+          phone VARCHAR(30),
+          google_id VARCHAR(255) UNIQUE NULL,
+          avatar VARCHAR(255) NULL,
+          status VARCHAR(20) DEFAULT 'Active',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `)
+
+      const schemaPath = path.join(__dirname, '../database/schema.sql')
+      if (fs.existsSync(schemaPath)) {
+        const sqlFile = fs.readFileSync(schemaPath, 'utf8')
+        const statements = sqlFile
+          .replace(/--.*$/gm, '')
+          .split(';')
+          .map(s => s.trim())
+          .filter(s => s.length > 0 && !s.toLowerCase().startsWith('create database') && !s.toLowerCase().startsWith('use '))
+
+        for (const stmt of statements) {
+          try {
+            await connection.query(stmt)
+          } catch (stmtErr) {
+            // Ignore if already exists or harmless syntax variation
           }
-          console.log('[Database Schema] Base tables successfully created from schema.sql')
         }
+        console.log('[Database Schema] Base tables successfully verified/created from schema.sql')
       }
     } catch (schemaErr) {
       console.warn('[Database Schema Warning]', schemaErr.message)
+    } finally {
+      try {
+        await connection.query('SET FOREIGN_KEY_CHECKS = 1')
+      } catch (e) {}
     }
 
     // 1. Ensure google_id and avatar columns exist in users table
