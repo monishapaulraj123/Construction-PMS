@@ -57,7 +57,7 @@ const HEALTH_COLORS = {
 }
 
 export default function Inventory() {
-  const { showToast } = useToast()
+  const showToast = useToast()
 
   // Active Sub-Tab
   const [activeTab, setActiveTab] = useState('catalog')
@@ -114,6 +114,7 @@ export default function Inventory() {
   const [loadingAllocations, setLoadingAllocations] = useState(false)
   const [alcModalOpen, setAlcModalOpen] = useState(false)
   const [alcForm, setAlcForm] = useState({ item_id: '', project_id: '', allocated_quantity: '', remarks: '' })
+  const [submittingAllocation, setSubmittingAllocation] = useState(false)
 
   const [issueAlcModalOpen, setIssueAlcModalOpen] = useState(false)
   const [selectedAlc, setSelectedAlc] = useState(null)
@@ -147,6 +148,7 @@ export default function Inventory() {
     remarks: '',
     items: [{ item_id: '', quoted_quantity: '100', unit_price: '500', tax_amount: '0', discount_amount: '0' }],
   })
+  const [submittingQuotation, setSubmittingQuotation] = useState(false)
 
   // PO State
   const [pos, setPos] = useState([])
@@ -314,14 +316,39 @@ export default function Inventory() {
   // Handle Create Allocation
   const handleSaveAllocation = async (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault()
+    
+    if (!alcForm.item_id) {
+      showToast('Please select a material.', 'error')
+      return
+    }
+    if (!alcForm.project_id) {
+      showToast('Please select a target project.', 'error')
+      return
+    }
+    const qty = Number(alcForm.allocated_quantity)
+    if (isNaN(qty) || qty <= 0) {
+      showToast('Please enter a valid positive allocation quantity.', 'error')
+      return
+    }
+
+    const selectedMat = materials.find((m) => String(m.item_id) === String(alcForm.item_id))
+    if (selectedMat && qty > Number(selectedMat.stock_quantity)) {
+      showToast(`Allocation quantity (${qty} ${selectedMat.unit}) exceeds available central stock (${selectedMat.stock_quantity} ${selectedMat.unit}).`, 'error')
+      return
+    }
+
+    setSubmittingAllocation(true)
     try {
       const res = await inventoryAPI.createAllocation(alcForm)
       showToast(res.message || 'Project allocation created successfully.', 'success')
       setAlcModalOpen(false)
+      setAlcForm({ item_id: '', project_id: '', allocated_quantity: '', remarks: '' })
       fetchAllocations()
       fetchMaterials()
     } catch (err) {
-      showToast(err.response?.data?.error || 'Failed to create allocation.', 'error')
+      showToast(err.response?.data?.error || err.message || 'Failed to create allocation.', 'error')
+    } finally {
+      setSubmittingAllocation(false)
     }
   }
 
@@ -387,16 +414,76 @@ export default function Inventory() {
     }
   }
 
+  // Handle Line Items in Quotation Modal
+  const handleAddQtnItem = () => {
+    setQtnForm((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        { item_id: materials[0]?.item_id || '', quoted_quantity: '100', unit_price: '450', tax_amount: '0', discount_amount: '0' },
+      ],
+    }))
+  }
+
+  const handleRemoveQtnItem = (index) => {
+    setQtnForm((prev) => {
+      if (prev.items.length <= 1) return prev
+      return {
+        ...prev,
+        items: prev.items.filter((_, idx) => idx !== index),
+      }
+    })
+  }
+
+  const handleUpdateQtnItem = (index, field, value) => {
+    setQtnForm((prev) => {
+      const updated = [...prev.items]
+      updated[index] = { ...updated[index], [field]: value }
+      return { ...prev, items: updated }
+    })
+  }
+
   // Handle Create Quotation
   const handleSaveQuotation = async (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault()
+
+    if (!qtnForm.rfq_id) {
+      showToast('Please select an RFQ requirement.', 'error')
+      return
+    }
+    if (!qtnForm.supplier_id) {
+      showToast('Please select a supplier.', 'error')
+      return
+    }
+    if (!Array.isArray(qtnForm.items) || qtnForm.items.length === 0) {
+      showToast('Please add at least one line item.', 'error')
+      return
+    }
+    for (const it of qtnForm.items) {
+      if (!it.item_id) {
+        showToast('Please select a material for all line items.', 'error')
+        return
+      }
+      if (!it.quoted_quantity || Number(it.quoted_quantity) <= 0) {
+        showToast('Each line item must have a positive quantity.', 'error')
+        return
+      }
+      if (it.unit_price === '' || isNaN(Number(it.unit_price)) || Number(it.unit_price) < 0) {
+        showToast('Each line item must have a valid unit price.', 'error')
+        return
+      }
+    }
+
+    setSubmittingQuotation(true)
     try {
       const res = await procurementAPI.createQuotation(qtnForm)
       showToast(res.message || 'Supplier quotation submitted successfully!', 'success')
       setQtnModalOpen(false)
       fetchRfqs()
     } catch (err) {
-      showToast(err.response?.data?.error || 'Failed to submit quotation.', 'error')
+      showToast(err.response?.data?.error || err.message || 'Failed to submit quotation.', 'error')
+    } finally {
+      setSubmittingQuotation(false)
     }
   }
 
@@ -868,7 +955,7 @@ export default function Inventory() {
             <div style={{ flex: 1 }} />
             <PrimaryButton
               onClick={() => {
-                setAlcForm({ item_id: '', project_id: '', allocated_quantity: '500', remarks: '' })
+                setAlcForm({ item_id: '', project_id: '', allocated_quantity: '', remarks: '' })
                 setAlcModalOpen(true)
               }}
             >
@@ -1018,6 +1105,22 @@ export default function Inventory() {
                       <td style={{ fontWeight: 700, color: 'var(--forest-900)' }}>{r.quotation_count} quotes</td>
                       <td><StatusBadge status={r.status} /></td>
                       <td style={{ textAlign: 'right' }}>
+                        <SecondaryButton
+                          onClick={() => {
+                            setQtnForm({
+                              rfq_id: r.rfq_id,
+                              supplier_id: suppliers[0]?.supplier_id || '',
+                              delivery_days: '5',
+                              remarks: `Quotation for ${r.rfq_code}`,
+                              items: [{ item_id: materials[0]?.item_id || '', quoted_quantity: '100', unit_price: '450', tax_amount: '0', discount_amount: '0' }],
+                            })
+                            setQtnModalOpen(true)
+                          }}
+                          className="btn-sm"
+                          style={{ marginRight: 8 }}
+                        >
+                          + Add Quote
+                        </SecondaryButton>
                         <PrimaryButton
                           onClick={() => handleRunRecommendations(r.rfq_id)}
                           className="btn-sm"
@@ -1306,7 +1409,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setMaterialModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="material-modal-form" onClick={handleSaveMaterial}>
+              <PrimaryButton type="submit" form="material-modal-form">
                 Save Material Master
               </PrimaryButton>
             </>
@@ -1417,7 +1520,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setStockModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="stock-modal-form" onClick={handleSaveStockTxn}>
+              <PrimaryButton type="submit" form="stock-modal-form">
                 {stockType === 'IN' ? 'Process Stock Receipt' : 'Process Material Issue'}
               </PrimaryButton>
             </>
@@ -1514,13 +1617,15 @@ export default function Inventory() {
       {alcModalOpen && (
         <Modal
           open={alcModalOpen}
-          onClose={() => setAlcModalOpen(false)}
+          onClose={() => !submittingAllocation && setAlcModalOpen(false)}
           title="🏗️ Allocate Material to Construction Project"
           footer={
             <>
-              <SecondaryButton onClick={() => setAlcModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="alc-modal-form" onClick={handleSaveAllocation}>
-                Create Allocation
+              <SecondaryButton onClick={() => setAlcModalOpen(false)} disabled={submittingAllocation}>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton type="submit" form="alc-modal-form" disabled={submittingAllocation}>
+                {submittingAllocation ? 'Creating Allocation...' : 'Create Allocation'}
               </PrimaryButton>
             </>
           }
@@ -1533,13 +1638,21 @@ export default function Inventory() {
                 value={alcForm.item_id}
                 onChange={(e) => setAlcForm({ ...alcForm, item_id: e.target.value })}
               >
-                <option value="">Select Material</option>
+                <option value="">-- Choose Material from Central Stock --</option>
                 {materials.map((m) => (
                   <option key={m.item_id} value={m.item_id}>
                     {m.item_code} - {m.item_name} (Central Stock: {m.stock_quantity} {m.unit})
                   </option>
                 ))}
               </select>
+              {alcForm.item_id && (() => {
+                const mat = materials.find((m) => String(m.item_id) === String(alcForm.item_id))
+                return mat ? (
+                  <small style={{ color: Number(mat.stock_quantity) > 0 ? '#2F5D50' : '#C85A5A', marginTop: 6, display: 'block', fontWeight: 600 }}>
+                    Central Stock Available: {mat.stock_quantity} {mat.unit}
+                  </small>
+                ) : null
+              })()}
             </div>
 
             <div className="form-field full">
@@ -1549,7 +1662,7 @@ export default function Inventory() {
                 value={alcForm.project_id}
                 onChange={(e) => setAlcForm({ ...alcForm, project_id: e.target.value })}
               >
-                <option value="">Select Project</option>
+                <option value="">-- Choose Target Project --</option>
                 {projects.map((p) => (
                   <option key={p.project_id} value={p.project_id}>{p.project_name}</option>
                 ))}
@@ -1560,10 +1673,23 @@ export default function Inventory() {
               <label>Allocation Quantity *</label>
               <input
                 type="number"
+                min="0.01"
+                step="any"
                 required
+                placeholder="Enter quantity to allocate"
                 value={alcForm.allocated_quantity}
                 onChange={(e) => setAlcForm({ ...alcForm, allocated_quantity: e.target.value })}
               />
+            </div>
+
+            <div className="form-field full">
+              <label>Remarks / Purpose</label>
+              <textarea
+                rows="2"
+                placeholder="e.g. Allocation for site construction foundation work"
+                value={alcForm.remarks}
+                onChange={(e) => setAlcForm({ ...alcForm, remarks: e.target.value })}
+              ></textarea>
             </div>
           </form>
         </Modal>
@@ -1578,7 +1704,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setIssueAlcModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="issue-alc-form" onClick={handleSaveIssueAlc}>
+              <PrimaryButton type="submit" form="issue-alc-form">
                 Issue Material
               </PrimaryButton>
             </>
@@ -1595,7 +1721,10 @@ export default function Inventory() {
               <label>Issue Quantity *</label>
               <input
                 type="number"
+                min="0.01"
+                step="any"
                 required
+                placeholder="Enter issue quantity"
                 value={issueAlcForm.issue_quantity}
                 onChange={(e) => setIssueAlcForm({ ...issueAlcForm, issue_quantity: e.target.value })}
               />
@@ -1613,7 +1742,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setReturnAlcModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="return-alc-form" onClick={handleSaveReturnAlc}>
+              <PrimaryButton type="submit" form="return-alc-form">
                 Process Return to Central Stock
               </PrimaryButton>
             </>
@@ -1632,7 +1761,10 @@ export default function Inventory() {
               <label>Return Quantity *</label>
               <input
                 type="number"
+                min="0.01"
+                step="any"
                 required
+                placeholder="Enter return quantity"
                 value={returnAlcForm.return_quantity}
                 onChange={(e) => setReturnAlcForm({ ...returnAlcForm, return_quantity: e.target.value })}
               />
@@ -1744,7 +1876,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setRfqModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="rfq-modal-form" onClick={handleSaveRFQ}>
+              <PrimaryButton type="submit" form="rfq-modal-form">
                 Publish RFQ
               </PrimaryButton>
             </>
@@ -1795,7 +1927,7 @@ export default function Inventory() {
           footer={
             <>
               <SecondaryButton onClick={() => setPayPoModalOpen(false)}>Cancel</SecondaryButton>
-              <PrimaryButton type="submit" form="pay-po-form" onClick={handleSavePOPayment}>
+              <PrimaryButton type="submit" form="pay-po-form">
                 Record Payment
               </PrimaryButton>
             </>
@@ -1810,6 +1942,225 @@ export default function Inventory() {
                 value={payPoAmount}
                 onChange={(e) => setPayPoAmount(e.target.value)}
               />
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* MODAL 9: SUBMIT SUPPLIER QUOTATION */}
+      {qtnModalOpen && (
+        <Modal
+          open={qtnModalOpen}
+          onClose={() => !submittingQuotation && setQtnModalOpen(false)}
+          title="📝 Submit Supplier Quotation"
+          wide
+          footer={
+            <>
+              <SecondaryButton onClick={() => setQtnModalOpen(false)} disabled={submittingQuotation}>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton type="submit" form="qtn-modal-form" disabled={submittingQuotation}>
+                {submittingQuotation ? 'Submitting Quotation...' : 'Submit Quotation'}
+              </PrimaryButton>
+            </>
+          }
+        >
+          <form id="qtn-modal-form" onSubmit={handleSaveQuotation} className="form-grid">
+            <div className="form-field">
+              <label>Select Published RFQ Requirement *</label>
+              <select
+                required
+                value={qtnForm.rfq_id}
+                onChange={(e) => setQtnForm({ ...qtnForm, rfq_id: e.target.value })}
+              >
+                <option value="">-- Choose RFQ Requirement --</option>
+                {rfqs.map((r) => (
+                  <option key={r.rfq_id} value={r.rfq_id}>
+                    {r.rfq_code} - {r.title} ({r.project_name || 'General Project'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-field">
+              <label>Select Bidding Supplier *</label>
+              <select
+                required
+                value={qtnForm.supplier_id}
+                onChange={(e) => setQtnForm({ ...qtnForm, supplier_id: e.target.value })}
+              >
+                <option value="">-- Choose Supplier --</option>
+                {suppliers.map((s) => (
+                  <option key={s.supplier_id} value={s.supplier_id}>
+                    {s.supplier_name} {s.city ? `(${s.city})` : ''} - Rating: {s.rating || '4.0'}★
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-field">
+              <label>Committed Delivery Time (Days) *</label>
+              <input
+                type="number"
+                min="1"
+                required
+                placeholder="e.g. 5"
+                value={qtnForm.delivery_days}
+                onChange={(e) => setQtnForm({ ...qtnForm, delivery_days: e.target.value })}
+              />
+            </div>
+
+            <div className="form-field">
+              <label>Remarks / Quotation Notes</label>
+              <input
+                type="text"
+                placeholder="e.g. Includes transport & loading charges"
+                value={qtnForm.remarks}
+                onChange={(e) => setQtnForm({ ...qtnForm, remarks: e.target.value })}
+              />
+            </div>
+
+            <div className="form-field full" style={{ marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <label style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem' }}>Quoted Line Items *</label>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleAddQtnItem}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px' }}
+                >
+                  <Plus size={14} /> Add Line Item
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {qtnForm.items.map((item, idx) => {
+                  const lineTotal = (Number(item.quoted_quantity) || 0) * (Number(item.unit_price) || 0) + (Number(item.tax_amount) || 0) - (Number(item.discount_amount) || 0)
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1.2fr auto',
+                        gap: 8,
+                        alignItems: 'center',
+                        background: 'var(--cream-050)',
+                        padding: 10,
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid var(--line-100)',
+                      }}
+                    >
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Material *</label>
+                        <select
+                          required
+                          value={item.item_id}
+                          onChange={(e) => handleUpdateQtnItem(idx, 'item_id', e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.85rem' }}
+                        >
+                          <option value="">Select Material</option>
+                          {materials.map((m) => (
+                            <option key={m.item_id} value={m.item_id}>
+                              {m.item_code} - {m.item_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Quantity *</label>
+                        <input
+                          type="number"
+                          min="1"
+                          required
+                          value={item.quoted_quantity}
+                          onChange={(e) => handleUpdateQtnItem(idx, 'quoted_quantity', e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.85rem' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Unit Price (₹) *</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          required
+                          value={item.unit_price}
+                          onChange={(e) => handleUpdateQtnItem(idx, 'unit_price', e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.85rem' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Tax (₹)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={item.tax_amount}
+                          onChange={(e) => handleUpdateQtnItem(idx, 'tax_amount', e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.85rem' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Discount (₹)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={item.discount_amount}
+                          onChange={(e) => handleUpdateQtnItem(idx, 'discount_amount', e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', fontSize: '0.85rem' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2 }}>Line Total</label>
+                        <div style={{ fontWeight: 700, color: 'var(--forest-900)', fontSize: '0.88rem', padding: '6px 0' }}>
+                          ₹{Math.max(0, lineTotal).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.74rem', marginBottom: 2, visibility: 'hidden' }}>Del</label>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          onClick={() => handleRemoveQtnItem(idx)}
+                          disabled={qtnForm.items.length <= 1}
+                          style={{ padding: '6px', color: qtnForm.items.length <= 1 ? 'var(--ink-300)' : 'var(--red-600)' }}
+                          title="Remove Item"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Total Summary Banner */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginTop: 12,
+                  padding: '10px 14px',
+                  background: 'var(--forest-050)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--forest-200)',
+                }}
+              >
+                <span style={{ fontSize: '0.9rem', color: 'var(--ink-700)', fontWeight: 600 }}>Estimated Total Quotation Value:</span>
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--forest-900)' }}>
+                  ₹{qtnForm.items.reduce((sum, it) => {
+                    const lTot = (Number(it.quoted_quantity) || 0) * (Number(it.unit_price) || 0) + (Number(it.tax_amount) || 0) - (Number(it.discount_amount) || 0)
+                    return sum + Math.max(0, lTot)
+                  }, 0).toLocaleString()}
+                </span>
+              </div>
             </div>
           </form>
         </Modal>

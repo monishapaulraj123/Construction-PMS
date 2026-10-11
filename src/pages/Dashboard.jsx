@@ -64,15 +64,15 @@ export default function Dashboard() {
       </div>
 
       <div className="stat-grid">
-        <StatCard icon={FolderKanban} iconBg="var(--forest-900)" iconColor="#fff" value={projects.length.toString()} label={t('total_projects', 'Total Projects')} trend="+8.4%" />
+        <StatCard icon={FolderKanban} iconBg="var(--green-100)" iconColor="var(--green-700)" value={projects.length.toString()} label={t('total_projects', 'Total Projects')} trend="+8.4%" />
         <StatCard icon={Activity} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value={activeProjects.length.toString()} label={t('active_sites', 'Active Sites')} trend="+12.5%" />
-        <StatCard icon={Landmark} iconBg="var(--green-100)" iconColor="var(--forest-900)" value={landBuying.length.toString()} label={t('land_properties', 'Land Properties')} trend="+1 parcel" />
-        <StatCard icon={Wallet} iconBg="var(--gold-050)" iconColor="var(--forest-900)" value={formatCurrencyINR(netBalance)} label={t('net_balance', 'Net Balance')} trend="Positive" />
+        <StatCard icon={Landmark} iconBg="var(--green-100)" iconColor="var(--green-700)" value={landBuying.length.toString()} label={t('land_properties', 'Land Properties')} trend="+1 parcel" />
+        <StatCard icon={Wallet} iconBg="var(--gold-050)" iconColor="var(--gold-600)" value={formatCurrencyINR(netBalance)} label={t('net_balance', 'Net Balance')} trend="Positive" />
       </div>
 
       <div className="mini-stat-row">
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: '#dcfce7', color: '#15803d' }}>
+          <div className="mini-stat-icon mini-stat-income" style={{ background: 'var(--green-100)', color: 'var(--green-700)' }}>
             <ArrowDownLeft size={19} />
           </div>
           <div>
@@ -81,7 +81,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: '#fee2e2', color: '#b91c1c' }}>
+          <div className="mini-stat-icon mini-stat-expense" style={{ background: 'var(--red-100)', color: 'var(--red-600)' }}>
             <ArrowUpRight size={19} />
           </div>
           <div>
@@ -90,7 +90,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="card mini-stat">
-          <div className="mini-stat-icon" style={{ background: 'var(--gold-050)', color: 'var(--forest-900)' }}>
+          <div className="mini-stat-icon mini-stat-progress" style={{ background: 'var(--gold-050)', color: 'var(--gold-600)' }}>
             <Gauge size={19} />
           </div>
           <div>

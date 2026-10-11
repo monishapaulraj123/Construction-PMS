@@ -31,5 +31,10 @@ export function ToastProvider({ children }) {
 }
 
 export function useToast() {
-  return useContext(ToastContext)
+  const fn = useContext(ToastContext)
+  if (fn && typeof fn === 'function') {
+    fn.showToast = fn
+  }
+  return fn
 }
+

@@ -633,8 +633,9 @@ export async function getSites(req, res) {
     const params = []
 
     if (req.user && String(req.user.role || '').toUpperCase() === 'SUPERVISOR') {
-      sql += ' WHERE (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) = LOWER(?))'
-      params.push(req.user.user_id, req.user.name || '')
+      const firstName = (req.user.name || '').split(' ')[0]
+      sql += ' WHERE (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) LIKE LOWER(?))'
+      params.push(req.user.user_id, `%${firstName}%`)
     }
 
     sql += ' ORDER BY cs.created_at DESC'
@@ -841,33 +842,32 @@ export async function getAttendanceHistory(req, res) {
     const params = []
     const userRole = String(req.user?.role || '').toUpperCase()
 
-    if (userRole === 'WORKER') {
+    if (scope === 'personal' || userRole === 'WORKER') {
+      // Personal attendance history: restricted to the logged-in user's own employee record
       const worker = await resolveWorkerIdentity(req.user)
       if (worker) {
         sql += ' AND ar.worker_id = ?'
         params.push(worker.employee_id)
+      } else if (worker_id) {
+        sql += ' AND ar.worker_id = ?'
+        params.push(worker_id)
+      } else {
+        return res.json({ success: true, history: [] })
       }
     } else if (userRole === 'SUPERVISOR') {
       const supervisor = await resolveWorkerIdentity(req.user)
-      if (scope === 'personal') {
-        // Supervisor's own personal attendance history
-        if (supervisor) {
-          sql += ' AND ar.worker_id = ?'
-          params.push(supervisor.employee_id)
-        }
-      } else {
-        // Site attendance history: restricted strictly to supervisor's assigned site(s)
-        sql += ' AND (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) = LOWER(?))'
-        params.push(req.user.user_id, req.user.name || '')
+      const firstName = (req.user?.name || '').split(' ')[0]
+      // Site attendance history: restricted strictly to supervisor's assigned site(s)
+      sql += ' AND (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) LIKE LOWER(?))'
+      params.push(req.user.user_id, `%${firstName}%`)
 
-        if (site_id) {
-          sql += ' AND ar.site_id = ?'
-          params.push(site_id)
-        }
-        if (worker_id) {
-          sql += ' AND ar.worker_id = ?'
-          params.push(worker_id)
-        }
+      if (site_id) {
+        sql += ' AND ar.site_id = ?'
+        params.push(site_id)
+      }
+      if (worker_id) {
+        sql += ' AND ar.worker_id = ?'
+        params.push(worker_id)
       }
     } else {
       // ADMIN
@@ -923,28 +923,24 @@ export async function getCorrectionRequests(req, res) {
     `
     const params = []
 
-    if (userRole === 'WORKER') {
+    if (scope === 'personal' || userRole === 'WORKER') {
+      // Personal correction requests: restricted to logged-in user
       const worker = await resolveWorkerIdentity(req.user)
       if (worker) {
         sql += ' WHERE ac.worker_id = ?'
         params.push(worker.employee_id)
+      } else {
+        return res.json({ success: true, corrections: [] })
       }
     } else if (userRole === 'SUPERVISOR') {
       const supervisor = await resolveWorkerIdentity(req.user)
-      if (scope === 'personal') {
-        // Supervisor's own correction requests
-        if (supervisor) {
-          sql += ' WHERE ac.worker_id = ?'
-          params.push(supervisor.employee_id)
-        }
-      } else {
-        // Worker correction requests for the supervisor's assigned site
-        sql += ' WHERE (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) = LOWER(?))'
-        params.push(req.user.user_id, req.user.name || '')
-        if (supervisor) {
-          sql += ' AND ac.worker_id != ?'
-          params.push(supervisor.employee_id)
-        }
+      const firstName = (req.user?.name || '').split(' ')[0]
+      // Worker correction requests for the supervisor's assigned site
+      sql += ' WHERE (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) LIKE LOWER(?))'
+      params.push(req.user.user_id, `%${firstName}%`)
+      if (supervisor) {
+        sql += ' AND ac.worker_id != ?'
+        params.push(supervisor.employee_id)
       }
     }
 
@@ -1215,35 +1211,34 @@ export async function exportAttendanceCSV(req, res) {
     const userRole = String(req.user?.role || '').toUpperCase()
 
     let sql = `
-      SELECT ar.date, e.employee_code, CONCAT(e.first_name, ' ', COALESCE(e.last_name, '')) as worker_name, 
-              cs.site_name, ar.check_in_at, ar.check_out_at, ar.hours_worked, ar.status, ar.distance_meters, ar.is_late
+      SELECT ar.date, 
+             COALESCE(e.employee_code, 'EMP-N/A') as employee_code, 
+             COALESCE(CONCAT(e.first_name, ' ', COALESCE(e.last_name, '')), 'Worker') as worker_name, 
+             COALESCE(cs.site_name, 'General Site') as site_name, 
+             ar.check_in_at, ar.check_out_at, ar.hours_worked, ar.status, ar.distance_meters, ar.is_late
        FROM attendance_records ar
-       JOIN construction_sites cs ON ar.site_id = cs.site_id
-       JOIN employees e ON ar.worker_id = e.employee_id
+       LEFT JOIN construction_sites cs ON ar.site_id = cs.site_id
+       LEFT JOIN employees e ON ar.worker_id = e.employee_id
        WHERE 1=1
     `
     const params = []
 
-    if (userRole === 'WORKER') {
+    if (scope === 'personal' || userRole === 'WORKER') {
       const worker = await resolveWorkerIdentity(req.user)
       if (worker) {
         sql += ' AND ar.worker_id = ?'
         params.push(worker.employee_id)
+      } else {
+        return res.send('Date,Worker Code,Worker Name,Site Name,Check In,Check Out,Hours Worked,Status,Distance (m),Late\n')
       }
     } else if (userRole === 'SUPERVISOR') {
       const supervisor = await resolveWorkerIdentity(req.user)
-      if (scope === 'personal') {
-        if (supervisor) {
-          sql += ' AND ar.worker_id = ?'
-          params.push(supervisor.employee_id)
-        }
-      } else {
-        sql += ' AND (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) = LOWER(?))'
-        params.push(req.user.user_id, req.user.name || '')
-        if (supervisor) {
-          sql += ' AND ar.worker_id != ?'
-          params.push(supervisor.employee_id)
-        }
+      const firstName = (req.user?.name || '').split(' ')[0]
+      sql += ' AND (cs.supervisor_id = ? OR LOWER(cs.supervisor_name) LIKE LOWER(?))'
+      params.push(req.user.user_id, `%${firstName}%`)
+      if (supervisor) {
+        sql += ' AND ar.worker_id != ?'
+        params.push(supervisor.employee_id)
       }
     }
 
@@ -1273,10 +1268,37 @@ export async function exportAttendanceCSV(req, res) {
 
     let csv = 'Date,Worker Code,Worker Name,Site Name,Check In,Check Out,Hours Worked,Status,Distance (m),Late\n'
     for (const r of history) {
-      const dateStr = r.date ? new Date(r.date).toISOString().split('T')[0] : ''
-      const checkInStr = r.check_in_at ? new Date(r.check_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
-      const checkOutStr = r.check_out_at ? new Date(r.check_out_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
-      csv += `"${dateStr}","${r.employee_code}","${r.worker_name}","${r.site_name}","${checkInStr}","${checkOutStr}",${r.hours_worked},"${r.status}",${r.distance_meters || 0},${r.is_late ? 'Yes' : 'No'}\n`
+      let dateStr = ''
+      if (r.date) {
+        try {
+          const d = new Date(r.date)
+          dateStr = isNaN(d.getTime()) ? String(r.date).split('T')[0] : d.toISOString().split('T')[0]
+        } catch (e) {
+          dateStr = String(r.date).split('T')[0]
+        }
+      }
+
+      let checkInStr = ''
+      if (r.check_in_at) {
+        try {
+          const d = new Date(r.check_in_at)
+          checkInStr = isNaN(d.getTime()) ? String(r.check_in_at) : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        } catch (e) {
+          checkInStr = String(r.check_in_at)
+        }
+      }
+
+      let checkOutStr = ''
+      if (r.check_out_at) {
+        try {
+          const d = new Date(r.check_out_at)
+          checkOutStr = isNaN(d.getTime()) ? String(r.check_out_at) : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        } catch (e) {
+          checkOutStr = String(r.check_out_at)
+        }
+      }
+
+      csv += `"${dateStr}","${r.employee_code}","${r.worker_name}","${r.site_name}","${checkInStr}","${checkOutStr}",${r.hours_worked || 0},"${r.status || 'Present'}",${r.distance_meters || 0},${r.is_late ? 'Yes' : 'No'}\n`
     }
 
     const todayStr = new Date().toISOString().split('T')[0]

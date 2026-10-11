@@ -51,7 +51,7 @@ export default function AttendanceManagement() {
   const tabParam = searchParams.get('tab')
 
   const { currentUser } = useApp()
-  const { showToast } = useToast()
+  const showToast = useToast()
   const userRole = String(currentUser?.role || 'ADMIN').toUpperCase()
   const isWorker = userRole === 'WORKER'
   const isSupervisor = userRole === 'SUPERVISOR'
@@ -163,7 +163,7 @@ export default function AttendanceManagement() {
   const [assignmentForm, setAssignmentForm] = useState({ worker_id: '', site_id: '' })
 
   // History & Reports State
-  const [history, setHistory] = useState(DEFAULT_HISTORY)
+  const [history, setHistory] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [historyFilters, setHistoryFilters] = useState({
     startDate: '',
@@ -202,22 +202,68 @@ export default function AttendanceManagement() {
   const handleExportCSV = async () => {
     setExportingCSV(true)
     try {
-      const filters = { ...historyFilters }
-      if (isSupervisor) {
+      const filters = {}
+      if (historyFilters.site_id) filters.site_id = historyFilters.site_id
+      if (historyFilters.status) filters.status = historyFilters.status
+      if (historyFilters.startDate) filters.startDate = historyFilters.startDate
+      if (historyFilters.endDate) filters.endDate = historyFilters.endDate
+      if (isSupervisor || isWorker) {
         filters.scope = 'personal'
+        if (todayState.worker?.employee_id) {
+          filters.worker_id = todayState.worker.employee_id
+        }
       }
-      const res = await attendanceAPI.exportCSV(filters)
-      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      const todayStr = new Date().toISOString().split('T')[0]
-      link.setAttribute('download', isSupervisor ? `my_attendance_report_${todayStr}.csv` : `attendance_report_${todayStr}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      showToast('Attendance report CSV downloaded successfully!', 'success')
+
+      let csvData = null
+
+      try {
+        const res = await attendanceAPI.exportCSV(filters)
+        if (res && res.data) {
+          if (res.data instanceof Blob) {
+            // Check if response is actually error JSON wrapped in Blob
+            if (res.data.type && res.data.type.includes('json')) {
+              const text = await res.data.text()
+              const parsed = JSON.parse(text)
+              throw new Error(parsed.message || 'Export error')
+            }
+            csvData = res.data
+          } else if (typeof res.data === 'string') {
+            csvData = new Blob([res.data], { type: 'text/csv;charset=utf-8;' })
+          }
+        }
+      } catch (apiErr) {
+        console.warn('Backend CSV export error, generating CSV from local records:', apiErr)
+      }
+
+      // If backend export returned empty or failed, generate from loaded table history
+      if (!csvData) {
+        const recordsToExport = Array.isArray(history) && history.length > 0 ? history : []
+        if (recordsToExport.length > 0) {
+          let rows = 'Date,Worker Code,Worker Name,Site Name,Check In,Check Out,Hours Worked,Status,Distance (m),Late\n'
+          for (const r of recordsToExport) {
+            const dateStr = r.date ? String(r.date).split('T')[0] : ''
+            const checkIn = r.check_in_at ? String(r.check_in_at).replace('T', ' ').substring(11, 16) : ''
+            const checkOut = r.check_out_at ? String(r.check_out_at).replace('T', ' ').substring(11, 16) : ''
+            rows += `"${dateStr}","${r.employee_code || ''}","${r.worker_name || ''}","${r.site_name || ''}","${checkIn}","${checkOut}",${r.hours_worked || 0},"${r.status || 'Present'}",${r.distance_meters || 0},${r.is_late ? 'Yes' : 'No'}\n`
+          }
+          csvData = new Blob([rows], { type: 'text/csv;charset=utf-8;' })
+        }
+      }
+
+      if (csvData) {
+        const url = window.URL.createObjectURL(csvData)
+        const link = document.createElement('a')
+        link.href = url
+        const todayStr = new Date().toISOString().split('T')[0]
+        link.setAttribute('download', isSupervisor ? `my_attendance_report_${todayStr}.csv` : `attendance_report_${todayStr}.csv`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        showToast('Attendance report CSV downloaded successfully!', 'success')
+      } else {
+        showToast('No attendance records available to export.', 'warning')
+      }
     } catch (err) {
       console.error('CSV Export Error:', err)
       showToast('Failed to export CSV report.', 'error')
@@ -342,13 +388,39 @@ export default function AttendanceManagement() {
   const fetchHistory = useCallback(async () => {
     setLoadingHistory(true)
     try {
-      const filters = { ...historyFilters }
-      if (userRole === 'SUPERVISOR') {
+      const filters = {}
+      if (historyFilters.site_id) filters.site_id = historyFilters.site_id
+      if (historyFilters.status) filters.status = historyFilters.status
+      if (historyFilters.startDate) filters.startDate = historyFilters.startDate
+      if (historyFilters.endDate) filters.endDate = historyFilters.endDate
+      if (historyFilters.searchTerm) filters.searchTerm = historyFilters.searchTerm
+
+      if (isSupervisor || isWorker) {
         filters.scope = 'personal'
+        if (todayState.worker?.employee_id) {
+          filters.worker_id = todayState.worker.employee_id
+        }
       }
+
       const data = await attendanceAPI.getHistory(filters)
       if (data && Array.isArray(data)) {
-        setHistory(data)
+        let personalList = data
+        if (isSupervisor || isWorker) {
+          const targetEmpId = todayState.worker?.employee_id
+          const userName = String(currentUser?.name || '').toLowerCase()
+          const firstName = userName.split(' ')[0]
+          // Double-check personal isolation: only retain records belonging to this supervisor
+          personalList = data.filter((rec) => {
+            if (targetEmpId && rec.worker_id) {
+              return String(rec.worker_id) === String(targetEmpId)
+            }
+            if (firstName && rec.worker_name) {
+              return rec.worker_name.toLowerCase().includes(firstName)
+            }
+            return true
+          })
+        }
+        setHistory(personalList)
       } else {
         setHistory([])
       }
@@ -358,16 +430,31 @@ export default function AttendanceManagement() {
     } finally {
       setLoadingHistory(false)
     }
-  }, [historyFilters, userRole])
+  }, [historyFilters, userRole, isSupervisor, isWorker, todayState.worker, currentUser])
 
   // 6. Fetch Corrections (Real database records only)
   const fetchCorrections = useCallback(async () => {
     setLoadingCorrections(true)
     try {
-      const params = userRole === 'SUPERVISOR' ? { scope: 'personal' } : {}
+      const params = (isSupervisor || isWorker) ? { scope: 'personal' } : {}
       const data = await attendanceAPI.getCorrections(params)
       if (data && Array.isArray(data)) {
-        setCorrections(data)
+        let personalCorrections = data
+        if (isSupervisor || isWorker) {
+          const targetEmpId = todayState.worker?.employee_id
+          const userName = String(currentUser?.name || '').toLowerCase()
+          const firstName = userName.split(' ')[0]
+          personalCorrections = data.filter((rec) => {
+            if (targetEmpId && rec.worker_id) {
+              return String(rec.worker_id) === String(targetEmpId)
+            }
+            if (firstName && rec.worker_name) {
+              return rec.worker_name.toLowerCase().includes(firstName)
+            }
+            return true
+          })
+        }
+        setCorrections(personalCorrections)
       } else {
         setCorrections([])
       }
@@ -377,7 +464,7 @@ export default function AttendanceManagement() {
     } finally {
       setLoadingCorrections(false)
     }
-  }, [userRole])
+  }, [userRole, isSupervisor, isWorker, todayState.worker, currentUser])
 
   // Initial Load based on Active Tab
   useEffect(() => {
@@ -1310,6 +1397,10 @@ export default function AttendanceManagement() {
             />
 
             <SecondaryButton onClick={fetchHistory}>Apply Filter</SecondaryButton>
+            <div style={{ flex: 1 }} />
+            <SecondaryButton onClick={handleExportCSV} disabled={exportingCSV}>
+              <Download size={16} className={exportingCSV ? 'spin' : ''} color="var(--gold-600)" /> {exportingCSV ? 'Exporting...' : isSupervisor ? 'Export My Attendance CSV' : 'Export CSV'}
+            </SecondaryButton>
           </div>
 
           <div className="table-wrap">
@@ -1317,7 +1408,7 @@ export default function AttendanceManagement() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Worker Name</th>
+                  <th>{isSupervisor ? 'Supervisor / Name' : 'Worker Name'}</th>
                   <th>Site Name</th>
                   <th>Check-In Time</th>
                   <th>Check-Out Time</th>
@@ -1330,7 +1421,7 @@ export default function AttendanceManagement() {
                 {history.length === 0 ? (
                   <tr>
                     <td colSpan="8" style={{ textAlign: 'center', padding: '32px', color: 'var(--ink-500)' }}>
-                      No attendance history records found.
+                      {isSupervisor ? 'No personal attendance records found for your supervisor account.' : 'No attendance history records found.'}
                     </td>
                   </tr>
                 ) : (

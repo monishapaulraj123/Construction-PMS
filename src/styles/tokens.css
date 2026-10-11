@@ -87,29 +87,29 @@
   --line-200: #1D362E; /* Subtle secondary borders */
 
   --forest-950: #060E0B;
-  --forest-900: #1E483D;
+  --forest-900: #34D399; /* Luminous emerald mint for icons & text in dark mode */
   --forest-800: #275C4E;
-  --forest-700: #337362;
+  --forest-700: #65CCA7;
   --forest-600: #428B77;
   --forest-line: #244238;
 
-  --gold-600: #C29D52;
-  --gold-500: #D4B06A;
-  --gold-400: #E7C782;
-  --gold-100: rgba(212, 176, 106, 0.22);
-  --gold-050: rgba(212, 176, 106, 0.12);
+  --gold-600: #FBBF24; /* Luminous warm gold for icons in dark mode */
+  --gold-500: #F59E0B;
+  --gold-400: #FCD34D;
+  --gold-100: rgba(245, 158, 11, 0.22);
+  --gold-050: rgba(245, 158, 11, 0.18);
 
-  --green-700: #4EB89B;
+  --green-700: #34D399; /* Luminous mint green */
   --green-500: #65CCA7;
-  --green-100: rgba(101, 204, 167, 0.22);
+  --green-100: rgba(52, 211, 153, 0.20);
 
-  --amber-600: #E5B26B;
+  --amber-600: #F59E0B;
   --amber-500: #D48C38;
-  --amber-100: rgba(212, 140, 56, 0.22);
+  --amber-100: rgba(245, 158, 11, 0.20);
 
-  --red-600: #F58476;
-  --red-500: #C95549;
-  --red-100: rgba(201, 85, 73, 0.22);
+  --red-600: #F87171;
+  --red-500: #EF4444;
+  --red-100: rgba(239, 68, 68, 0.20);
 
   --gray-500: #8CA096;
   --gray-100: #142620;

@@ -1461,6 +1461,63 @@ table.data-table {
   color: #D4B06A !important;
 }
 
+/* Dark Theme Icon Visibility & High Contrast Overrides */
+[data-theme='dark'] .stat-icon,
+.dark-theme .stat-icon,
+[data-theme='dark'] .mini-stat-icon,
+.dark-theme .mini-stat-icon {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+  color: #FCD34D !important;
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme='dark'] .stat-icon[style*="green"],
+.dark-theme .stat-icon[style*="green"],
+[data-theme='dark'] .stat-icon[style*="forest"],
+.dark-theme .stat-icon[style*="forest"],
+[data-theme='dark'] .mini-stat-icon[style*="green"],
+.dark-theme .mini-stat-icon[style*="green"],
+[data-theme='dark'] .mini-stat-icon[style*="forest"],
+.dark-theme .mini-stat-icon[style*="forest"],
+[data-theme='dark'] .mini-stat-income,
+.dark-theme .mini-stat-income {
+  background-color: rgba(52, 211, 153, 0.2) !important;
+  color: #34D399 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+[data-theme='dark'] .stat-icon[style*="gold"],
+.dark-theme .stat-icon[style*="gold"],
+[data-theme='dark'] .mini-stat-icon[style*="gold"],
+.dark-theme .mini-stat-icon[style*="gold"],
+[data-theme='dark'] .mini-stat-progress,
+.dark-theme .mini-stat-progress {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #FCD34D !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+[data-theme='dark'] .stat-icon[style*="red"],
+.dark-theme .stat-icon[style*="red"],
+[data-theme='dark'] .mini-stat-icon[style*="red"],
+.dark-theme .mini-stat-icon[style*="red"],
+[data-theme='dark'] .mini-stat-expense,
+.dark-theme .mini-stat-expense {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: #F87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+[data-theme='dark'] .stat-icon svg,
+.dark-theme .stat-icon svg,
+[data-theme='dark'] .mini-stat-icon svg,
+.dark-theme .mini-stat-icon svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.15)) !important;
+}
+
 /* Elevated Surfaces, Modals & Notification Overlays */
 [data-theme='dark'] .modal,
 .dark-theme .modal,

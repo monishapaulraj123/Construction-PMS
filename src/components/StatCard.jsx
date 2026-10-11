@@ -1,7 +1,7 @@
 export default function StatCard({
   icon: Icon,
   iconBg = 'var(--gold-050)',
-  iconColor = 'var(--forest-900)',
+  iconColor = 'var(--gold-600)',
   value,
   label,
   title,
