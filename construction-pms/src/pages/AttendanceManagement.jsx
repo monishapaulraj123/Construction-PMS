@@ -54,12 +54,14 @@ export default function AttendanceManagement() {
   const { showToast } = useToast()
   const userRole = String(currentUser?.role || 'ADMIN').toUpperCase()
   const isWorker = userRole === 'WORKER'
+  const isSupervisor = userRole === 'SUPERVISOR'
   const isAdminOrSupervisor = !isWorker
 
   // Active Sub-Tab State
   const [activeTab, setActiveTab] = useState(() => {
     if (tabParam) return tabParam
-    return isWorker ? 'spot_attendance' : 'dashboard'
+    if (isSupervisor || isWorker) return 'spot_attendance'
+    return 'dashboard'
   })
 
   useEffect(() => {
@@ -200,13 +202,17 @@ export default function AttendanceManagement() {
   const handleExportCSV = async () => {
     setExportingCSV(true)
     try {
-      const res = await attendanceAPI.exportCSV(historyFilters)
+      const filters = { ...historyFilters }
+      if (isSupervisor) {
+        filters.scope = 'personal'
+      }
+      const res = await attendanceAPI.exportCSV(filters)
       const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       const todayStr = new Date().toISOString().split('T')[0]
-      link.setAttribute('download', `attendance_report_${todayStr}.csv`)
+      link.setAttribute('download', isSupervisor ? `my_attendance_report_${todayStr}.csv` : `attendance_report_${todayStr}.csv`)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -336,7 +342,11 @@ export default function AttendanceManagement() {
   const fetchHistory = useCallback(async () => {
     setLoadingHistory(true)
     try {
-      const data = await attendanceAPI.getHistory(historyFilters)
+      const filters = { ...historyFilters }
+      if (userRole === 'SUPERVISOR') {
+        filters.scope = 'personal'
+      }
+      const data = await attendanceAPI.getHistory(filters)
       if (data && Array.isArray(data)) {
         setHistory(data)
       } else {
@@ -348,13 +358,14 @@ export default function AttendanceManagement() {
     } finally {
       setLoadingHistory(false)
     }
-  }, [historyFilters])
+  }, [historyFilters, userRole])
 
   // 6. Fetch Corrections (Real database records only)
   const fetchCorrections = useCallback(async () => {
     setLoadingCorrections(true)
     try {
-      const data = await attendanceAPI.getCorrections()
+      const params = userRole === 'SUPERVISOR' ? { scope: 'personal' } : {}
+      const data = await attendanceAPI.getCorrections(params)
       if (data && Array.isArray(data)) {
         setCorrections(data)
       } else {
@@ -366,7 +377,7 @@ export default function AttendanceManagement() {
     } finally {
       setLoadingCorrections(false)
     }
-  }, [])
+  }, [userRole])
 
   // Initial Load based on Active Tab
   useEffect(() => {
@@ -680,10 +691,22 @@ export default function AttendanceManagement() {
 
       {/* Standard Page Header */}
       <PageHeader
-        title={isWorker ? "GPS Attendance Workspace" : "Workforce Attendance Management"}
-        description={isWorker ? "Verify location & record spot check-in/out, view shift history & check assigned site details." : "Real-time GPS spot check-in, construction site geofence validation & workforce analytics."}
+        title={isSupervisor ? "My Attendance" : isWorker ? "GPS Attendance Workspace" : "Workforce Attendance Management"}
+        description={
+          isSupervisor
+            ? "Record your daily attendance, monitor your personal attendance history, and submit correction requests."
+            : isWorker
+            ? "Verify location & record spot check-in/out, view shift history & check assigned site details."
+            : "Real-time GPS spot check-in, construction site geofence validation & workforce analytics."
+        }
         actions={
-          isAdminOrSupervisor ? (
+          isSupervisor ? (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <SecondaryButton onClick={handleExportCSV} disabled={exportingCSV}>
+                <Download size={16} className={exportingCSV ? 'spin' : ''} color="var(--gold-600)" /> {exportingCSV ? 'Exporting CSV...' : 'Export My Attendance CSV'}
+              </SecondaryButton>
+            </div>
+          ) : isAdminOrSupervisor ? (
             <div style={{ display: 'flex', gap: 10 }}>
               {userRole === 'ADMIN' && (
                 <SecondaryButton onClick={() => setImportModalOpen(true)}>
@@ -700,7 +723,19 @@ export default function AttendanceManagement() {
 
       {/* Standard Design System Navigation Tabs */}
       <div className="tabs">
-        {isWorker ? (
+        {isSupervisor ? (
+          <>
+            <button onClick={() => setActiveTab('spot_attendance')} className={`tab-btn ${activeTab === 'spot_attendance' ? 'active' : ''}`}>
+              <MapPin size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> Mark Attendance
+            </button>
+            <button onClick={() => setActiveTab('history')} className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}>
+              <Calendar size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> History &amp; Reports
+            </button>
+            <button onClick={() => setActiveTab('corrections')} className={`tab-btn ${activeTab === 'corrections' ? 'active' : ''}`}>
+              <AlertTriangle size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> Correction Requests
+            </button>
+          </>
+        ) : isWorker ? (
           <>
             <button onClick={() => setActiveTab('spot_attendance')} className={`tab-btn ${activeTab === 'spot_attendance' ? 'active' : ''}`}>
               <MapPin size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'text-bottom' }} /> Spot Attendance (GPS)
@@ -1347,7 +1382,7 @@ export default function AttendanceManagement() {
                   <th>Reason</th>
                   <th>Status</th>
                   <th>Reviewed By</th>
-                  {isAdminOrSupervisor && <th style={{ textAlign: 'right' }}>Action</th>}
+                  {userRole === 'ADMIN' && <th style={{ textAlign: 'right' }}>Action</th>}
                 </tr>
               </thead>
               <tbody>
@@ -1374,7 +1409,7 @@ export default function AttendanceManagement() {
                         />
                       </td>
                       <td style={{ fontSize: '0.82rem' }}>{corr.reviewed_by_name || 'Pending Review'}</td>
-                      {isAdminOrSupervisor && (
+                      {userRole === 'ADMIN' && (
                         <td style={{ textAlign: 'right' }}>
                           {corr.status === 'Pending' ? (
                             <PrimaryButton

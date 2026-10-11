@@ -49,6 +49,7 @@ const meta = [
   { pattern: /^\/inspections/, keyTitle: 'inspections_title', keyDesc: 'inspections_desc', title: 'Inspections', description: 'Quality control checks across every construction stage.' },
   { pattern: /^\/rework/, keyTitle: 'rework_title', keyDesc: 'rework_desc', title: 'Rework', description: 'Track corrective work raised from failed inspections.' },
   { pattern: /^\/reports/, keyTitle: 'reports_title', keyDesc: 'reports_desc', title: 'Reports', description: 'Generate reports across progress, budget and materials.' },
+  { pattern: /^\/site-attendance/, keyTitle: 'site_attendance_title', keyDesc: 'site_attendance_desc', title: 'Site Attendance & Monitoring', description: 'Monitor assigned construction site workforce, real-time check-ins, attendance logs and work assignments.' },
   { pattern: /^\/settings/, keyTitle: 'settings_title', keyDesc: 'settings_desc', title: 'Settings', description: 'Manage your profile, preferences and security.' },
 ]
 

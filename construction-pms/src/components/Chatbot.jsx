@@ -49,7 +49,7 @@ export default function Chatbot() {
   useEffect(() => {
     let welcomeText = ''
     if (isSupervisor) {
-      welcomeText = 'Hello Supervisor! 👋 I am your Supervisor Assistant. Ask me about workforce site management, worker assignments, geofence radius, reviewing correction requests, or page navigation.'
+      welcomeText = "Hello Supervisor! 👋 I am your Supervisor Assistant, connected directly to your live project database. Ask me about your assigned construction site, assigned workers, today's attendance & check-ins, personal attendance history, work assignments, or correction requests."
     } else if (isWorker) {
       welcomeText = 'Hello Worker! 👋 I am your Worker Assistant. Ask me about GPS attendance, marking check-in/out, your assigned site, attendance history, or submitting correction requests.'
     } else if (isAdmin) {
@@ -99,8 +99,12 @@ export default function Chatbot() {
     setLoading(true)
 
     try {
-      // 2. Call backend AI API (DB connected tool engine)
-      const res = await aiAPI.chat(trimmed, isConfirmation && confirmVal, pendingActionData, 'chat')
+      // 2. Call backend AI API (DB connected tool engine with multi-turn history)
+      const conversationHistory = messages.slice(-6).map((m) => ({
+        role: m.sender === 'user' ? 'user' : 'model',
+        text: m.text,
+      }))
+      const res = await aiAPI.chat(trimmed, isConfirmation && confirmVal, pendingActionData, 'chat', conversationHistory)
 
       setLoading(false)
 
@@ -137,6 +141,18 @@ export default function Chatbot() {
       }
     } catch (err) {
       setLoading(false)
+      if (isSupervisor) {
+        const errorText = 'I encountered an error connecting to the live attendance database. Please check your connection and try again.'
+        const botMsg = {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: errorText,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        }
+        setMessages((prev) => [...prev, botMsg])
+        return
+      }
+
       const contextData = { projects, properties, clients, buyRequests, sellRequests, transactions }
       const ruleResult = matchChatbotRule(trimmed, currentUser, contextData, language)
 
@@ -223,8 +239,8 @@ export default function Chatbot() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="chatbot-toggle-btn"
-        aria-label="Open Assistant Chatbot"
-        title="Open Digital Assistant Chatbot"
+        aria-label={isSupervisor ? 'Open Supervisor Assistant' : isWorker ? 'Open Worker Assistant' : isAdmin ? 'Open Admin Assistant' : 'Open Client Assistant'}
+        title={isSupervisor ? 'Supervisor Assistant' : isWorker ? 'Worker Assistant' : isAdmin ? 'Admin Assistant' : 'Client Assistant'}
         style={{
           position: 'fixed',
           bottom: 24,
@@ -315,7 +331,7 @@ export default function Chatbot() {
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} />
                   <span>
                     {isSupervisor
-                      ? 'Workforce & Site Management'
+                      ? 'Live Site & Workforce Intelligence'
                       : isWorker
                       ? 'GPS Attendance & Shifts'
                       : isAdmin
@@ -512,6 +528,36 @@ export default function Chatbot() {
                 <span>AI processing database query...</span>
               </div>
             )}
+            {isSupervisor && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6, marginBottom: 4 }}>
+                {[
+                  'Which construction site is assigned to me?',
+                  'Which workers are assigned to my site?',
+                  'Which workers are present today?',
+                  'What is my own attendance status today?',
+                  'What work assignments are active?',
+                  'Are there any pending correction requests?',
+                ].map((chip) => (
+                  <button
+                    key={chip}
+                    onClick={() => handleSendMessage(chip)}
+                    type="button"
+                    style={{
+                      background: 'rgba(212, 175, 106, 0.18)',
+                      border: '1px solid var(--gold-400, #D4B06A)',
+                      color: 'var(--forest-950, #142D26)',
+                      padding: '5px 11px',
+                      borderRadius: 14,
+                      fontSize: '0.73rem',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            )}
             {isWorker && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6, marginBottom: 4 }}>
                 {[
@@ -586,7 +632,7 @@ export default function Chatbot() {
                 isListening
                   ? 'Listening to speech...'
                   : isSupervisor
-                  ? 'Ask about site management, worker assignments...'
+                  ? 'Ask about assigned site, workers, attendance...'
                   : isWorker
                   ? 'Ask about GPS check-in, site location, corrections...'
                   : isAdmin

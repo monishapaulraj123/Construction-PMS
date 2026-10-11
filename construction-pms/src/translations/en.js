@@ -244,12 +244,20 @@ export const en = {
 
   // Chatbot Strings
   chatbot_title_admin: 'Admin Assistant',
+  chatbot_title_supervisor: 'Supervisor Assistant',
+  chatbot_title_worker: 'Worker Assistant',
   chatbot_title_client: 'Client Assistant',
   chatbot_subtitle_admin: 'Management Assistant',
+  chatbot_subtitle_supervisor: 'Live Site & Workforce Intelligence',
+  chatbot_subtitle_worker: 'GPS Attendance & Shifts',
   chatbot_subtitle_client: 'Digital Assistant',
   chatbot_welcome_admin: 'Hello Administrator! 👋 I am your Management Assistant. Ask me for a Dashboard Summary, Client Counts, Active Projects, or Pending Requests.',
+  chatbot_welcome_supervisor: "Hello Supervisor! 👋 I am your Supervisor Assistant. I am connected directly to your live database. Ask me about your assigned construction site, assigned workers, today's attendance & check-ins, personal attendance history, work assignments, or correction requests.",
+  chatbot_welcome_worker: 'Hello Worker! 👋 I am your Worker Assistant. Ask me about GPS attendance, marking check-in/out, your assigned site, attendance history, or submitting correction requests.',
   chatbot_welcome_client: 'Hello! 👋 Welcome to the Construction & Real Estate Management System. How can I help you today?',
   chatbot_input_placeholder_admin: 'Ask for summary, project or client stats...',
+  chatbot_input_placeholder_supervisor: 'Ask about assigned site, workers, attendance...',
+  chatbot_input_placeholder_worker: 'Ask about GPS check-in, site location, corrections...',
   chatbot_input_placeholder_client: 'Ask about properties, buy/sell, transactions...',
 
   // WhatsApp Popup Strings

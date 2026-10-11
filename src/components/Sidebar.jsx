@@ -168,7 +168,14 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
   // Dynamic Worker sections (Exactly 2 items total in sidebar: Site Attendance & Settings)
   const workerSections = []
 
-  const sections = isClient ? clientSections : (isWorker ? workerSections : adminSections)
+  // Dynamic Supervisor links (Exactly 2 items in nav + Settings in footer = 3 items total)
+  const supervisorLinks = [
+    { to: '/attendance', label: 'My Attendance', icon: MapPin },
+    { to: '/site-attendance', label: 'Site Attendance', icon: Building2 },
+  ]
+  const supervisorSections = []
+
+  const sections = isClient ? clientSections : (isWorker ? workerSections : (isSupervisor ? supervisorSections : adminSections))
 
   const [expandedSection, setExpandedSection] = useState(null)
 
@@ -210,27 +217,48 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {/* Standalone Dashboard / Attendance Link */}
-        <div style={{ marginBottom: '10px' }}>
-          {(() => {
-            const StandaloneIcon = standaloneLink.icon || LayoutDashboard
-            return (
-              <NavLink
-                to={standaloneLink.to}
-                end={standaloneLink.end}
-                onClick={onNavigate}
-                title={standaloneLink.label}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              >
-                <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
-                <span>{standaloneLink.label}</span>
-              </NavLink>
-            )
-          })()}
-        </div>
+        {isSupervisor ? (
+          /* Supervisor: Exactly 2 primary links in nav (Settings is in footer) */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {supervisorLinks.map((item) => {
+              const IconComp = item.icon
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onNavigate}
+                  title={item.label}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <IconComp size={18} style={{ flexShrink: 0 }} />
+                  <span>{item.label}</span>
+                </NavLink>
+              )
+            })}
+          </div>
+        ) : (
+          <>
+            {/* Standalone Dashboard / Attendance Link */}
+            <div style={{ marginBottom: '10px' }}>
+              {(() => {
+                const StandaloneIcon = standaloneLink.icon || LayoutDashboard
+                return (
+                  <NavLink
+                    to={standaloneLink.to}
+                    end={standaloneLink.end}
+                    onClick={onNavigate}
+                    title={standaloneLink.label}
+                    className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                  >
+                    <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
+                    <span>{standaloneLink.label}</span>
+                  </NavLink>
+                )
+              })()}
+            </div>
 
-        {/* Collapsible Module Sections */}
-        {sections.map((section) => {
+            {/* Collapsible Module Sections */}
+            {sections.map((section) => {
           const SectionIcon = section.icon || Boxes
           const isExpanded = expandedSection === section.id
           const hasActiveChild = section.links.some((l) => {
@@ -326,6 +354,8 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
             </div>
           )
         })}
+          </>
+        )}
       </nav>
 
       {/* Sidebar Footer */}

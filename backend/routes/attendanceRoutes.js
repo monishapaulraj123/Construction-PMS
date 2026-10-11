@@ -16,6 +16,7 @@ import {
   exportAttendanceCSV,
   importAttendanceCSV,
   createUserAccountForEmployee,
+  getSiteWorkersToday,
 } from '../controllers/attendanceController.js'
 import { authenticateToken, requireAuth, requireAdmin } from '../middleware/authMiddleware.js'
 
@@ -30,8 +31,9 @@ router.get('/today', getTodayStatus)
 router.post('/check-in', checkIn)
 router.post('/check-out', checkOut)
 
-// Admin & Supervisor Dashboard Metrics
+// Admin & Supervisor Dashboard Metrics & Site Workers
 router.get('/dashboard', getDashboardMetrics)
+router.get('/site-workers-today', getSiteWorkersToday)
 
 // Construction Site Management
 router.get('/sites', getSites)

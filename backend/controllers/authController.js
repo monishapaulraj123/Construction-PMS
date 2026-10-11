@@ -146,12 +146,38 @@ export async function getCurrentUser(req, res) {
       return res.status(401).json({ success: false, user: null })
     }
 
-    const [rows] = await db.query('SELECT user_id, name, email, role, phone, status, avatar FROM users WHERE user_id = ?', [req.user.user_id])
-    if (rows.length === 0) {
+    let user = null
+    try {
+      const [rows] = await db.query(
+        `SELECT u.user_id, u.name, u.email, u.role, u.phone, u.status, u.avatar,
+                e.employee_id, e.employee_code, e.employee_type_name,
+                cs.site_id as assigned_site_id, cs.site_name as assigned_site_name
+         FROM users u
+         LEFT JOIN employees e ON (e.user_id = u.user_id OR (u.email IS NOT NULL AND LOWER(e.email) = LOWER(u.email)))
+         LEFT JOIN construction_sites cs ON (cs.supervisor_id = u.user_id OR LOWER(cs.supervisor_name) = LOWER(u.name))
+         WHERE u.user_id = ?
+         LIMIT 1`,
+        [req.user.user_id]
+      )
+      if (rows.length > 0) {
+        user = rows[0]
+      }
+    } catch (e) {
+      // Fallback simple query
+      const [rows] = await db.query('SELECT user_id, name, email, role, phone, status, avatar FROM users WHERE user_id = ?', [req.user.user_id])
+      if (rows.length > 0) user = rows[0]
+    }
+
+    if (!user) {
       return res.status(404).json({ success: false, user: null })
     }
 
-    return res.json({ success: true, user: rows[0] })
+    // Default employee_code if missing
+    if (!user.employee_code) {
+      user.employee_code = `EMP-${String(user.user_id).padStart(3, '0')}`
+    }
+
+    return res.json({ success: true, user })
   } catch (error) {
     console.error('[Auth Me Error]', error)
     return res.status(500).json({ success: false, error: 'Failed to fetch current session.' })

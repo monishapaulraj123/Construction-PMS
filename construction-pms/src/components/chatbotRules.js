@@ -22,56 +22,9 @@ export function matchChatbotRule(query, currentUser, contextData = {}, lang = 'e
     clients = [],
   } = contextData
 
-  // --- SUPERVISOR INTENTS ---
+  // --- SUPERVISOR INTENTS: Handled by live database-grounded Supervisor AI backend ---
   if (isSupervisor) {
-    if (normalized.includes('setting') || normalized.includes('profile') || normalized.includes('account')) {
-      return {
-        text: "Navigating to Account Settings page...",
-        response: "Navigating to Account Settings page...",
-        navigateTo: '/settings',
-      }
-    }
-    if (normalized.includes('add site') || normalized.includes('create site') || normalized.includes('geofence')) {
-      return {
-        text: "To add a construction site:\n1. Open Site Attendance -> Site Management tab.\n2. Click '+ Add Construction Site'.\n3. Enter Site Code, Name, Address, Coordinates (Lat/Lon), and Geofence Radius (m).\n4. Assign Supervisor and Save.",
-        response: "To add a construction site:\n1. Open Site Attendance -> Site Management tab.\n2. Click '+ Add Construction Site'.\n3. Enter Site Code, Name, Address, Coordinates (Lat/Lon), and Geofence Radius (m).\n4. Assign Supervisor and Save.",
-        navigateTo: '/attendance',
-      }
-    }
-    if (normalized.includes('assign') || normalized.includes('worker assignment')) {
-      return {
-        text: "To assign a worker to a construction site:\n1. Open Site Attendance -> Worker Assignments tab.\n2. Click '+ Assign Worker to Site'.\n3. Select the worker employee code and target site.\n4. Save assignment.",
-        response: "To assign a worker to a construction site:\n1. Open Site Attendance -> Worker Assignments tab.\n2. Click '+ Assign Worker to Site'.\n3. Select the worker employee code and target site.\n4. Save assignment.",
-        navigateTo: '/attendance',
-      }
-    }
-    if (normalized.includes('correction') || normalized.includes('approve') || normalized.includes('reject')) {
-      return {
-        text: "To review worker attendance correction requests:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click 'Review' on the pending request.\n3. Enter remarks and select Approve or Reject.",
-        response: "To review worker attendance correction requests:\n1. Open Site Attendance -> Correction Requests tab.\n2. Click 'Review' on the pending request.\n3. Enter remarks and select Approve or Reject.",
-        navigateTo: '/attendance',
-      }
-    }
-    if (
-      normalized.includes('attendance') ||
-      normalized.includes('site') ||
-      normalized.includes('workforce') ||
-      normalized.includes('help') ||
-      normalized.includes('navigate') ||
-      normalized.includes('go to') ||
-      normalized.includes('open')
-    ) {
-      return {
-        text: "As your AI Supervisor Assistant, I can help you manage construction sites, assign workers, review correction requests, and navigate to Attendance or Settings.",
-        response: "As your AI Supervisor Assistant, I can help you manage construction sites, assign workers, review correction requests, and navigate to Attendance or Settings.",
-        navigateTo: '/attendance',
-      }
-    }
-    return {
-      text: "Hello Supervisor! Ask me how to add sites, assign workers, review correction requests, or navigate pages.",
-      response: "Hello Supervisor! Ask me how to add sites, assign workers, review correction requests, or navigate pages.",
-      navigateTo: '/attendance',
-    }
+    return null
   }
 
   // --- WORKER INTENTS ---

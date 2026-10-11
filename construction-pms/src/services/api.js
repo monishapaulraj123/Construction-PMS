@@ -186,8 +186,8 @@ export const notificationAPI = {
 }
 
 export const aiAPI = {
-  chat: (query, confirmAction = false, actionData = null, source = 'chat') =>
-    api.post('/ai/chat', { query, confirmAction, actionData, source }).then((res) => res.data),
+  chat: (query, confirmAction = false, actionData = null, source = 'chat', history = []) =>
+    api.post('/ai/chat', { query, confirmAction, actionData, source, history }).then((res) => res.data),
 }
 
 export const attendanceAPI = {
@@ -201,9 +201,10 @@ export const attendanceAPI = {
   getAssignments: () => api.get('/attendance/assignments').then((res) => res.data.assignments),
   createAssignment: (data) => api.post('/attendance/assignments', data).then((res) => res.data),
   getHistory: (params) => api.get('/attendance/history', { params }).then((res) => res.data.history),
-  getCorrections: () => api.get('/attendance/corrections').then((res) => res.data.corrections),
+  getCorrections: (params) => api.get('/attendance/corrections', { params }).then((res) => res.data.corrections),
   createCorrection: (data) => api.post('/attendance/corrections', data).then((res) => res.data),
   reviewCorrection: (id, data) => api.patch(`/attendance/corrections/${id}/review`, data).then((res) => res.data),
+  getSiteWorkersToday: (params) => api.get('/attendance/site-workers-today', { params }).then((res) => res.data),
   createUserAccount: (data) => api.post('/attendance/create-user-account', data).then((res) => res.data),
   exportCSV: (params) => api.get('/attendance/export', { params, responseType: 'blob' }),
   exportCSVUrl: `${API_BASE_URL}/attendance/export`,

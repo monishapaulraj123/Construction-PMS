@@ -3,10 +3,10 @@ import { processAiQuery } from '../services/aiAssistantService.js'
 // POST /api/ai/chat
 export async function chatWithAi(req, res) {
   try {
-    const { query, confirmAction, actionData, source } = req.body
+    const { query, confirmAction, actionData, source, history } = req.body
     const user = req.user // attached from authenticateToken middleware
 
-    const result = await processAiQuery({ query, confirmAction, actionData, user, source })
+    const result = await processAiQuery({ query, confirmAction, actionData, user, source, history })
     return res.json({
       success: true,
       text: result.text,

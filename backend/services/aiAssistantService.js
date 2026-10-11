@@ -22,6 +22,7 @@ import {
   createSellRequestAction,
 } from './aiTools.js'
 import { createNotification } from '../controllers/notificationController.js'
+import { processSupervisorAiQuery } from './supervisorAiService.js'
 
 // Robust Language Detection (Unicode Tamil + Tanglish / Spoken Tamil Keywords)
 function isTamilText(text) {
@@ -117,7 +118,7 @@ function formatINR(val) {
 /**
  * Main AI Assistant Handler for both Chatbot and Voice Assistant
  */
-export async function processAiQuery({ query, confirmAction, actionData, user, source = 'chat' }) {
+export async function processAiQuery({ query, confirmAction, actionData, user, source = 'chat', history = [] }) {
   if (!query || !query.trim()) {
     const isTa = isTamilText(query)
     return {
@@ -190,6 +191,11 @@ export async function processAiQuery({ query, confirmAction, actionData, user, s
 
   const isWorker = role === 'WORKER'
   const isSupervisor = role === 'SUPERVISOR'
+
+  // 1.4 Supervisor Assistant (Live Database Grounded Conversational AI)
+  if (isSupervisor) {
+    return await processSupervisorAiQuery({ query: normalized, user, history })
+  }
 
   // 1.5 Worker Assistant Specialized Intents
   if (isWorker) {

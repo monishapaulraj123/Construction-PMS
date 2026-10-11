@@ -39,6 +39,7 @@ import Contracts from './pages/Contracts'
 import WorkManagement from './pages/WorkManagement'
 import Payments from './pages/Payments'
 import AttendanceManagement from './pages/AttendanceManagement'
+import SiteAttendance from './pages/SiteAttendance'
 
 // Admin Real Estate
 import RealEstateOverview from './pages/real-estate/RealEstateOverview'
@@ -153,6 +154,7 @@ export default function App() {
 
               <Route path="/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><Reports /></ProtectedRoute>} />
               <Route path="/attendance" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER']}><AttendanceManagement /></ProtectedRoute>} />
+              <Route path="/site-attendance" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}><SiteAttendance /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'WORKER', 'CLIENT']}><Settings /></ProtectedRoute>} />
 
               {/* UNIFIED CLIENT Protected Routes */}

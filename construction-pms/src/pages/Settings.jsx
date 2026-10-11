@@ -22,14 +22,236 @@ export default function Settings() {
   const [active, setActive] = useState('theme')
   const [toggles, setToggles] = useState({ email: true, sms: false, push: true, weeklyDigest: true })
   const showToast = useToast()
-  const { theme, setTheme, accentColor, setAccentColor, fontSize, setFontSize } = useApp()
+  const { currentUser, theme, setTheme, accentColor, setAccentColor, fontSize, setFontSize } = useApp()
   const { language, setLanguage, t } = useTranslation()
+
+  const userRole = String(currentUser?.role || '').toUpperCase()
+  const isSupervisor = userRole === 'SUPERVISOR'
+
+  // Persistent Supervisor Appearance Preference
+  const supStorageKey = `cpms_supervisor_pref_${currentUser?.user_id || 'supervisor'}`
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(supStorageKey))
+      if (saved?.theme) return saved.theme
+    } catch (e) {}
+    return theme || 'light'
+  })
+  const [selectedFontSize, setSelectedFontSize] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(supStorageKey))
+      if (saved?.fontSize) return saved.fontSize
+    } catch (e) {}
+    return fontSize === 'large' ? 'large' : 'medium'
+  })
+
+  // Restore on mount / login
+  useState(() => {
+    if (isSupervisor) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(supStorageKey))
+        if (saved) {
+          if (saved.theme) setTheme(saved.theme)
+          if (saved.fontSize) setFontSize(saved.fontSize)
+        }
+      } catch (e) {}
+    }
+  })
+
+  const handleApplyPreferences = () => {
+    setTheme(selectedTheme)
+    setFontSize(selectedFontSize)
+    try {
+      localStorage.setItem(supStorageKey, JSON.stringify({ theme: selectedTheme, fontSize: selectedFontSize }))
+    } catch (e) {}
+    showToast('Preferences saved and applied successfully!', 'success')
+  }
+
+  const handleResetDefaults = () => {
+    setSelectedTheme('light')
+    setSelectedFontSize('medium')
+    setTheme('light')
+    setFontSize('medium')
+    try {
+      localStorage.setItem(supStorageKey, JSON.stringify({ theme: 'light', fontSize: 'medium' }))
+    } catch (e) {}
+    showToast('Preferences reset to default (Light theme, Medium font).', 'success')
+  }
 
   function flip(key) {
     setToggles((t) => ({ ...t, [key]: !t[key] }))
   }
 
   const currentLangLabel = language === 'ta' ? 'Tamil' : language === 'hi' ? 'Hindi' : 'English'
+
+  // SUPERVISOR SETTINGS VIEW: Only Theme & Font Size
+  if (isSupervisor) {
+    return (
+      <div style={{ maxWidth: 840, margin: '0 auto', paddingBottom: 40 }}>
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: '0.82rem', color: 'var(--ink-500)', marginBottom: 6 }}>
+            Settings &gt; Preferences
+          </div>
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--ink-900)', margin: '0 0 6px 0' }}>
+            Supervisor Appearance Settings
+          </h2>
+          <p style={{ fontSize: '0.86rem', color: 'var(--ink-500)', margin: 0 }}>
+            Personalize your workspace visual theme and font size. Changes persist for your Supervisor account.
+          </p>
+        </div>
+
+        <div className="card card-pad" style={{ borderRadius: 14 }}>
+          {/* 1. Theme Selection */}
+          <div style={{ marginBottom: 28 }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)', marginBottom: 4 }}>
+              Theme
+            </h3>
+            <p className="text-muted" style={{ fontSize: '0.82rem', marginBottom: 14 }}>
+              Choose your preferred visual mode.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
+              {/* Light Theme Option */}
+              <div
+                onClick={() => {
+                  setSelectedTheme('light')
+                  setTheme('light')
+                }}
+                style={{
+                  cursor: 'pointer',
+                  padding: '16px 18px',
+                  borderRadius: 10,
+                  border: selectedTheme === 'light' ? '2.5px solid var(--forest-700)' : '1px solid var(--line-100)',
+                  background: 'var(--cream-050)',
+                  boxShadow: selectedTheme === 'light' ? '0 4px 16px rgba(27, 56, 48, 0.15)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.96rem', color: 'var(--forest-900)' }}>
+                    ☀️ Light Theme
+                  </span>
+                  {selectedTheme === 'light' && (
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, background: 'var(--forest-800)', color: '#fff', padding: '2px 8px', borderRadius: 12 }}>
+                      Active
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--ink-500)', lineHeight: 1.5 }}>
+                  Approved classic forest green &amp; warm cream aesthetic (Default).
+                </div>
+              </div>
+
+              {/* Dark Theme Option */}
+              <div
+                onClick={() => {
+                  setSelectedTheme('dark')
+                  setTheme('dark')
+                }}
+                style={{
+                  cursor: 'pointer',
+                  padding: '16px 18px',
+                  borderRadius: 10,
+                  border: selectedTheme === 'dark' ? '2.5px solid #D4B06A' : '1px solid var(--line-100)',
+                  background: '#1B3830',
+                  color: '#F5F1E8',
+                  boxShadow: selectedTheme === 'dark' ? '0 4px 16px rgba(0, 0, 0, 0.35)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.96rem', color: '#F5F1E8' }}>
+                    🌙 Dark Theme
+                  </span>
+                  {selectedTheme === 'dark' && (
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, background: '#D4B06A', color: '#1B3830', padding: '2px 8px', borderRadius: 12 }}>
+                      Active
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#C8C4BA', lineHeight: 1.5 }}>
+                  Deep forest night palette (#142D26 / #1B3830 / #D4B06A).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '24px 0' }} />
+
+          {/* 2. Font Size Selection */}
+          <div style={{ marginBottom: 30 }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink-900)', marginBottom: 4 }}>
+              Font Size
+            </h3>
+            <p className="text-muted" style={{ fontSize: '0.82rem', marginBottom: 14 }}>
+              Adjust text scale for comfortable readability on desktop or tablet.
+            </p>
+
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              {[
+                { id: 'medium', label: 'Medium', desc: 'Standard comfortable text scale (Default)', sample: 'Aa' },
+                { id: 'large', label: 'Large', desc: 'Enlarged high-contrast text scale', sample: 'Aa+' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedFontSize(f.id)
+                    setFontSize(f.id)
+                  }}
+                  style={{
+                    cursor: 'pointer',
+                    padding: '14px 22px',
+                    borderRadius: 10,
+                    border: selectedFontSize === f.id ? '2.5px solid var(--forest-700)' : '1px solid var(--line-100)',
+                    background: selectedFontSize === f.id ? 'var(--cream-050)' : 'var(--paper)',
+                    color: selectedFontSize === f.id ? 'var(--forest-900)' : 'var(--ink-800)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    fontSize: '0.9rem',
+                    fontWeight: selectedFontSize === f.id ? 700 : 500,
+                    boxShadow: selectedFontSize === f.id ? '0 2px 10px rgba(27, 56, 48, 0.12)' : 'none',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <span style={{ fontSize: f.id === 'large' ? '1.25rem' : '1.05rem', fontWeight: 800, color: 'var(--forest-800)' }}>
+                    {f.sample}
+                  </span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div>{f.label}</div>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--ink-500)', fontWeight: 400 }}>{f.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <hr style={{ border: 'none', borderTop: '1px solid var(--line-100)', margin: '24px 0' }} />
+
+          {/* Action Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleResetDefaults}
+              style={{ fontSize: '0.84rem' }}
+            >
+              Reset to Default
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleApplyPreferences}
+              style={{ fontSize: '0.84rem', padding: '10px 20px' }}
+            >
+              Apply &amp; Save Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="settings-layout">

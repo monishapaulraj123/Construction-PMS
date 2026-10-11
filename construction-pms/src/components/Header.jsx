@@ -505,11 +505,11 @@ export default function Header({ onMenuClick }) {
                 </div>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.96rem', color: 'var(--ink-900)' }}>
-                    {currentUser?.name || 'Worker User'}
+                    {currentUser?.name || 'Supervisor User'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, background: 'var(--forest-100)', color: 'var(--forest-900)', padding: '2px 8px', borderRadius: 4, letterSpacing: '0.04em' }}>
-                      {currentUser?.role || 'WORKER'}
+                      {currentUser?.role || 'SUPERVISOR'}
                     </span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--ink-500)' }}>Active Account</span>
                   </div>
@@ -546,7 +546,24 @@ export default function Header({ onMenuClick }) {
                 />
               </div>
 
-              {/* Restricted Field 1: Email Address (Read-only) */}
+              {/* Restricted Field 1: Employee ID */}
+              <div className="form-field" style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-500)' }}>
+                  Employee ID 🔒 (Restricted)
+                </label>
+                <input
+                  type="text"
+                  className="input"
+                  value={currentUser?.employee_code || (currentUser?.employee_id ? `EMP-${String(currentUser.employee_id).padStart(3, '0')}` : 'EMP-002')}
+                  disabled
+                  style={{ width: '100%', background: 'var(--cream-050)', color: 'var(--ink-500)', cursor: 'not-allowed' }}
+                />
+                <span style={{ fontSize: '0.72rem', color: 'var(--ink-400)', marginTop: 2, display: 'block' }}>
+                  Official employee identifier assigned by organization.
+                </span>
+              </div>
+
+              {/* Restricted Field 2: Email Address (Read-only) */}
               <div className="form-field" style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-500)' }}>
                   Email Address 🔒 (Restricted)
@@ -563,13 +580,30 @@ export default function Header({ onMenuClick }) {
                 </span>
               </div>
 
-              {/* Restricted Field 2: Assigned Role & Permissions */}
+              {/* Restricted Field 3: Assigned Construction Site */}
+              <div className="form-field" style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: 6, color: 'var(--ink-500)' }}>
+                  Assigned Construction Site 🔒 (Restricted)
+                </label>
+                <input
+                  type="text"
+                  className="input"
+                  value={currentUser?.assigned_site_name || (currentUser?.role === 'SUPERVISOR' ? 'Green Valley Luxury Villa Site' : 'Primary Project Site')}
+                  disabled
+                  style={{ width: '100%', background: 'var(--cream-050)', color: 'var(--ink-500)', cursor: 'not-allowed' }}
+                />
+                <span style={{ fontSize: '0.72rem', color: 'var(--ink-400)', marginTop: 2, display: 'block' }}>
+                  Site assignments are managed exclusively by Administrator.
+                </span>
+              </div>
+
+              {/* Restricted Field 4: Assigned Role & Permissions */}
               <div style={{ padding: 12, background: 'var(--cream-050)', borderRadius: 8, border: '1px solid var(--line-100)', marginBottom: 20 }}>
                 <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-700)', marginBottom: 4 }}>
                   🔒 Assigned Role &amp; Permissions (Restricted)
                 </div>
                 <div style={{ fontSize: '0.76rem', color: 'var(--ink-500)', lineHeight: 1.5 }}>
-                  Role: <strong>{currentUser?.role || 'WORKER'}</strong>. Role elevation and administrative rights cannot be modified from profile settings.
+                  Role: <strong>{currentUser?.role || 'SUPERVISOR'}</strong>. Role elevation and administrative rights cannot be modified from profile settings.
                 </div>
               </div>
 

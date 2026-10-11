@@ -156,27 +156,12 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
   // Dynamic Worker sections (Exactly 2 items total in sidebar: GPS Attendance & Settings)
   const workerSections = []
 
-  // Dynamic Supervisor sections (Exactly 3 primary items + Settings in footer)
-  const supervisorSections = [
-    {
-      id: 'site_workforce_mgmt',
-      label: 'Site & Workforce Management',
-      icon: Building2,
-      links: [
-        { to: '/attendance?tab=sites', label: 'Site & Workforce Overview', icon: Building2 },
-      ],
-    },
-    {
-      id: 'assignments_reports',
-      label: 'Work Assignments & Reports',
-      icon: Users,
-      links: [
-        { to: '/attendance?tab=assignments', label: 'Worker Assignments', icon: Users },
-        { to: '/attendance?tab=history', label: 'Attendance Reports', icon: FileText },
-        { to: '/attendance?tab=corrections', label: 'Correction Requests', icon: CheckSquare },
-      ],
-    },
+  // Dynamic Supervisor links (Exactly 2 items in nav + Settings in footer = 3 items total)
+  const supervisorLinks = [
+    { to: '/attendance', label: 'My Attendance', icon: MapPin },
+    { to: '/site-attendance', label: 'Site Attendance', icon: Building2 },
   ]
+  const supervisorSections = []
 
   // Dynamic Client sections
   const clientSections = [
@@ -245,122 +230,145 @@ export default function Sidebar({ open, hidden, hoverOpen, onNavigate, onMouseEn
       </div>
 
       <nav className="sidebar-nav scrollbar-thin">
-        {/* Standalone Dashboard / Attendance Link */}
-        <div style={{ marginBottom: '10px' }}>
-          {(() => {
-            const StandaloneIcon = standaloneLink.icon || LayoutDashboard
-            return (
-              <NavLink
-                to={standaloneLink.to}
-                end={standaloneLink.end}
-                onClick={onNavigate}
-                title={standaloneLink.label}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              >
-                <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
-                <span>{standaloneLink.label}</span>
-              </NavLink>
-            )
-          })()}
-        </div>
+        {isSupervisor ? (
+          /* Supervisor: Exactly 2 primary links in nav (Settings is in footer) */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {supervisorLinks.map((item) => {
+              const IconComp = item.icon
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onNavigate}
+                  title={item.label}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <IconComp size={18} style={{ flexShrink: 0 }} />
+                  <span>{item.label}</span>
+                </NavLink>
+              )
+            })}
+          </div>
+        ) : (
+          <>
+            {/* Standalone Dashboard / Attendance Link */}
+            <div style={{ marginBottom: '10px' }}>
+              {(() => {
+                const StandaloneIcon = standaloneLink.icon || LayoutDashboard
+                return (
+                  <NavLink
+                    to={standaloneLink.to}
+                    end={standaloneLink.end}
+                    onClick={onNavigate}
+                    title={standaloneLink.label}
+                    className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                  >
+                    <StandaloneIcon size={18} style={{ flexShrink: 0 }} />
+                    <span>{standaloneLink.label}</span>
+                  </NavLink>
+                )
+              })()}
+            </div>
 
-        {/* Collapsible Module Sections */}
-        {sections.map((section) => {
-          const SectionIcon = section.icon || Boxes
-          const isExpanded = expandedSection === section.id
-          const hasActiveChild = section.links.some((l) => {
-            if (l.end) return l.to === location.pathname
-            return location.pathname === l.to || (l.to !== '/' && location.pathname.startsWith(l.to))
-          })
+            {/* Collapsible Module Sections */}
+            {sections.map((section) => {
+              const SectionIcon = section.icon || Boxes
+              const isExpanded = expandedSection === section.id
+              const hasActiveChild = section.links.some((l) => {
+                if (l.end) return l.to === location.pathname
+                return location.pathname === l.to || (l.to !== '/' && location.pathname.startsWith(l.to))
+              })
 
-          return (
-            <div className="nav-section-group" key={section.id} style={{ marginBottom: '6px' }}>
-              {/* Expandable Main Heading Row */}
-              <div
-                className="nav-section-heading"
-                onClick={() => toggleSection(section.id)}
-                title={section.label}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '9px 12px',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  background: isExpanded ? 'rgba(255, 255, 255, 0.07)' : 'transparent',
-                  color: hasActiveChild ? 'var(--gold-400, #D4B06A)' : 'rgba(238, 243, 238, 0.78)',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isExpanded) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
-                }}
-                onMouseLeave={(e) => {
-                  if (!isExpanded) e.currentTarget.style.background = 'transparent'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                  <SectionIcon size={17} style={{ flexShrink: 0, opacity: 0.95 }} />
-                  <span
-                    className="sidebar-section-text"
+              return (
+                <div className="nav-section-group" key={section.id} style={{ marginBottom: '6px' }}>
+                  {/* Expandable Main Heading Row */}
+                  <div
+                    className="nav-section-heading"
+                    onClick={() => toggleSection(section.id)}
+                    title={section.label}
                     style={{
-                      fontSize: '0.82rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.01em',
-                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '9px 12px',
+                      borderRadius: 'var(--radius-sm, 6px)',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      background: isExpanded ? 'rgba(255, 255, 255, 0.07)' : 'transparent',
+                      color: hasActiveChild ? 'var(--gold-400, #D4B06A)' : 'rgba(238, 243, 238, 0.78)',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isExpanded) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isExpanded) e.currentTarget.style.background = 'transparent'
                     }}
                   >
-                    {section.label}
-                  </span>
-                </div>
-                <ChevronRight
-                  size={14}
-                  className="sidebar-chevron"
-                  style={{
-                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease',
-                    opacity: 0.8,
-                    flexShrink: 0,
-                  }}
-                />
-              </div>
-
-              {/* Collapsible Subdivisions / Child Links */}
-              {isExpanded && (
-                <div
-                  className="sidebar-sub-group"
-                  style={{
-                    marginTop: '4px',
-                    marginBottom: '8px',
-                    paddingLeft: '8px',
-                    marginLeft: '12px',
-                    borderLeft: '2px solid rgba(212, 175, 106, 0.25)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px',
-                  }}
-                >
-                  {section.links.map((link) => {
-                    const IconComp = link.icon
-                    return (
-                      <NavLink
-                        key={link.to}
-                        to={link.to}
-                        end={link.end}
-                        onClick={onNavigate}
-                        className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                        style={{ fontSize: '0.84rem', padding: '8px 10px' }}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                      <SectionIcon size={17} style={{ flexShrink: 0, opacity: 0.95 }} />
+                      <span
+                        className="sidebar-section-text"
+                        style={{
+                          fontSize: '0.82rem',
+                          fontWeight: 600,
+                          letterSpacing: '0.01em',
+                          whiteSpace: 'nowrap',
+                        }}
                       >
-                        {IconComp ? <IconComp size={16} /> : null}
-                        <span>{link.label}</span>
-                      </NavLink>
-                    )
-                  })}
+                        {section.label}
+                      </span>
+                    </div>
+                    <ChevronRight
+                      size={14}
+                      className="sidebar-chevron"
+                      style={{
+                        transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                        opacity: 0.8,
+                        flexShrink: 0,
+                      }}
+                    />
+                  </div>
+
+                  {/* Collapsible Subdivisions / Child Links */}
+                  {isExpanded && (
+                    <div
+                      className="sidebar-sub-group"
+                      style={{
+                        marginTop: '4px',
+                        marginBottom: '8px',
+                        paddingLeft: '8px',
+                        marginLeft: '12px',
+                        borderLeft: '2px solid rgba(212, 175, 106, 0.25)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '2px',
+                      }}
+                    >
+                      {section.links.map((link) => {
+                        const IconComp = link.icon
+                        return (
+                          <NavLink
+                            key={link.to}
+                            to={link.to}
+                            end={link.end}
+                            onClick={onNavigate}
+                            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                            style={{ fontSize: '0.84rem', padding: '8px 10px' }}
+                          >
+                            {IconComp ? <IconComp size={16} /> : null}
+                            <span>{link.label}</span>
+                          </NavLink>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )
-        })}
+              )
+            })}
+          </>
+        )}
       </nav>
 
       {/* Sidebar Footer */}

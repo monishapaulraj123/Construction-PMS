@@ -520,16 +520,43 @@ const FALLBACK_ATTENDANCE = [
 function handleDatabaseFallbackQuery(sql, params = []) {
   const sqlStr = String(sql || '').toLowerCase()
 
+  if (sqlStr.startsWith('update users')) {
+    const uid = Number(params[params.length - 1])
+    const user = FALLBACK_USERS.find((u) => u.user_id === uid)
+    if (user) {
+      if (sqlStr.includes('name = ?') && sqlStr.includes('phone = ?')) {
+        user.name = params[0]
+        user.phone = params[1]
+      } else if (sqlStr.includes('name = ?')) {
+        user.name = params[0]
+      } else if (sqlStr.includes('phone = ?')) {
+        user.phone = params[0]
+      }
+    }
+    return [{ affectedRows: 1 }, undefined]
+  }
+
   if (sqlStr.includes('from users')) {
     if (sqlStr.includes('where lower(email)') || sqlStr.includes('where lower(name)')) {
       const target = String(params[0] || '').toLowerCase()
       const match = FALLBACK_USERS.filter((u) => u.email.toLowerCase() === target || u.name.toLowerCase() === target)
       return [match, undefined]
     }
-    if (sqlStr.includes('where user_id =')) {
+    if (sqlStr.includes('user_id =') || sqlStr.includes('u.user_id =')) {
       const uid = Number(params[0])
-      const match = FALLBACK_USERS.filter((u) => u.user_id === uid)
-      return [match, undefined]
+      const user = FALLBACK_USERS.find((u) => u.user_id === uid)
+      if (!user) return [[], undefined]
+      const emp = FALLBACK_EMPLOYEES.find((e) => e.user_id === uid || e.email.toLowerCase() === user.email.toLowerCase())
+      const site = FALLBACK_SITES.find((s) => s.supervisor_id === uid || s.supervisor_name.toLowerCase().includes(user.name.toLowerCase()))
+      const enriched = {
+        ...user,
+        employee_id: emp ? emp.employee_id : null,
+        employee_code: emp ? emp.employee_code : `EMP-${String(uid).padStart(3, '0')}`,
+        employee_type_name: emp ? emp.employee_type_name || 'Site Supervisor' : 'Site Supervisor',
+        assigned_site_id: site ? site.site_id : null,
+        assigned_site_name: site ? site.site_name : null,
+      }
+      return [[enriched], undefined]
     }
     return [FALLBACK_USERS, undefined]
   }
@@ -549,10 +576,16 @@ function handleDatabaseFallbackQuery(sql, params = []) {
   }
 
   if (sqlStr.includes('from construction_sites')) {
-    if (sqlStr.includes('where site_id =')) {
+    if (sqlStr.includes('where site_id =') || sqlStr.includes('where cs.site_id =')) {
       const sid = Number(params[0])
       const match = FALLBACK_SITES.filter((s) => s.site_id === sid)
       return [match, undefined]
+    }
+    if (sqlStr.includes('supervisor_id =') || sqlStr.includes('cs.supervisor_id =')) {
+      const supId = Number(params[0])
+      const supName = String(params[1] || '').toLowerCase()
+      const match = FALLBACK_SITES.filter((s) => s.supervisor_id === supId || (supName && s.supervisor_name.toLowerCase().includes(supName)))
+      return [match.length > 0 ? match : FALLBACK_SITES.slice(0, 1), undefined]
     }
     return [FALLBACK_SITES, undefined]
   }
@@ -563,7 +596,24 @@ function handleDatabaseFallbackQuery(sql, params = []) {
       const match = FALLBACK_ASSIGNMENTS.filter((a) => a.worker_id === wid)
       return [match.length > 0 ? match : FALLBACK_ASSIGNMENTS.slice(0, 1), undefined]
     }
+    if (sqlStr.includes('supervisor_id =') || sqlStr.includes('cs.supervisor_id =')) {
+      const supId = Number(params[0])
+      const supName = String(params[1] || '').toLowerCase()
+      const supSites = FALLBACK_SITES.filter((s) => s.supervisor_id === supId || (supName && s.supervisor_name.toLowerCase().includes(supName))).map((s) => s.site_id)
+      const match = FALLBACK_ASSIGNMENTS.filter((a) => supSites.includes(a.site_id))
+      return [match.length > 0 ? match : FALLBACK_ASSIGNMENTS.slice(0, 1), undefined]
+    }
     return [FALLBACK_ASSIGNMENTS, undefined]
+  }
+
+  if (sqlStr.includes('from attendance_corrections')) {
+    const FALLBACK_CORRECTIONS = [
+      { correction_id: 1, attendance_id: 1, worker_id: 1, site_id: 1, requested_check_in: '2026-10-10 09:00:00', requested_check_out: '2026-10-10 18:00:00', reason: 'GPS boundary signal lag at outer security gate', status: 'Pending', site_name: 'Green Valley Luxury Villa Site', worker_name: 'Deepak Worker', employee_code: 'EMP-001', created_at: '2026-10-10 10:00:00' }
+    ]
+    if (sqlStr.includes('count(')) {
+      return [[{ cnt: 1, count: 1 }], undefined]
+    }
+    return [FALLBACK_CORRECTIONS, undefined]
   }
 
   if (sqlStr.includes('from attendance_records')) {
