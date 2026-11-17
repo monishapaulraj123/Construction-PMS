@@ -1,8 +1,15 @@
+
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+// Resolve the current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Database connection configuration
 export const poolConfig = {
@@ -20,8 +27,18 @@ export const poolConfig = {
 
 // Enable secure SSL connection for Aiven
 if (process.env.DB_SSL === 'true') {
+  const isRender = process.env.RENDER === 'true';
+
+  const caPath = isRender
+    ? '/etc/secrets/aiven-ca.pem'
+    : path.join(__dirname, '../certificates/aiven-ca.pem');
+
+  if (!fs.existsSync(caPath)) {
+    throw new Error(`Aiven SSL certificate not found: ${caPath}`);
+  }
+
   poolConfig.ssl = {
-    ca: fs.readFileSync('/etc/secrets/aiven-ca.pem', 'utf8'),
+    ca: fs.readFileSync(caPath, 'utf8'),
     rejectUnauthorized: true,
   };
 }
