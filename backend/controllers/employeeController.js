@@ -92,6 +92,12 @@ export async function createEmployee(req, res) {
 export async function updateEmployee(req, res) {
   try {
     const { id } = req.params
+    const [existing] = await db.query('SELECT * FROM employees WHERE employee_id = ?', [id])
+    if (!existing || existing.length === 0) {
+      return res.status(404).json({ success: false, error: 'Employee not found.' })
+    }
+    const current = existing[0]
+
     const {
       employee_code, employee_type_id, employee_type_name, first_name, last_name,
       phone, email, aadhaar_number, pan_number, bank_name, account_number, ifsc_code, micr_code,
@@ -100,7 +106,36 @@ export async function updateEmployee(req, res) {
       gender, employment_status, profile_image, status,
     } = req.body
 
-    const isStatus = status !== false && status !== 0 && status !== 'false'
+    const finalCode = employee_code !== undefined ? employee_code : current.employee_code
+    const finalTypeId = employee_type_id !== undefined ? employee_type_id : current.employee_type_id
+    const finalTypeName = employee_type_name !== undefined ? employee_type_name : current.employee_type_name
+    const finalFirstName = first_name !== undefined ? first_name : current.first_name
+    const finalLastName = last_name !== undefined ? last_name : current.last_name
+    const finalPhone = phone !== undefined ? phone : current.phone
+    const finalEmail = email !== undefined ? email : current.email
+    const finalAadhaar = aadhaar_number !== undefined ? aadhaar_number : current.aadhaar_number
+    const finalPan = pan_number !== undefined ? pan_number : current.pan_number
+    const finalBank = bank_name !== undefined ? bank_name : current.bank_name
+    const finalAccount = account_number !== undefined ? account_number : current.account_number
+    const finalIfsc = ifsc_code !== undefined ? ifsc_code : current.ifsc_code
+    const finalMicr = micr_code !== undefined ? micr_code : current.micr_code
+    const finalCity = city !== undefined ? city : current.city
+    const finalDistrict = district !== undefined ? district : current.district
+    const finalState = state !== undefined ? state : current.state
+    const finalService = service !== undefined ? service : current.service
+    const finalSpec = specialization !== undefined ? specialization : current.specialization
+    const finalRate = service_rate !== undefined ? service_rate : current.service_rate
+    const finalRateUnit = rate_unit !== undefined ? rate_unit : current.rate_unit
+    const finalAvail = availability !== undefined ? availability : current.availability
+    const finalProj = current_project_name !== undefined ? current_project_name : current.current_project_name
+    const finalWork = current_work !== undefined ? current_work : current.current_work
+    const finalProgress = current_progress !== undefined ? current_progress : current.current_progress
+    const finalExp = experience_years !== undefined ? experience_years : current.experience_years
+    const finalQual = qualification !== undefined ? qualification : current.qualification
+    const finalGender = gender !== undefined ? gender : current.gender
+    const finalEmpStatus = employment_status !== undefined ? employment_status : current.employment_status
+    const finalProfileImg = profile_image !== undefined ? profile_image : current.profile_image
+    const finalStatus = status !== undefined ? (status !== false && status !== 0 && status !== 'false' ? 1 : 0) : current.status
 
     await db.query(
       `UPDATE employees SET 
@@ -112,12 +147,12 @@ export async function updateEmployee(req, res) {
        profile_image = ?, status = ?, updated_by = ? 
        WHERE employee_id = ?`,
       [
-        employee_code, employee_type_id || null, employee_type_name || '', first_name, last_name || '',
-        phone || '', email || '', aadhaar_number || '', pan_number || '', bank_name || '', account_number || '',
-        ifsc_code || '', micr_code || '', city || '', district || '', state || '', service || '', specialization || '',
-        service_rate || 0, rate_unit || 'Day', availability || 'Available', current_project_name || '', current_work || '',
-        current_progress || 0, experience_years || 0, qualification || '', gender || 'Male', employment_status || 'Permanent',
-        profile_image || '', isStatus ? 1 : 0, req.user?.user_id || 1, id,
+        finalCode, finalTypeId, finalTypeName, finalFirstName, finalLastName,
+        finalPhone, finalEmail, finalAadhaar, finalPan, finalBank, finalAccount,
+        finalIfsc, finalMicr, finalCity, finalDistrict, finalState, finalService, finalSpec,
+        finalRate, finalRateUnit, finalAvail, finalProj, finalWork,
+        finalProgress, finalExp, finalQual, finalGender, finalEmpStatus,
+        finalProfileImg, finalStatus, req.user?.user_id || 1, id,
       ]
     )
 
@@ -132,6 +167,11 @@ export async function updateEmployee(req, res) {
 export async function deleteEmployee(req, res) {
   try {
     const { id } = req.params
+    await db.query('DELETE FROM attendance_corrections WHERE worker_id = ?', [id])
+    await db.query('DELETE FROM attendance_records WHERE worker_id = ?', [id])
+    await db.query('DELETE FROM worker_site_assignments WHERE worker_id = ?', [id])
+    await db.query('DELETE FROM employee_assignments WHERE employee_id = ?', [id])
+    await db.query('UPDATE services SET assigned_person_id = NULL WHERE assigned_person_id = ?', [id])
     await db.query('DELETE FROM employees WHERE employee_id = ?', [id])
     return res.json({ success: true, message: 'Employee deleted successfully.' })
   } catch (error) {

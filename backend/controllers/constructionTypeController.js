@@ -1,5 +1,80 @@
 import db from '../config/db.js'
 
+const TYPE_CONFIG = {
+  'CT-01': {
+    icon: '🏠',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop',
+    stages_count: 14,
+    description: 'Independent homes, villas and apartments',
+  },
+  'Residential': {
+    icon: '🏠',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop',
+    stages_count: 14,
+    description: 'Independent homes, villas and apartments',
+  },
+  'CT-02': {
+    icon: '🏥',
+    image: 'https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=600&auto=format&fit=crop',
+    stages_count: 9,
+    description: 'Healthcare and medical facilities',
+  },
+  'Hospital': {
+    icon: '🏥',
+    image: 'https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=600&auto=format&fit=crop',
+    stages_count: 9,
+    description: 'Healthcare and medical facilities',
+  },
+  'CT-03': {
+    icon: '🏫',
+    image: 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=600&auto=format&fit=crop',
+    stages_count: 15,
+    description: 'Educational campuses and institutions',
+  },
+  'College': {
+    icon: '🏫',
+    image: 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=600&auto=format&fit=crop',
+    stages_count: 15,
+    description: 'Educational campuses and institutions',
+  },
+  'CT-04': {
+    icon: '🏢',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop',
+    stages_count: 7,
+    description: 'Offices, retail and mixed-use towers',
+  },
+  'Commercial Building': {
+    icon: '🏢',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop',
+    stages_count: 7,
+    description: 'Offices, retail and mixed-use towers',
+  },
+  'CT-05': {
+    icon: '🏭',
+    image: '/images/categories/industrial_building.jpg',
+    stages_count: 12,
+    description: 'Factories, warehouses and plants',
+  },
+  'Industrial Building': {
+    icon: '🏭',
+    image: '/images/categories/industrial_building.jpg',
+    stages_count: 12,
+    description: 'Factories, warehouses and plants',
+  },
+  'CT-06': {
+    icon: '🛣️',
+    image: '/images/categories/road.jpg',
+    stages_count: 0,
+    description: 'Highways and road infrastructure',
+  },
+  'Road': {
+    icon: '🛣️',
+    image: '/images/categories/road.jpg',
+    stages_count: 0,
+    description: 'Highways and road infrastructure',
+  },
+}
+
 export async function getAllConstructionTypes(req, res) {
   try {
     const { search, status } = req.query
@@ -16,10 +91,20 @@ export async function getAllConstructionTypes(req, res) {
       params.push(status === 'true' || status === '1' ? 1 : 0)
     }
 
-    query += ' ORDER BY construction_type_id DESC'
+    query += ' ORDER BY construction_type_id ASC'
 
     const [rows] = await db.query(query, params)
-    return res.json({ success: true, data: rows })
+    const enriched = (rows || []).map((r) => {
+      const def = TYPE_CONFIG[r.construction_type_code] || TYPE_CONFIG[r.construction_type_name] || {}
+      return {
+        ...r,
+        icon: r.icon || def.icon || '🏗️',
+        image: r.image || def.image || '/images/categories/industrial_building.jpg',
+        stages_count: r.stages_count !== undefined ? r.stages_count : def.stages_count,
+        description: def.description || r.description,
+      }
+    })
+    return res.json({ success: true, data: enriched })
   } catch (error) {
     console.error('[ConstructionTypes Error]', error)
     return res.status(500).json({ success: false, error: 'Database error fetching construction types.' })

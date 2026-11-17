@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Plus, LayoutGrid, TableProperties, AlertTriangle } from 'lucide-react'
 import SearchBar from '../components/SearchBar'
 import DataTable from '../components/DataTable'
@@ -10,6 +10,34 @@ import { FormInput, SelectInput } from '../components/FormInputs'
 import { items as initialItems, itemCategories, suppliers } from '../data/mockData'
 import { formatCurrencyINR } from '../utils/format'
 import { useToast } from '../components/ToastContext'
+import { itemAPI } from '../services/api'
+
+function getMaterialItemImage(item) {
+  const code = (item?.item_code || '').toUpperCase()
+  if (code.includes('001') || code === 'ITM-01') return '/images/categories/cement.jpg'
+  if (code.includes('002') || code === 'ITM-02') return '/images/categories/steel.jpg'
+  if (code.includes('003') || code === 'ITM-03') return '/images/categories/bricks.jpg'
+  if (code.includes('004') || code === 'ITM-04') return '/images/categories/sand.jpg'
+  if (code.includes('005') || code === 'ITM-05') return '/images/categories/electrical.jpg'
+
+  const cat = (item?.category_name || '').toLowerCase()
+  const name = (item?.material_name || item?.item_name || '').toLowerCase()
+
+  if (cat.includes('brick') || name.includes('brick')) return '/images/categories/bricks.jpg'
+  if (cat.includes('sand') || name.includes('sand')) return '/images/categories/sand.jpg'
+  if (cat.includes('steel') || cat.includes('tmt') || name.includes('steel') || name.includes('rebar')) return '/images/categories/steel.jpg'
+  if (cat.includes('cement') || name.includes('cement') || name.includes('portland')) return '/images/categories/cement.jpg'
+  if (cat.includes('elect') || name.includes('wire') || name.includes('cable')) return '/images/categories/electrical.jpg'
+  if (cat.includes('plumb') || name.includes('pipe') || name.includes('valve')) return '/images/categories/plumbing.jpg'
+  if (cat.includes('paint') || name.includes('paint')) return '/images/categories/paint.jpg'
+  if (cat.includes('tile') || name.includes('tile')) return '/images/categories/tiles.jpg'
+
+  if (item?.category_image && !String(item.category_image).includes('undefined')) return item.category_image
+  if (item?.image && !String(item.image).includes('undefined')) return item.image
+  if (item?.image_url && !String(item.image_url).includes('undefined')) return item.image_url
+
+  return '/images/categories/cement.jpg'
+}
 
 export default function Items() {
   const [items, setItems] = useState(initialItems)
@@ -21,6 +49,26 @@ export default function Items() {
   const [form, setForm] = useState({})
   const [deleteTarget, setDeleteTarget] = useState(null)
   const showToast = useToast()
+
+  useEffect(() => {
+    itemAPI.getAll()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const normalised = data.map((i) => ({
+            ...i,
+            material_name: i.material_name || i.item_name,
+            quantity_inhand: Number(i.quantity_inhand ?? i.stock_quantity ?? 0),
+            unit_of_measure: i.unit_of_measure || i.unit || 'Unit',
+            standard_rate: Number(i.standard_rate ?? i.unit_price ?? 0),
+            minimum_stock_level: Number(i.minimum_stock_level ?? i.min_stock_level ?? 0),
+            image: getMaterialItemImage(i),
+            image_url: getMaterialItemImage(i),
+          }))
+          setItems(normalised)
+        }
+      })
+      .catch((err) => console.error('Error fetching items:', err))
+  }, [])
 
   const filtered = useMemo(
     () =>
@@ -45,31 +93,70 @@ export default function Items() {
     setForm(row)
     setModalOpen(true)
   }
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault()
-    if (editing) {
-      setItems((rs) => rs.map((r) => (r.item_id === editing.item_id ? { ...r, ...form, item_name: form.material_name || form.item_name } : r)))
-      showToast('Material item updated successfully')
-    } else {
-      const newId = Math.max(0, ...items.map((r) => r.item_id)) + 1
-      setItems((rs) => [
-        {
-          ...form,
-          item_id: newId,
-          material_id: newId,
-          item_code: form.item_code || `ITM-${String(newId).padStart(3, '0')}`,
-          item_name: form.material_name || form.item_name || 'New Material',
-          image: form.image_url || items[0].image,
-        },
-        ...rs,
-      ])
-      showToast('Material item added successfully')
+    const payload = {
+      ...form,
+      item_name: form.material_name || form.item_name || 'New Material',
+      unit: form.unit_of_measure || form.unit || 'Unit',
+      unit_price: Number(form.standard_rate ?? form.unit_price ?? 0),
+      stock_quantity: Number(form.quantity_inhand ?? form.stock_quantity ?? 0),
+      min_stock_level: Number(form.minimum_stock_level ?? form.min_stock_level ?? 0),
     }
-    setModalOpen(false)
+
+    try {
+      if (editing) {
+        const id = editing.item_id || editing.material_id
+        const updated = await itemAPI.update(id, payload)
+        const normalised = {
+          ...editing,
+          ...payload,
+          ...(updated || {}),
+          material_name: (updated?.item_name || payload.item_name),
+          quantity_inhand: Number(updated?.stock_quantity ?? payload.stock_quantity),
+          unit_of_measure: updated?.unit || payload.unit,
+          standard_rate: Number(updated?.unit_price ?? payload.unit_price),
+          minimum_stock_level: Number(updated?.min_stock_level ?? payload.min_stock_level),
+          image: getMaterialItemImage(updated || payload),
+        }
+        setItems((rs) => rs.map((r) => (r.item_id === id ? normalised : r)))
+        showToast('Material item updated successfully', 'success')
+      } else {
+        const created = await itemAPI.create(payload)
+        if (created) {
+          const normalised = {
+            ...created,
+            material_name: created.item_name || payload.item_name,
+            quantity_inhand: Number(created.stock_quantity ?? payload.stock_quantity),
+            unit_of_measure: created.unit || payload.unit,
+            standard_rate: Number(created.unit_price ?? payload.unit_price),
+            minimum_stock_level: Number(created.min_stock_level ?? payload.min_stock_level),
+            image: getMaterialItemImage(created),
+          }
+          setItems((rs) => [normalised, ...rs])
+          showToast('Material item added successfully', 'success')
+        } else {
+          showToast('Failed to create material item', 'error')
+        }
+      }
+      setModalOpen(false)
+    } catch (err) {
+      console.error('Error saving item:', err)
+      showToast(err.response?.data?.error || 'Failed to save material to database', 'error')
+    }
   }
-  function handleDelete() {
-    setItems((rs) => rs.filter((r) => r.item_id !== deleteTarget.item_id))
-    showToast('Material item removed')
+
+  async function handleDelete() {
+    if (!deleteTarget) return
+    const id = deleteTarget.item_id || deleteTarget.material_id
+    try {
+      await itemAPI.delete(id)
+      setItems((rs) => rs.filter((r) => (r.item_id !== id && r.material_id !== id)))
+      showToast('Material item deleted successfully', 'success')
+    } catch (err) {
+      console.error('Error deleting item:', err)
+      showToast(err.response?.data?.error || 'Failed to delete material item from database', 'error')
+    }
     setDeleteTarget(null)
   }
 
@@ -113,7 +200,7 @@ export default function Items() {
                       width: 36,
                       height: 36,
                       borderRadius: 'var(--radius-sm)',
-                      backgroundImage: `url(${r.image_url || r.image})`,
+                      backgroundImage: `url(${getMaterialItemImage(r)})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       flexShrink: 0,
@@ -150,7 +237,7 @@ export default function Items() {
             const isLowStock = (item.quantity_inhand ?? 0) <= (item.minimum_stock_level ?? 0)
             return (
               <div className="entity-card" key={item.material_id || item.item_id} style={{ padding: 0, overflow: 'hidden' }}>
-                <div style={{ height: 160, backgroundImage: `url(${item.image_url || item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                <div style={{ height: 160, backgroundImage: `url(${getMaterialItemImage(item)})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
                   <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6 }}>
                     <StatusBadge status={item.status ? 'Active' : 'Inactive'} />
                     {isLowStock ? (

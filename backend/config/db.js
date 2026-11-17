@@ -10,15 +10,17 @@ const __dirname = path.dirname(__filename)
 
 dotenv.config()
 
-const poolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'construction_realestate_db',
+export const poolConfig = {
+  host: (process.env.DB_HOST || 'localhost').trim(),
+  user: (process.env.DB_USER || 'root').trim(),
+  password: (process.env.DB_PASSWORD || '').trim(),
+  database: (process.env.DB_NAME || 'construction_realestate_db').trim(),
   port: Number(process.env.DB_PORT) || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
 }
 
 if (process.env.DB_SSL === 'true') {
@@ -80,7 +82,7 @@ export async function testConnection() {
     } finally {
       try {
         await connection.query('SET FOREIGN_KEY_CHECKS = 1')
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // 1. Ensure google_id and avatar columns exist in users table
@@ -282,7 +284,7 @@ export async function testConnection() {
         ADD COLUMN storage_location VARCHAR(150) NULL AFTER brand,
         ADD COLUMN is_archived TINYINT(1) DEFAULT 0 AFTER status
       `)
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       await connection.query(`
@@ -293,7 +295,7 @@ export async function testConnection() {
         ADD COLUMN certification VARCHAR(150) NULL AFTER rating,
         ADD COLUMN moq_default DECIMAL(10,2) DEFAULT 1.00 AFTER certification
       `)
-    } catch (e) {}
+    } catch (e) { }
 
     // Movement Ledger Table
     await connection.query(`
@@ -478,11 +480,11 @@ export async function testConnection() {
 
     return true
   } catch (err) {
-    console.error('[Database Connection Error]', err.message)
+    console.error('[Database Connection Error]', err)
     return false
   } finally {
     if (connection) {
-      try { connection.release() } catch (e) {}
+      try { connection.release() } catch (e) { }
     }
   }
 }
@@ -634,26 +636,6 @@ function handleDatabaseFallbackQuery(sql, params = []) {
   return [[], undefined]
 }
 
-// Intercept pool.query to transparently handle database connection drops on cloud platforms (e.g. Render default)
-const originalPoolQuery = pool.query.bind(pool)
-
-pool.query = async function safeQuery(sql, params) {
-  try {
-    return await originalPoolQuery(sql, params)
-  } catch (err) {
-    if (
-      err.code === 'ECONNREFUSED' ||
-      err.code === 'ENOTFOUND' ||
-      err.code === 'ETIMEDOUT' ||
-      err.code === 'PROTOCOL_CONNECTION_LOST' ||
-      err.code === 'ER_NOT_SUPPORTED_AUTH_MODE' ||
-      String(err.message || '').includes('connect')
-    ) {
-      console.warn(`[Database Connection Fallback] ${err.code || err.message} — using in-memory dataset for query:`, String(sql || '').substring(0, 70))
-      return handleDatabaseFallbackQuery(sql, params)
-    }
-    throw err
-  }
-}
-
+// Connection pool is exported directly without silent fallback interceptors
+// Ensuring all database writes and reads are executed directly against MySQL.
 export default pool

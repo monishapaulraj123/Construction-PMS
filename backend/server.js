@@ -29,6 +29,7 @@ import aiRoutes from './routes/aiRoutes.js'
 import attendanceRoutes from './routes/attendanceRoutes.js'
 import inventoryRoutes from './routes/inventoryRoutes.js'
 import procurementRoutes from './routes/procurementRoutes.js'
+import diagnosticRoutes from './routes/diagnosticRoutes.js'
 import { setSocketIO } from './controllers/notificationController.js'
 
 dotenv.config()
@@ -123,6 +124,7 @@ app.use('/api/ai', aiRoutes)
 app.use('/api/attendance', attendanceRoutes)
 app.use('/api/inventory', inventoryRoutes)
 app.use('/api/materials', procurementRoutes)
+app.use('/api/diagnostics', diagnosticRoutes)
 
 // Fallback 404
 app.use((req, res) => {

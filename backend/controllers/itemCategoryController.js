@@ -1,5 +1,31 @@
 import db from '../config/db.js'
 
+const CATEGORY_IMAGE_MAP = {
+  bricks: '/images/categories/bricks.jpg',
+  brick: '/images/categories/bricks.jpg',
+  sand: '/images/categories/sand.jpg',
+  steel: '/images/categories/steel.jpg',
+  cement: '/images/categories/cement.jpg',
+  electrical: '/images/categories/electrical.jpg',
+  plumbing: '/images/categories/plumbing.jpg',
+  tiles: '/images/categories/tiles.jpg',
+  tile: '/images/categories/tiles.jpg',
+  paint: '/images/categories/paint.jpg',
+}
+
+function getCategoryImage(cat) {
+  const name = (cat?.category_name || '').toLowerCase()
+  if (name.includes('brick')) return '/images/categories/bricks.jpg'
+  if (name.includes('sand')) return '/images/categories/sand.jpg'
+  if (name.includes('steel') || name.includes('tmt')) return '/images/categories/steel.jpg'
+  if (name.includes('cement')) return '/images/categories/cement.jpg'
+  if (name.includes('elect') || name.includes('wire')) return '/images/categories/electrical.jpg'
+  if (name.includes('plumb') || name.includes('pipe')) return '/images/categories/plumbing.jpg'
+  if (name.includes('tile')) return '/images/categories/tiles.jpg'
+  if (name.includes('paint')) return '/images/categories/paint.jpg'
+  return cat?.image || '/images/categories/cement.jpg'
+}
+
 export async function getAllItemCategories(req, res) {
   try {
     const { search, status } = req.query
@@ -24,7 +50,11 @@ export async function getAllItemCategories(req, res) {
     query += ' GROUP BY c.category_id ORDER BY c.category_id DESC'
 
     const [rows] = await db.query(query, params)
-    return res.json({ success: true, data: rows })
+    const enriched = (rows || []).map((c) => ({
+      ...c,
+      image: getCategoryImage(c),
+    }))
+    return res.json({ success: true, data: enriched })
   } catch (error) {
     console.error('[ItemCategories Error]', error)
     return res.status(500).json({ success: false, error: 'Database error fetching item categories.' })

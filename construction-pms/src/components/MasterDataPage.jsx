@@ -39,37 +39,27 @@ export default function MasterDataPage({
   const [loading, setLoading] = useState(false)
   const showToast = useToast()
 
-  // Sync rows if initialData or fetchApi changes
+  // Sync rows when fetchApi or initialData changes
   useEffect(() => {
     if (fetchApi) {
       setLoading(true)
       fetchApi()
         .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
-            const merged = [...data]
-            if (Array.isArray(initialData)) {
-              initialData.forEach((initRow) => {
-                const initKey = initRow[keyField]
-                const exists = merged.some((r) => String(r[keyField]) === String(initKey))
-                if (!exists) merged.push(initRow)
-              })
-            }
-            setRows(merged)
-          } else if (Array.isArray(initialData) && initialData.length > 0) {
-            setRows(initialData)
-          } else if (Array.isArray(data)) {
+          if (Array.isArray(data)) {
             setRows(data)
+          } else if (Array.isArray(initialData)) {
+            setRows(initialData)
           }
         })
         .catch((err) => {
           console.error(`Error fetching ${title}:`, err)
-          if (initialData) setRows(initialData)
+          if (Array.isArray(initialData) && rows.length === 0) setRows(initialData)
         })
         .finally(() => setLoading(false))
     } else if (initialData) {
       setRows(initialData)
     }
-  }, [initialData, fetchApi, title, keyField])
+  }, [fetchApi, title])
 
   const filtered = useMemo(() => {
     return rows.filter((row) => {
@@ -112,34 +102,30 @@ export default function MasterDataPage({
       if (editing) {
         if (updateApi) {
           const updated = await updateApi(editing[keyField], form)
-          setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? updated || { ...r, ...form } : r)))
+          setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? (updated || { ...r, ...form }) : r)))
         } else {
           setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? { ...r, ...form } : r)))
         }
-        showToast(`${singularName} updated successfully`)
+        showToast(`${singularName} updated successfully`, 'success')
       } else {
         if (createApi) {
           const created = await createApi(form)
-          setRows((rs) => [created || form, ...rs])
+          if (created) {
+            setRows((rs) => [created, ...rs])
+            showToast(`${singularName} added successfully`, 'success')
+          } else {
+            showToast(`Failed to add ${singularName}`, 'error')
+          }
         } else {
           const newId = Math.max(0, ...rows.map((r) => Number(r[keyField]) || 0)) + 1
           setRows((rs) => [{ ...form, [keyField]: newId, status: form.status !== false, created_at: new Date().toISOString() }, ...rs])
+          showToast(`${singularName} added successfully`, 'success')
         }
-        showToast(`${singularName} added successfully`)
       }
       setModalOpen(false)
     } catch (err) {
       console.error(`Error saving ${title}:`, err)
-      const newId = Math.max(0, ...rows.map((r) => Number(r[keyField]) || 0)) + 1
-      const fallbackItem = { ...form, [keyField]: newId, status: form.status !== false, created_at: new Date().toISOString() }
-      if (editing) {
-        setRows((rs) => rs.map((r) => (String(r[keyField]) === String(editing[keyField]) ? { ...r, ...form } : r)))
-        showToast(`${singularName} updated successfully`)
-      } else {
-        setRows((rs) => [fallbackItem, ...rs])
-        showToast(`${singularName} added successfully`)
-      }
-      setModalOpen(false)
+      showToast(err.response?.data?.error || `Failed to save ${singularName} to database`, 'error')
     }
   }
 
@@ -152,11 +138,12 @@ export default function MasterDataPage({
       if (deleteApi) {
         await deleteApi(targetId)
       }
+      setRows((rs) => rs.filter((r) => String(r[keyField]) !== String(targetId)))
+      showToast(`${singularName} removed successfully`, 'success')
     } catch (err) {
       console.error(`Error deleting ${title}:`, err)
+      showToast(err.response?.data?.error || `Failed to delete ${singularName}`, 'error')
     } finally {
-      setRows((rs) => rs.filter((r) => String(r[keyField]) !== String(targetId)))
-      showToast(`${singularName} removed successfully`)
       setDeleteTarget(null)
     }
   }

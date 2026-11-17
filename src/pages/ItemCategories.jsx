@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import * as Icons from 'lucide-react'
 import { Plus } from 'lucide-react'
 import SearchBar from '../components/SearchBar'
@@ -8,6 +8,20 @@ import { PrimaryButton, SecondaryButton } from '../components/Buttons'
 import { FormInput } from '../components/FormInputs'
 import { itemCategories as initialCategories } from '../data/mockData'
 import { useToast } from '../components/ToastContext'
+import { itemCategoryAPI } from '../services/api'
+
+function getCategoryPhoto(cat) {
+  const name = (cat?.category_name || '').toLowerCase()
+  if (name.includes('brick')) return '/images/categories/bricks.jpg'
+  if (name.includes('sand')) return '/images/categories/sand.jpg'
+  if (name.includes('steel') || name.includes('tmt')) return '/images/categories/steel.jpg'
+  if (name.includes('cement')) return '/images/categories/cement.jpg'
+  if (name.includes('elect') || name.includes('wire')) return '/images/categories/electrical.jpg'
+  if (name.includes('plumb') || name.includes('pipe')) return '/images/categories/plumbing.jpg'
+  if (name.includes('tile')) return '/images/categories/tiles.jpg'
+  if (name.includes('paint')) return '/images/categories/paint.jpg'
+  return cat?.image || '/images/categories/cement.jpg'
+}
 
 export default function ItemCategories() {
   const [categories, setCategories] = useState(initialCategories)
@@ -16,25 +30,29 @@ export default function ItemCategories() {
   const [form, setForm] = useState({ category_code: '', category_name: '', description: '' })
   const showToast = useToast()
 
-  const filtered = categories.filter((c) => c.category_name.toLowerCase().includes(search.toLowerCase()))
+  useEffect(() => {
+    itemCategoryAPI.getAll()
+      .then((data) => { if (Array.isArray(data) && data.length > 0) setCategories(data) })
+      .catch((err) => console.error('Error fetching categories:', err))
+  }, [])
 
-  function handleSave(e) {
+  const filtered = categories.filter((c) => (c.category_name || '').toLowerCase().includes(search.toLowerCase()))
+
+  async function handleSave(e) {
     e.preventDefault()
-    const newId = Math.max(0, ...categories.map((c) => c.category_id)) + 1
-    setCategories((cs) => [
-      {
-        ...form,
-        category_id: newId,
-        items_count: 0,
-        status: true,
-        icon: 'Package',
-        image: '/images/categories/cement.jpg',
-      },
-      ...cs,
-    ])
-    setModalOpen(false)
-    setForm({ category_code: '', category_name: '', description: '' })
-    showToast('Material category added successfully')
+    try {
+      const created = await itemCategoryAPI.create(form)
+      if (created) {
+        setCategories((cs) => [created, ...cs])
+        showToast('Material category added successfully', 'success')
+        setModalOpen(false)
+        setForm({ category_code: '', category_name: '', description: '' })
+      } else {
+        showToast('Failed to create category', 'error')
+      }
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to create category in database', 'error')
+    }
   }
 
   return (
@@ -52,7 +70,7 @@ export default function ItemCategories() {
           const Icon = Icons[cat.icon] || Icons.Boxes
           return (
             <div className="entity-card" key={cat.category_id} style={{ padding: 0, overflow: 'hidden' }}>
-              <div className="entity-card-media" style={{ backgroundImage: `url(${cat.image})`, height: 160, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+              <div className="entity-card-media" style={{ backgroundImage: `url(${getCategoryPhoto(cat)})`, height: 160, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
                 <div className="entity-card-icon-badge" style={{ position: 'absolute', top: 12, left: 12, background: 'var(--paper)', padding: 8, borderRadius: 'var(--radius-sm)', display: 'flex', boxShadow: 'var(--shadow-card)' }}>
                   <Icon size={18} style={{ color: 'var(--forest-900)' }} />
                 </div>

@@ -304,7 +304,7 @@ export async function runAutoSeed() {
       await connection.query(
         `INSERT INTO item_categories (category_id, category_code, category_name, description, icon, image, status) 
          VALUES (?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE category_name=VALUES(category_name), description=VALUES(description)`,
+         ON DUPLICATE KEY UPDATE category_name=VALUES(category_name), description=VALUES(description), image=VALUES(image)`,
         [cat.category_id, cat.category_code, cat.category_name, cat.description || '', cat.icon || 'Package', cat.image || '', cat.status ? 1 : 0]
       )
     }

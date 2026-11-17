@@ -95,7 +95,19 @@ export async function getDashboardMetrics(req, res) {
     })
   } catch (error) {
     console.error('[Inventory Dashboard Error]', error)
-    return res.status(500).json({ success: false, error: 'Database error fetching inventory dashboard.' })
+    if (
+      error.code === 'ECONNREFUSED' ||
+      error.code === 'ENOTFOUND' ||
+      error.code === 'ETIMEDOUT' ||
+      String(error.message || '').includes('connect')
+    ) {
+      return res.status(503).json({
+        success: false,
+        error: `Production database unreachable (${error.code || error.message}). Please check Aiven MySQL database connectivity.`,
+        code: 'DB_UNAVAILABLE'
+      })
+    }
+    return res.status(500).json({ success: false, error: 'Database error fetching inventory dashboard: ' + error.message })
   }
 }
 
@@ -161,11 +173,37 @@ export async function getMaterials(req, res) {
 
     query += ` ORDER BY ${sortColumn} ${direction}`
 
-    const [rows] = await db.query(query, params)
-    return res.json({ success: true, data: rows })
+    let rows
+    try {
+      const [resultRows] = await db.query(query, params)
+      rows = resultRows
+    } catch (queryErr) {
+      // Defensive fallback if is_archived column is not yet present on older schema
+      if (queryErr.code === 'ER_BAD_FIELD_ERROR' && String(queryErr.message).includes('is_archived')) {
+        const fallbackQuery = query.replace('WHERE (i.is_archived = 0 OR i.is_archived IS NULL)', 'WHERE 1=1')
+        const [fallbackRows] = await db.query(fallbackQuery, params)
+        rows = fallbackRows
+      } else {
+        throw queryErr
+      }
+    }
+
+    return res.json({ success: true, data: rows || [] })
   } catch (error) {
     console.error('[Get Materials Error]', error)
-    return res.status(500).json({ success: false, error: 'Database error fetching material catalog.' })
+    if (
+      error.code === 'ECONNREFUSED' ||
+      error.code === 'ENOTFOUND' ||
+      error.code === 'ETIMEDOUT' ||
+      String(error.message || '').includes('connect')
+    ) {
+      return res.status(503).json({
+        success: false,
+        error: `Production database unreachable (${error.code || error.message}). Please verify Aiven MySQL database service status.`,
+        code: 'DB_UNAVAILABLE'
+      })
+    }
+    return res.status(500).json({ success: false, error: 'Database error fetching material catalog: ' + error.message })
   }
 }
 

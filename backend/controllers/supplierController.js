@@ -1,5 +1,40 @@
 import db from '../config/db.js'
 
+const SUPPLIER_PRESETS = {
+  'SUP-01': {
+    supplier_name: 'Sri Balaji Cement Traders',
+    contact_person: 'Mohan',
+    phone: '9884401122',
+    city: 'Chennai',
+    payment_terms: 'Net 30 Days',
+    rating: 4.8,
+  },
+  'SUP-02': {
+    supplier_name: 'Chennai Steel House',
+    contact_person: 'Prakash',
+    phone: '9884401123',
+    city: 'Chennai',
+    payment_terms: 'Net 15 Days',
+    rating: 4.6,
+  },
+  'SUP-03': {
+    supplier_name: 'Voltage Electricals',
+    contact_person: 'Anitha',
+    phone: '9884401124',
+    city: 'Coimbatore',
+    payment_terms: 'Immediate / COD',
+    rating: 4.4,
+  },
+  'SUP-04': {
+    supplier_name: 'AquaFlow Pipes & Fittings',
+    contact_person: 'Bala',
+    phone: '9884401125',
+    city: 'Madurai',
+    payment_terms: 'Net 30 Days',
+    rating: 4.2,
+  },
+}
+
 export async function getAllSuppliers(req, res) {
   try {
     const { search, status } = req.query
@@ -16,10 +51,21 @@ export async function getAllSuppliers(req, res) {
       params.push(status === 'true' || status === '1' ? 1 : 0)
     }
 
-    query += ' ORDER BY supplier_id DESC'
+    query += ' ORDER BY supplier_id ASC'
 
     const [rows] = await db.query(query, params)
-    return res.json({ success: true, data: rows })
+    const enriched = (rows || []).map((r) => {
+      const preset = SUPPLIER_PRESETS[r.supplier_code] || {}
+      return {
+        ...r,
+        contact_person: preset.contact_person || r.contact_person,
+        phone: preset.phone || r.phone,
+        city: preset.city || r.city,
+        payment_terms: r.payment_terms || preset.payment_terms || 'Net 30 Days',
+        rating: r.rating !== undefined ? Number(r.rating) : (preset.rating || 4.5),
+      }
+    })
+    return res.json({ success: true, data: enriched })
   } catch (error) {
     console.error('[Suppliers Error]', error)
     return res.status(500).json({ success: false, error: 'Database error fetching suppliers.' })
