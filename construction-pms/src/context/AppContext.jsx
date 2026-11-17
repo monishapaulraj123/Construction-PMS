@@ -501,7 +501,7 @@ export function AppProvider({ children }) {
       overall_progress_percentage: 0,
       project_status: projectData.project_status || 'In Progress',
       status: projectData.status !== false,
-      image: 'https://images.unsplash.com/photo-1541976590-713941681591?q=80&w=800&auto=format&fit=crop',
+      image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18f13f7?q=80&w=800&auto=format&fit=crop',
       created_at: new Date().toISOString().split('T')[0],
       ...projectData,
     }

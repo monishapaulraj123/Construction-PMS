@@ -61,6 +61,40 @@ export async function testConnection() {
       `[Database] Connected successfully to '${rows[0].database_name}'`
     );
 
+    // Auto-migrate and synchronize project images to ensure distinct, suitable images in production and local DB
+    try {
+      const projectImages = [
+        {
+          code: 'PRJ-2026-001',
+          name: 'Green Valley Residence',
+          image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'
+        },
+        {
+          code: 'PRJ-2026-002',
+          name: 'City Hospital Block B',
+          image: 'https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=800&auto=format&fit=crop'
+        },
+        {
+          code: 'PRJ-2026-003',
+          name: 'Tech Park IT Tower',
+          image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop'
+        }
+      ];
+
+      for (const p of projectImages) {
+        await connection.query(
+          `UPDATE projects 
+           SET image = ? 
+           WHERE (project_code = ? OR project_name LIKE ?) 
+             AND (image != ? OR image IS NULL OR image = '')`,
+          [p.image, p.code, `%${p.name}%`, p.image]
+        );
+      }
+      console.log('[Database] Verified project images');
+    } catch (migErr) {
+      console.warn('[Database Notice] Project image verification:', migErr.message);
+    }
+
     return true;
   } catch (err) {
     console.error('[Database Connection Error]', err.message);

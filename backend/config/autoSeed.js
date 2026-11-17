@@ -5749,7 +5749,7 @@ export async function runAutoSeed() {
       await connection.query(
         `INSERT INTO projects (project_id, project_code, project_name, client_id, client_name, construction_type_id, construction_type_name, project_type_name, construction_stage_id, construction_stage_name, supervisor_id, supervisor_name, location, district, state, total_area, unit, estimated_budget, overall_progress_percentage, project_status, start_date, expected_completion_date, image, status) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-         ON DUPLICATE KEY UPDATE project_name=VALUES(project_name), overall_progress_percentage=VALUES(overall_progress_percentage)`,
+         ON DUPLICATE KEY UPDATE project_name=VALUES(project_name), overall_progress_percentage=VALUES(overall_progress_percentage), image=VALUES(image)`,
         [
           p.project_id, p.project_code, p.project_name, clientId, p.client_name || 'Ravi', cTypeId,
           p.construction_type_name || 'Residential House', p.project_type_name || 'Premium Villa', stageId,
