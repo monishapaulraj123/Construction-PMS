@@ -40,9 +40,14 @@ const PORT = process.env.PORT || 5000
 
 // Configure CORS
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost') || origin === allowedOrigin) {
+    if (
+      !origin ||
+      origin.startsWith('http://localhost') ||
+      origin === allowedOrigin
+    ) {
       callback(null, true)
     } else {
       callback(null, true)
@@ -68,6 +73,7 @@ io.on('connection', (socket) => {
     if (data?.userId) {
       socket.join(`user_${data.userId}`)
     }
+
     if (data?.role === 'ADMIN') {
       socket.join('admin_room')
     }
@@ -96,7 +102,10 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Construction & Real Estate Backend Service Running' })
+  res.json({
+    status: 'OK',
+    message: 'Construction & Real Estate Backend Service Running'
+  })
 })
 
 // Mount API routes
@@ -128,14 +137,27 @@ app.use('/api/diagnostics', diagnosticRoutes)
 
 // Fallback 404
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' })
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  })
 })
 
-// Start Server
-server.listen(PORT, async () => {
-  console.log(`==================================================`)
-  console.log(`🚀 Express Backend Server running on http://localhost:${PORT}`)
-  console.log(`==================================================`)
-  await testConnection()
-  console.log(`[AutoSeed] Verified database tables & seed records for Worker, Supervisor, Admin, and Client accounts.`)
-})
+// Start Server only after successful database connection
+const startServer = async () => {
+  const isConnected = await testConnection()
+
+  if (!isConnected) {
+    console.error('[Server] Database connection failed. Server not started.')
+    process.exit(1)
+  }
+
+  server.listen(PORT, () => {
+    console.log('==================================================')
+    console.log(`Express Backend Server running on port ${PORT}`)
+    console.log('==================================================')
+  })
+}
+
+startServer()
+
