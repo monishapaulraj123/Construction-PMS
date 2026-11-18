@@ -163,9 +163,9 @@ export default function Inventory() {
 
   // Fetch Master Dropdown Options
   useEffect(() => {
-    itemCategoryAPI.getAll().then(setCategories).catch(() => {})
-    supplierAPI.getAll().then(setSuppliers).catch(() => {})
-    projectAPI.getAll().then(setProjects).catch(() => {})
+    itemCategoryAPI.getAll().then(setCategories).catch(() => { })
+    supplierAPI.getAll().then(setSuppliers).catch(() => { })
+    projectAPI.getAll().then(setProjects).catch(() => { })
   }, [])
 
   // 1. Fetch Dashboard Metrics
@@ -316,7 +316,7 @@ export default function Inventory() {
   // Handle Create Allocation
   const handleSaveAllocation = async (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault()
-    
+
     if (!alcForm.item_id) {
       showToast('Please select a material.', 'error')
       return

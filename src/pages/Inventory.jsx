@@ -75,7 +75,7 @@ export default function Inventory() {
         const parsed = JSON.parse(cached)
         if (Array.isArray(parsed) && parsed.length > 0) return parsed
       }
-    } catch (e) {}
+    } catch (e) { }
     return initialMaterials
   })
   const [loadingMaterials, setLoadingMaterials] = useState(false)
@@ -173,9 +173,9 @@ export default function Inventory() {
 
   // Fetch Master Dropdown Options
   useEffect(() => {
-    itemCategoryAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setCategories(data) }).catch(() => {})
-    supplierAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setSuppliers(data) }).catch(() => {})
-    projectAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setProjects(data) }).catch(() => {})
+    itemCategoryAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setCategories(data) }).catch(() => { })
+    supplierAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setSuppliers(data) }).catch(() => { })
+    projectAPI.getAll().then((data) => { if (Array.isArray(data) && data.length > 0) setProjects(data) }).catch(() => { })
   }, [])
 
   // Helper to filter verified baseline materials
@@ -273,7 +273,7 @@ export default function Inventory() {
           if (!filters.search && !filters.category_id && !filters.stock_health) {
             localStorage.setItem('cpms_inventory_materials', JSON.stringify(data))
           }
-        } catch (e) {}
+        } catch (e) { }
       } else if (Array.isArray(data) && data.length === 0 && (filters.search || filters.category_id || filters.stock_health)) {
         // Active filter with 0 matches from server
         setMaterials([])
@@ -410,7 +410,7 @@ export default function Inventory() {
         }
         try {
           localStorage.setItem('cpms_inventory_materials', JSON.stringify(updated))
-        } catch (err) {}
+        } catch (err) { }
         return updated
       })
     }
@@ -450,7 +450,7 @@ export default function Inventory() {
         const updated = prev.filter((it) => it.item_id !== id)
         try {
           localStorage.setItem('cpms_inventory_materials', JSON.stringify(updated))
-        } catch (e) {}
+        } catch (e) { }
         return updated
       })
       showToast('Material archived successfully.', 'success')
@@ -486,7 +486,7 @@ export default function Inventory() {
         })
         try {
           localStorage.setItem('cpms_inventory_materials', JSON.stringify(updated))
-        } catch (e) {}
+        } catch (e) { }
         return updated
       })
     }
@@ -517,7 +517,7 @@ export default function Inventory() {
   // Handle Create Allocation
   const handleSaveAllocation = async (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault()
-    
+
     if (!alcForm.item_id) {
       showToast('Please select a material.', 'error')
       return
